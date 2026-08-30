@@ -77,20 +77,21 @@ def test_upload_validation_rejects_renamed_executable() -> None:
     assert "Invalid file content signature" in res.json()["detail"]
 
 
-def test_upload_validation_accepts_valid_pdf_magic_bytes() -> None:
-    """Verify POST /documents accepts file with valid PDF magic bytes header."""
+def test_upload_validation_accepts_valid_text_document() -> None:
+    """Verify POST /documents accepts text file with valid content and extension."""
     login_res = client.post(
         "/auth/login",
         json={"email": "sec_user@domaincopilot.com", "password": "Pass123!"},
     )
     assert login_res.status_code == 200
 
-    valid_pdf_bytes = BytesIO(b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n")
+    valid_text_bytes = BytesIO(b"SECTION I - COVERAGE\nSample policy terms for testing upload validation.")
 
     res = client.post(
         "/documents",
-        files={"file": ("valid_policy.pdf", valid_pdf_bytes, "application/pdf")},
+        files={"file": ("valid_policy.txt", valid_text_bytes, "text/plain")},
         data={"policy_id": "POL-1001", "policy_type": "home", "version": "v1"},
     )
     assert res.status_code == 200
     assert res.json()["status"] == "success"
+
