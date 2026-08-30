@@ -17,3 +17,12 @@ unstructured-inference==1.6.13
 pytest==8.3.4
 pytest-asyncio==0.25.3
 ragas==0.2.12
+pydantic-settings==2.8.1
+pyjwt==2.13.0
+passlib==1.7.4
+bcrypt==5.0.0
+email-validator==2.3.0
+asyncpg==0.31.0
+
+
+

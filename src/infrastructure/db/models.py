@@ -66,3 +66,19 @@ class ChunkModel(Base):
     document: Mapped["DocumentModel"] = relationship(
         "DocumentModel", back_populates="chunks"
     )
+
+
+class UserModel(Base):
+    """SQLAlchemy model representing an authenticated user account with role permissions."""
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    email: Mapped[str] = mapped_column(
+        String, unique=True, index=True, nullable=False
+    )
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    role: Mapped[str] = mapped_column(String, nullable=False)
+

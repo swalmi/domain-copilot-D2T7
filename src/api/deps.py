@@ -1,6 +1,9 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
+from typing import Any
 
-from fastapi import Depends
+from fastapi import Cookie, Depends, HTTPException, status
+import jwt
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -20,6 +23,14 @@ from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 _async_session_factory: async_sessionmaker[AsyncSession] | None = None
 _claim_repository: ClaimRepository = InMemoryClaimRepository()
+
+
+class UserPayload(BaseModel):
+    """Data transfer model representing authenticated user session token claims."""
+
+    id: str
+    email: str
+    role: str
 
 
 def get_session_factory() -> async_sessionmaker[AsyncSession]:
@@ -105,3 +116,53 @@ def get_run_adjudication_use_case(
         vector_store=vector_store,
         claim_repo=claim_repo,
     )
+
+
+async def get_current_user(
+    access_token: str | None = Cookie(default=None),
+) -> UserPayload:
+    """Read and validate JWT from httpOnly cookie, returning authenticated user payload or raising 401."""
+    if not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication cookie missing",
+        )
+    settings = get_settings()
+    try:
+        payload = jwt.decode(
+            access_token,
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
+        )
+        user_id: str | None = payload.get("sub")
+        email: str | None = payload.get("email")
+        role: str | None = payload.get("role")
+        if not user_id or not email or not role:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload claims",
+            )
+        return UserPayload(id=user_id, email=email, role=role)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired authentication token",
+        ) from exc
+
+
+def require_role(required_role: str) -> Callable[..., Any]:
+    """Dependency factory returning a callable that enforces specific role authorization (403)."""
+
+    async def role_checker(
+        current_user: UserPayload = Depends(get_current_user),
+    ) -> UserPayload:
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: Requires '{required_role}' role.",
+            )
+        return current_user
+
+    return role_checker
