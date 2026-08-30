@@ -1,0 +1,162 @@
+[
+  {
+    "file": "auto/pp-00-01-09-18.pdf",
+    "policy_id": "ISO-PP-00-01",
+    "policy_type": "auto",
+    "version": "2018-09",
+    "effective_date": "2018-09-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "home/Shelter_HO-3Policy.pdf",
+    "policy_id": "SHELTER-HO3",
+    "policy_type": "home",
+    "version": "2007-01",
+    "effective_date": "2007-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "home/apc220-ho-policy-jacket.pdf",
+    "policy_id": "MAINE-HO-JACKET",
+    "policy_type": "home",
+    "version": "current",
+    "effective_date": "2020-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "commercial/CP0010.pdf",
+    "policy_id": "ISO-CP-00-10",
+    "policy_type": "commercial_property",
+    "version": "2000-10",
+    "effective_date": "2000-10-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "commercial/CP-00-10-10-12-Building-and-Personal-Property-Coverage-Form.pdf",
+    "policy_id": "ISO-CP-00-10",
+    "policy_type": "commercial_property",
+    "version": "2012-10",
+    "effective_date": "2012-10-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "commercial/cp10300917-sample.pdf",
+    "policy_id": "ISO-CP-10-30",
+    "policy_type": "commercial_property",
+    "version": "2017-09",
+    "effective_date": "2017-09-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "commercial/Commercial-Property-Owners-Policy-Wording-2020-v1.0.pdf",
+    "policy_id": "ARCH-COMM-PROPERTY",
+    "policy_type": "commercial_property",
+    "version": "2020-v1.0",
+    "effective_date": "2020-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/IG-Commercial-Insurance-Updated-061524.pdf",
+    "policy_id": "CA-DOI-COMM-GUIDE",
+    "policy_type": "regulatory_guidance",
+    "version": "2024-06",
+    "effective_date": "2024-06-15",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/Commercial_Ins_Bro_revisedMx_January-2017.pdf",
+    "policy_id": "CA-DOI-COMM-GUIDE-OLD",
+    "policy_type": "regulatory_guidance",
+    "version": "2017-01",
+    "effective_date": "2017-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/coverage-policies-template-doc.docx",
+    "policy_id": "ILDOI-COV-TEMPLATE",
+    "policy_type": "regulatory_guidance",
+    "version": "current",
+    "effective_date": "2024-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/MO390.pdf",
+    "policy_id": "NAIC-MO-390",
+    "policy_type": "regulatory_guidance",
+    "version": "2012",
+    "effective_date": "2012-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/model-law-670.pdf",
+    "policy_id": "NAIC-MDL-670",
+    "policy_type": "regulatory_guidance",
+    "version": "current",
+    "effective_date": "2024-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/model-law-632.pdf",
+    "policy_id": "NAIC-MDL-632",
+    "policy_type": "regulatory_guidance",
+    "version": "2018-Q4",
+    "effective_date": "2018-10-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/model-law-280.pdf",
+    "policy_id": "NAIC-MDL-280",
+    "policy_type": "regulatory_guidance",
+    "version": "2017-Q3",
+    "effective_date": "2017-07-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/committee-model-law-table-of-contents.pdf",
+    "policy_id": "NAIC-TOC",
+    "policy_type": "regulatory_guidance",
+    "version": "2025-spring",
+    "effective_date": "2025-04-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/HO-Premium-Publication-2023_Homeowner.pdf",
+    "policy_id": "HI-DOI-HO-PREMIUM",
+    "policy_type": "regulatory_guidance",
+    "version": "2023",
+    "effective_date": "2023-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/IG-Auto-Insurance-Updated-020525.pdf",
+    "policy_id": "CA-DOI-AUTO-GUIDE",
+    "policy_type": "regulatory_guidance",
+    "version": "2025-02",
+    "effective_date": "2025-02-05",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/consumer-auto-shopping-tool.pdf",
+    "policy_id": "NAIC-AUTO-SHOPPING",
+    "policy_type": "regulatory_guidance",
+    "version": "current",
+    "effective_date": "2024-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/publication-aut-pp-consumer-auto.pdf",
+    "policy_id": "NAIC-AUTO-CONSUMER-GUIDE",
+    "policy_type": "regulatory_guidance",
+    "version": "2022",
+    "effective_date": "2022-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "regulatory/USGIC-CSCDomesticTravel-Insurance_2017-2018.pdf",
+    "policy_id": "IRDAI-TRAVEL-INDIA",
+    "policy_type": "regulatory_guidance",
+    "version": "2017-2018",
+    "effective_date": "2017-04-01",
+    "jurisdiction": "IN"
+  }
+]
