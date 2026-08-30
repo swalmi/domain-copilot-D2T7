@@ -1,5 +1,8 @@
-"""Application retrieval package."""
+"""Retrieval package."""
 
-from src.application.retrieval.prompt_loader import load_prompt
+from src.application.retrieval.hybrid_search import (
+    hybrid_search,
+    reciprocal_rank_fusion,
+)
 
-__all__ = ["load_prompt"]
+__all__ = ["reciprocal_rank_fusion", "hybrid_search"]
