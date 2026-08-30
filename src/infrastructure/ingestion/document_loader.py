@@ -1,6 +1,17 @@
 from datetime import date
+import hashlib
 from pathlib import Path
 from typing import Literal
+
+
+def compute_document_hash(raw_bytes: bytes) -> str:
+    """Compute the SHA-256 hex digest of raw document bytes for idempotent ingestion."""
+    return hashlib.sha256(raw_bytes).hexdigest()
+
+
+def compute_chunk_hash(text: str) -> str:
+    """Compute the SHA-256 hex digest of a chunk's text content for idempotent deduplication."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def _find_section_title(chunk: dict, id_to_chunk: dict[str, dict]) -> str | None:
