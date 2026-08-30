@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.routes import (
     ask_router,
     auth_router,
+    claims_router,
     documents_router,
     health_router,
 )
@@ -29,5 +30,7 @@ app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(ask_router)
+app.include_router(claims_router)
+
 
 
