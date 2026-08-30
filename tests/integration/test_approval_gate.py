@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 from fastapi.testclient import TestClient
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -51,8 +53,11 @@ async def setup_test_env(db_session: AsyncSession) -> None:
     app.dependency_overrides.clear()
 
 
-def test_approval_gate_rbac_enforcement() -> None:
+@patch("src.api.routes.claims.process_claim_adjudication.delay")
+def test_approval_gate_rbac_enforcement(mock_task_delay: MagicMock) -> None:
     """Verify claims_handler is blocked (403) and adjuster can list and approve claims (200)."""
+    mock_task_delay.return_value.id = "celery-approval-task-123"
+
     # 1. Login as claims_handler and try to approve an unapproved claim -> 403 Forbidden
     client.post(
         "/auth/login",
