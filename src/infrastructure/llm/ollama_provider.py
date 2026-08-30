@@ -14,12 +14,14 @@ class OllamaProvider(LLMProvider):
         base_url: str = "http://ollama:11434",
         chat_model: str = "llama3.2:3b",
         embedding_model: str = "nomic-embed-text",
+        max_tokens: int = 2048,
     ) -> None:
-        """Initialize Ollama chat and embedding models with base URL and model configuration."""
+        """Initialize Ollama chat and embedding models with max token consumption caps."""
         self.base_url = base_url
         self.chat_model = chat_model
         self.embedding_model = embedding_model
-        self._llm = ChatOllama(base_url=base_url, model=chat_model)
+        self.max_tokens = max_tokens
+        self._llm = ChatOllama(base_url=base_url, model=chat_model, num_predict=max_tokens)
         self._embeddings = OllamaEmbeddings(base_url=base_url, model=embedding_model)
 
     def _build_messages(

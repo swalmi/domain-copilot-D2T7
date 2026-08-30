@@ -3,8 +3,10 @@ from typing import Any
 
 import bcrypt
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +15,7 @@ from src.infrastructure.config import get_settings
 from src.infrastructure.db.models import UserModel
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 class LoginRequest(BaseModel):
@@ -34,7 +37,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     )
 
 
-
 def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     """Encode user claims into a signed JWT access token with 24-hour expiration default."""
     to_encode = data.copy()
@@ -47,12 +49,14 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     payload: LoginRequest,
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, Any]:
-    """Authenticate user credentials and set httpOnly JWT session cookie."""
+    """Authenticate user credentials and set httpOnly JWT session cookie with rate limiting."""
     stmt = select(UserModel).where(UserModel.email == payload.email)
     res = await session.execute(stmt)
     user = res.scalar_one_or_none()

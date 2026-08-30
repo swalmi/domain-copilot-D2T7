@@ -22,12 +22,13 @@ _claim_task_map: dict[UUID, str] = {}
 
 
 class CreateClaimRequest(BaseModel):
-    """Payload schema for submitting a new insurance claim."""
+    """Payload schema for submitting a new insurance claim with unbounded consumption limits."""
 
-    policy_number: str
+    policy_number: str = Field(..., max_length=100)
     date_of_loss: date
-    incident_description: str
-    claim_amount_requested: Decimal = Field(..., gt=Decimal("0.00"))
+    incident_description: str = Field(..., max_length=10000)
+    claim_amount_requested: Decimal = Field(..., gt=Decimal("0.00"), le=Decimal("10000000.00"))
+
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED)
