@@ -2,5 +2,10 @@
 
 from src.application.agents.base_agent import BaseAgent
 from src.application.agents.coverage_matcher import CoverageMatcher
+from src.application.agents.exclusion_analyst import ExclusionAnalyst
 
-__all__ = ["BaseAgent", "CoverageMatcher"]
+__all__ = [
+    "BaseAgent",
+    "CoverageMatcher",
+    "ExclusionAnalyst",
+]
