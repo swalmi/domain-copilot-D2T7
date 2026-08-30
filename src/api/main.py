@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import (
+    approvals_router,
     ask_router,
     auth_router,
     claims_router,
@@ -33,6 +34,8 @@ app.include_router(documents_router)
 app.include_router(ask_router)
 app.include_router(claims_router)
 app.include_router(runs_router)
+app.include_router(approvals_router)
+
 
 
 

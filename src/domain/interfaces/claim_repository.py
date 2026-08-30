@@ -14,3 +14,7 @@ class ClaimRepository(ABC):
     @abstractmethod
     async def get_by_id(self, claim_id: UUID) -> Claim | None:
         """Retrieve an insurance claim entity by its unique identifier."""
+
+    @abstractmethod
+    async def list_pending_approvals(self) -> list[Claim]:
+        """Retrieve all claims currently pending manual approval."""
