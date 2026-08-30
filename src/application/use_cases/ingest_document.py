@@ -94,7 +94,7 @@ class IngestDocumentUseCase:
                 cited_chunk = CitedChunk(
                     chunk_id=chunk_uuid,
                     text=chunk_text,
-                    source_document=Path(file_path).name,
+                    source_document=str(doc_id),
                     section=chunk_dict.get("section") or "",
                     page=chunk_dict.get("page_number") or 1,
                     policy_id=policy_id,

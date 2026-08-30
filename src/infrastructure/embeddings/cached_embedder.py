@@ -24,3 +24,7 @@ class CachedEmbedder:
         embedding = await self.provider.embed(text)
         self.cache[text_hash] = embedding
         return embedding
+
+    async def embed(self, text: str) -> list[float]:
+        """Convenience alias for embed_with_cache."""
+        return await self.embed_with_cache(text)

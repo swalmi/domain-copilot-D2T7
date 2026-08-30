@@ -11,7 +11,7 @@ class PolicyVersion(BaseModel):
     policy_id: str
     version: str
     effective_date: date
-    policy_type: Literal["auto", "home", "liability"]
+    policy_type: Literal["auto", "home", "commercial_property", "regulatory_guidance", "liability"] | str
 
 
 class CitedChunk(BaseModel):
@@ -25,5 +25,5 @@ class CitedChunk(BaseModel):
     policy_id: str
     version: str
     effective_date: date
-    chunk_type: Literal["narrative", "table"]
-    policy_type: Literal["auto", "home", "liability"] = "home"
+    chunk_type: Literal["narrative", "table"] | str
+    policy_type: Literal["auto", "home", "commercial_property", "regulatory_guidance", "liability"] | str = "home"

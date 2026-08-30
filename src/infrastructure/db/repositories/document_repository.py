@@ -19,7 +19,17 @@ class SqlalchemyDocumentRepository(DocumentRepository):
     async def create_document(
         self, filename: str, content_hash: str, status: str
     ) -> UUID:
-        """Create a new document record and return its generated UUID."""
+        """Create a new document record or update an incomplete document status, returning its UUID."""
+        stmt = select(DocumentModel).where(DocumentModel.content_hash == content_hash)
+        res = await self._session.execute(stmt)
+        existing = res.scalar_one_or_none()
+
+        if existing:
+            existing.filename = filename
+            existing.status = status
+            await self._session.commit()
+            return existing.id
+
         doc_id = uuid.uuid4()
         doc = DocumentModel(
             id=doc_id,
@@ -42,7 +52,10 @@ class SqlalchemyDocumentRepository(DocumentRepository):
             await self._session.commit()
 
     async def get_document_by_hash(self, content_hash: str) -> UUID | None:
-        """Retrieve a policy document ID by its content hash to prevent duplicate ingestion."""
-        stmt = select(DocumentModel.id).where(DocumentModel.content_hash == content_hash)
+        """Retrieve a policy document ID by content hash only if successfully ingested."""
+        stmt = select(DocumentModel.id).where(
+            DocumentModel.content_hash == content_hash,
+            DocumentModel.status.in_(["success", "PROCESSED"]),
+        )
         res = await self._session.execute(stmt)
         return res.scalar_one_or_none()
