@@ -92,7 +92,7 @@ async def test_upsert_and_filtered_search(db_session: AsyncSession) -> None:
     # 2. Filter search by effective_date_before
     results_old = await store.search(
         query_embedding=[0.1] * 768,
-        filters={"effective_date_before": date(2025, 1, 1)},
+        filters={"effective_date_before": date(2025, 1, 1), "policy_id": "POL-HOME-0"},
         top_k=10,
     )
     assert len(results_old) == 1
