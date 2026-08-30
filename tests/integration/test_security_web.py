@@ -1,12 +1,14 @@
 from io import BytesIO
+from unittest.mock import AsyncMock
 
 from fastapi.testclient import TestClient
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.api.deps import get_db_session
+from src.api.deps import get_db_session, get_ingest_document_use_case
 from src.api.main import app
 from src.api.routes.auth import hash_password
+from src.application.use_cases.ingest_document import IngestDocumentUseCase
 from src.infrastructure.db.models import Base, UserModel
 
 client = TestClient(app)
@@ -42,7 +44,11 @@ async def setup_test_env(db_session: AsyncSession) -> None:
     async def mock_get_db():
         yield db_session
 
+    mock_ingest = AsyncMock(spec=IngestDocumentUseCase)
+    mock_ingest.execute.return_value = {"status": "success", "inserted_count": 1}
+
     app.dependency_overrides[get_db_session] = mock_get_db
+    app.dependency_overrides[get_ingest_document_use_case] = lambda: mock_ingest
     yield
     app.dependency_overrides.clear()
 
@@ -58,14 +64,12 @@ def test_security_headers_present_in_responses() -> None:
 
 def test_upload_validation_rejects_renamed_executable() -> None:
     """Verify POST /documents rejects an executable file renamed as a PDF."""
-    # Login first
     login_res = client.post(
         "/auth/login",
         json={"email": "sec_user@domaincopilot.com", "password": "Pass123!"},
     )
     assert login_res.status_code == 200
 
-    # Fake executable file with MZ signature renamed as pdf
     exe_bytes = BytesIO(b"MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xffFake EXE Payload")
 
     res = client.post(
@@ -95,3 +99,20 @@ def test_upload_validation_accepts_valid_text_document() -> None:
     assert res.status_code == 200
     assert res.json()["status"] == "success"
 
+
+def test_rate_limiting_triggers_429_too_many_requests() -> None:
+    """Verify POST /auth/login triggers HTTP 429 Too Many Requests when exceeding 5 requests per minute."""
+    app.state.limiter.enabled = True
+    try:
+        for _ in range(5):
+            client.post(
+                "/auth/login",
+                json={"email": "sec_user@domaincopilot.com", "password": "WrongPassword!"},
+            )
+        res = client.post(
+            "/auth/login",
+            json={"email": "sec_user@domaincopilot.com", "password": "WrongPassword!"},
+        )
+        assert res.status_code == 429
+    finally:
+        app.state.limiter.enabled = False
