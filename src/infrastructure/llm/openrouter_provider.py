@@ -20,15 +20,18 @@ class OpenRouterProvider(LLMProvider):
         api_key: str,
         model_name: str = "nvidia",
         base_url: str = "https://openrouter.ai/api/v1",
+        max_tokens: int = 2048,
     ) -> None:
-        """Initialize OpenRouterProvider with API key, model selection, and base URL."""
+        """Initialize OpenRouterProvider with API key, model selection, base URL, and max_tokens limit."""
         self.api_key = api_key
         self.base_url = base_url
+        self.max_tokens = max_tokens
         self.model_id = self.OPENROUTER_MODELS.get(model_name.lower(), model_name)
         self._llm = ChatOpenAI(
             base_url=base_url,
             api_key=api_key,
             model=self.model_id,
+            max_tokens=max_tokens,
         )
 
     def _build_messages(

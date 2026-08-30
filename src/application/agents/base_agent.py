@@ -7,7 +7,7 @@ from src.domain.interfaces.llm_provider import LLMProvider
 
 
 class BaseAgent(ABC):
-    """Abstract base class for domain co-pilot workflow agents enforcing tool allow-lists."""
+    """Abstract base class for domain co-pilot workflow agents enforcing tool allow-lists and schema validation."""
 
     ALLOWED_TOOLS: ClassVar[list[str]] = []
 
@@ -21,11 +21,17 @@ class BaseAgent(ABC):
         """Execute agent workflow logic and return a structured Pydantic model contract."""
 
     async def _call_tool(self, tool_schema: dict, prompt: str) -> dict:
-        """Call LLM provider tool execution while enforcing restricted ALLOWED_TOOLS allow-list."""
+        """Call LLM provider tool execution enforcing ALLOWED_TOOLS security control and result schema validation."""
         tool_name = tool_schema.get("function", {}).get("name") or tool_schema.get("name")
         if self.ALLOWED_TOOLS and tool_name not in self.ALLOWED_TOOLS:
             raise PermissionError(
                 f"Agent '{self.name}' is not authorized to execute tool '{tool_name}'. "
                 f"Allowed tools: {self.ALLOWED_TOOLS}"
             )
-        return await self.llm_provider.call_tool(prompt=prompt, tools=[tool_schema])
+
+        result = await self.llm_provider.call_tool(prompt=prompt, tools=[tool_schema])
+        if not isinstance(result, dict):
+            raise TypeError(
+                f"Tool call output from '{tool_name}' must be a dict structure, got {type(result)}"
+            )
+        return result
