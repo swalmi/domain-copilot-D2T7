@@ -2,52 +2,33 @@ from pathlib import Path
 
 
 def load_and_chunk(file_path: str) -> list[dict]:
-    """Load a PDF using Unstructured's partition API (hi_res) and return chunk dicts.
+    """Load a PDF or DOCX file using UnstructuredLoader with hi_res strategy and return chunked elements."""
+    from langchain_unstructured import UnstructuredLoader
 
-    This avoids relying on the LangChain `UnstructuredLoader` wrapper which
-    can fail when package versions for `unstructured` / `unstructured-inference`
-    diverge. We call `partition_pdf(..., chunking_strategy=...)` directly and
-    map Element objects to simple dicts for downstream use.
-    """
-    from unstructured.partition.pdf import partition_pdf
-
-    # Call partition_pdf with chunking parameters similar to previous loader usage.
-    elements = partition_pdf(
-        filename=file_path,
-        strategy="hi_res",
+    loader = UnstructuredLoader(
+        file_path=file_path,
         chunking_strategy="by_title",
+        strategy="hi_res",
         max_characters=1200,
         new_after_n_chars=1000,
         combine_text_under_n_chars=200,
         multipage_sections=True,
+        overlap=100,
+        overlap_all=False,
     )
 
+    documents = loader.load()
+
     chunks: list[dict] = []
-    for el in elements:
-        # element.text is the primary textual content for most Element types
-        text = getattr(el, "text", None)
-
-        # element metadata may be an ElementMetadata dataclass; safely extract common fields
-        meta = getattr(el, "metadata", None)
-        def _meta_get(key):
-            if meta is None:
-                return None
-            # try dict-like access
-            try:
-                return meta.get(key)
-            except Exception:
-                pass
-            # try attribute access
-            return getattr(meta, key, None)
-
+    for doc in documents:
+        metadata = doc.metadata or {}
         chunks.append(
             {
-                "text": text,
-                "type": type(el).__name__,
-                "element_id": _meta_get("element_id"),
-                "parent_id": _meta_get("parent_id"),
-                "page_number": _meta_get("page_number") or _meta_get("page") or _meta_get("page_number_display"),
-                "raw_metadata": meta,
+                "text": doc.page_content,
+                "category": str(metadata.get("category", "")),
+                "element_id": str(metadata.get("element_id", "")),
+                "parent_id": metadata.get("parent_id"),
+                "page_number": metadata.get("page_number"),
             }
         )
 
@@ -62,31 +43,37 @@ def inspect_raw_unstructured_elements(file_path: str) -> list:
     It is intended for temporary local debugging only and should not be used
     in production code.
     """
-    # Prefer direct partition call for raw elements to avoid wrapper mismatches.
-    try:
-        from unstructured.partition.pdf import partition_pdf
+    from langchain_unstructured import UnstructuredLoader
 
-        elements = partition_pdf(filename=file_path, strategy="fast")
-        if elements:
-            return elements
-    except Exception:
-        # fall back to hi_res if fast fails
-        pass
+    # Attempt to disable chunking; different versions of the loader may accept
+    # different values (None, "none", or omitting the parameter). Try common
+    # options and fall back to a default loader if necessary.
+    loader_variants = [
+        {"chunking_strategy": None, "strategy": "hi_res"},
+        {"chunking_strategy": "none", "strategy": "hi_res"},
+        {"strategy": "hi_res"},
+    ]
 
-    try:
-        from unstructured.partition.pdf import partition_pdf
-
-        return partition_pdf(filename=file_path, strategy="hi_res")
-    except Exception:
-        # Last resort: fall back to pypdf text extraction
+    for params in loader_variants:
         try:
-            from pypdf import PdfReader
+            loader = UnstructuredLoader(file_path=file_path, **params)
+            elements = loader.load()
+            return elements
+        except TypeError:
+            # Parameter not accepted by this loader implementation; try next
+            continue
 
-            reader = PdfReader(file_path)
-            pages = []
-            for p in reader.pages:
-                text = p.extract_text() or ""
-                pages.append(text)
-            return pages
-        except Exception:
-            return []
+    # As a last resort, construct with the same defaults as load_and_chunk
+    loader = UnstructuredLoader(
+        file_path=file_path,
+        chunking_strategy="by_title",
+        strategy="hi_res",
+        max_characters=1200,
+        new_after_n_chars=1000,
+        combine_text_under_n_chars=200,
+        multipage_sections=True,
+        overlap=100,
+        overlap_all=False,
+    )
+
+    return loader.load()
