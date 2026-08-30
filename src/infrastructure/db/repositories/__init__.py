@@ -7,5 +7,5 @@ from src.infrastructure.db.repositories.document_repository import (
     SqlalchemyDocumentRepository,
 )
 
-__all__ = ["SqlalchemyDocumentRepository", "InMemoryClaimRepository"]
+__all__ = ["InMemoryClaimRepository", "SqlalchemyDocumentRepository"]
 

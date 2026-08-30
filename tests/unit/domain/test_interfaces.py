@@ -1,5 +1,5 @@
-from collections.abc import AsyncIterator
 import uuid
+from collections.abc import AsyncIterator
 from uuid import UUID
 
 import pytest

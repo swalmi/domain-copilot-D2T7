@@ -1,7 +1,8 @@
 import functools
 import logging
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 from uuid import UUID
 
 logger = logging.getLogger("trace_logger")
@@ -33,7 +34,7 @@ def traced_step(step_name: str) -> Callable:
                 duration = time.time() - start_time
                 logger.error(
                     f"[TRACE FAILED] Step: {step_name} | CorrelationID: {cid_str} "
-                    f"| Duration: {duration:.3f}s | Error: {str(exc)}"
+                    f"| Duration: {duration:.3f}s | Error: {exc!s}"
                 )
                 raise
 

@@ -10,10 +10,10 @@ from src.application.retrieval.hybrid_search import (
 from src.application.retrieval.prompt_loader import load_prompt
 
 __all__ = [
-    "reciprocal_rank_fusion",
-    "reciprocal_rank_fusion_with_scores",
+    "expand_to_parent_sections",
     "hybrid_search",
     "hybrid_search_with_scores",
-    "expand_to_parent_sections",
     "load_prompt",
+    "reciprocal_rank_fusion",
+    "reciprocal_rank_fusion_with_scores",
 ]

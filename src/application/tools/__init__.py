@@ -9,7 +9,7 @@ from src.application.tools.submit_for_approval import submit_for_approval
 
 __all__ = [
     "calculate_limits_and_deductibles",
-    "search_policies",
     "search_exclusions",
+    "search_policies",
     "submit_for_approval",
 ]

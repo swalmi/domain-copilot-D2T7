@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime, timezone
 from uuid import UUID
-import uuid
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,11 +19,11 @@ def _apply_filters(stmt, filters: dict | None):
         return stmt
 
     conditions = []
-    if "policy_id" in filters and filters["policy_id"]:
+    if filters.get("policy_id"):
         conditions.append(ChunkModel.policy_id == filters["policy_id"])
-    if "policy_type" in filters and filters["policy_type"]:
+    if filters.get("policy_type"):
         conditions.append(ChunkModel.policy_type == filters["policy_type"])
-    if "effective_date_before" in filters and filters["effective_date_before"]:
+    if filters.get("effective_date_before"):
         conditions.append(
             ChunkModel.effective_date <= filters["effective_date_before"]
         )

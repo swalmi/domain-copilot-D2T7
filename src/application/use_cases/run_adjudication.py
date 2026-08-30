@@ -1,6 +1,6 @@
 import asyncio
-from decimal import Decimal
 import logging
+from decimal import Decimal
 from uuid import UUID
 
 from src.application.agents.adjudication_drafter import AdjudicationDrafter

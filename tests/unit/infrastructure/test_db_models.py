@@ -1,5 +1,5 @@
-from datetime import date, datetime, timezone
 import uuid
+from datetime import date, datetime, timezone
 
 from src.infrastructure.db.models import ChunkModel, DocumentModel
 

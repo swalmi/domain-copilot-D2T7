@@ -1,4 +1,3 @@
-from datetime import date
 from typing import ClassVar
 
 from src.application.agents.base_agent import BaseAgent

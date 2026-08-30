@@ -10,8 +10,8 @@ from src.domain.errors.domain_errors import (
 
 __all__ = [
     "DomainError",
-    "PolicyVersionMismatchError",
     "InsufficientEvidenceError",
-    "PolicyNotFoundError",
     "InvalidClaimStateError",
+    "PolicyNotFoundError",
+    "PolicyVersionMismatchError",
 ]

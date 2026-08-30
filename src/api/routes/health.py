@@ -1,9 +1,9 @@
 import logging
 from typing import Any
 
+import redis.asyncio as redis
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-import redis.asyncio as redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 

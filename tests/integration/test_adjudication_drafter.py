@@ -1,7 +1,7 @@
+import uuid
 from datetime import date
 from decimal import Decimal
 from unittest.mock import AsyncMock
-import uuid
 
 import pytest
 

@@ -1,4 +1,5 @@
 import pytest
+
 from src.api.deps import (
     get_ask_question_use_case,
     get_claim_repository,
@@ -10,7 +11,7 @@ from src.api.deps import (
 from src.application.use_cases.ask_question import AskQuestionUseCase
 from src.application.use_cases.run_adjudication import RunAdjudicationWorkflowUseCase
 from src.domain.interfaces.claim_repository import ClaimRepository
-from src.infrastructure.config import Settings, get_settings
+from src.infrastructure.config import Settings
 from src.infrastructure.llm.ollama_provider import OllamaProvider
 from src.infrastructure.llm.openrouter_provider import OpenRouterProvider
 from src.infrastructure.llm.provider_router import ProviderRouter

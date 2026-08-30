@@ -6,8 +6,8 @@ from src.application.agents.coverage_matcher import CoverageMatcher
 from src.application.agents.exclusion_analyst import ExclusionAnalyst
 
 __all__ = [
+    "AdjudicationDrafter",
     "BaseAgent",
     "CoverageMatcher",
     "ExclusionAnalyst",
-    "AdjudicationDrafter",
 ]

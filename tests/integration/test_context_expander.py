@@ -1,5 +1,5 @@
-from datetime import date
 import uuid
+from datetime import date
 
 import pytest
 import pytest_asyncio

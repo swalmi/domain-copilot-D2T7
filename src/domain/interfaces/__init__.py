@@ -6,8 +6,8 @@ from src.domain.interfaces.llm_provider import LLMProvider
 from src.domain.interfaces.vector_store import VectorStore
 
 __all__ = [
-    "LLMProvider",
-    "VectorStore",
     "ClaimRepository",
     "DocumentRepository",
+    "LLMProvider",
+    "VectorStore",
 ]

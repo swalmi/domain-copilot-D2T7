@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
 
 from src.application.agents.base_agent import BaseAgent
 from src.domain.interfaces.llm_provider import LLMProvider
