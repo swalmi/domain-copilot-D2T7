@@ -1,6 +1,6 @@
+import uuid
 from datetime import date
 from unittest.mock import AsyncMock
-import uuid
 
 import pytest
 import pytest_asyncio

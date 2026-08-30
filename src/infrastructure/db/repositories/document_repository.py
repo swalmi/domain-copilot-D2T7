@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime, timezone
 from uuid import UUID
-import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

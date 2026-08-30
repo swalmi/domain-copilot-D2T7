@@ -1,13 +1,11 @@
+import pytest_asyncio
 from fastapi import APIRouter, Depends
 from fastapi.testclient import TestClient
-import pytest
-import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.api.deps import get_db_session, require_role
 from src.api.main import app
 from src.api.routes.auth import hash_password
-from src.infrastructure.config import get_settings
 from src.infrastructure.db.models import Base, UserModel
 
 stub_router = APIRouter(prefix="/test-auth-stub", tags=["TestStub"])

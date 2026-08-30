@@ -1,8 +1,8 @@
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
-from fastapi import Cookie, Depends, HTTPException, status
 import jwt
+from fastapi import Cookie, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import (
     AsyncSession,

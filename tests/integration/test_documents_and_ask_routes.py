@@ -1,9 +1,8 @@
 from io import BytesIO
 from unittest.mock import AsyncMock
 
-from fastapi.testclient import TestClient
-import pytest
 import pytest_asyncio
+from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.api.deps import (

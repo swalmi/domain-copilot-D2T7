@@ -1,5 +1,5 @@
-from datetime import date
 import uuid
+from datetime import date
 
 import pytest
 import pytest_asyncio
@@ -7,7 +7,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.domain.entities.policy import CitedChunk
-from src.infrastructure.db.models import ChunkModel, DocumentModel
+from src.infrastructure.db.models import ChunkModel
 from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 

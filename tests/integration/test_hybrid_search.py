@@ -1,13 +1,10 @@
-from datetime import date
 from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.application.retrieval.hybrid_search import hybrid_search
-from src.domain.interfaces.llm_provider import LLMProvider
 from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 

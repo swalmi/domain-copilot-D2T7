@@ -1,6 +1,6 @@
+import json
 from collections.abc import AsyncIterator
 from datetime import date
-import json
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse

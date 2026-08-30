@@ -1,9 +1,9 @@
-from datetime import date
 import logging
+import uuid
+from datetime import date
 from pathlib import Path
 from typing import Literal
 from uuid import UUID
-import uuid
 
 from src.domain.entities.policy import CitedChunk
 from src.domain.interfaces.document_repository import DocumentRepository
