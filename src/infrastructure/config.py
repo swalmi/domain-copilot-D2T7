@@ -31,7 +31,12 @@ class Settings(BaseSettings):
     openrouter_model_name: str = "nvidia"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
+    jwt_secret: str = "domain-copilot-jwt-secret-key-must-be-at-least-32-bytes"
+
+    jwt_algorithm: str = "HS256"
+
     min_confidence_score: float = 0.01
+
 
     @field_validator("allow_origins", mode="before")
     @classmethod
