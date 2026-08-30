@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import auth_router, health_router
+from src.api.routes import (
+    ask_router,
+    auth_router,
+    documents_router,
+    health_router,
+)
 from src.infrastructure.config import get_settings
 
 settings = get_settings()
@@ -22,4 +27,7 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(documents_router)
+app.include_router(ask_router)
+
 
