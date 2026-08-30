@@ -1,0 +1,696 @@
+TOTAL CHUNKS: 63
+================================================================================
+
+=== CHUNK 1/63 ===
+{
+  "text": "HOME INSUR ANCE\n\nPOLICY DOCUMENT\n\nWelcome\n\nThank You for choosing Elmo Insurance Limited as Your insurer. As a valued customer, we are committed to providing You with prompt and efficient customer support service.\n\nThis booklet sets out the cover available to You. It also explains how to make a claim, together with Policy terms and conditions.\n\nDo not wait until You have a claim to make sure You understand Your Policy - please read it now and keep it in a safe place.\n\nIn particular please make sure that all the details shown in the Schedule which is attached to and forming part of the Policy are correct. Let Us know immediately if any change is required.\n\nWe trust that You will find our service to be professional and efficient and that You will continue to make use of our services.\n\nAnthony Cauchi MBA (Exec.), ACII Chartered Insurer General Manager\n\n1\n\nCall us on 2343 0000 Contents",
+  "category": "CompositeElement",
+  "element_id": "fccc746e-7f42-49ce-8a23-1cda27c35e89",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 2/63 ===
+{
+  "text": "About Your Home Insurance Policy\n\nMeaning of Words\n\nCover:\n\nSection 1: Buildings\n\nSection 2: Contents\n\nSection 3: Personal Possessions\n\nSection 4: Liabilities\n\nSection 5: Optional Extension Personal Money and Credit Cards",
+  "category": "CompositeElement",
+  "element_id": "275d062a-7bce-44d5-9df8-d212b4492bc4",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 3/63 ===
+{
+  "text": "General Exclusions\n\nGeneral Conditions\n\nData Protection\n\nCustomer Satisfaction\n\nOur Standards\n\n5\n\n6\n\n9\n\n14\n\n18\n\n19\n\n22\n\n23\n\n25\n\n28\n\n29\n\n30\n\n3\n\n.\n\n5\n\n1\n\n2\n\n0\n\n/\n\n3\n\n0\n\n0\n\nW\n\nP\n\nM\n\nH\n\nL\n\nI\n\nE\n\n.\n\nCall us on 2343 0000",
+  "category": "CompositeElement",
+  "element_id": "ee06894a-b748-4043-8183-321c8a71c4a2",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 4/63 ===
+{
+  "text": "About Your Home Insurance Policy\n\nElmo Home Insurance policies are underwritten by Elmo Insurance Limited, who is authorised to carry out general business of insurance and is regulated by the Malta Financial Services Authority, Company Registration Number C3500.\n\nThis Policy is evidence of the contract. The contract of insurance is between You and Us. Only You, the Policyholder and Elmo Insurance Limited have legal rights under this agreement.\n\nThe terms of the Policy are contained in the following documents, all of which must be read together:\n\nThe Proposal Form which You have completed\n\nThe Policy Schedule\n\nThe Policy Document\n\nAny alterations or amendments to this Policy shall only be valid if they have been made in writing.\n\n5\n\nCall us on 2343 0000",
+  "category": "CompositeElement",
+  "element_id": "3402b366-9d6b-47df-8f0f-e3a64e999ed8",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 5/63 ===
+{
+  "text": "Meaning of Words\n\nThe words or expressions listed below have the following meaning wherever they appear in the Policy, the Schedule or any Endorsement/s.\n\nBetterment The resulting improved condition following replacement of damaged items.\n\nBuildings A permanent structure used for domestic purposes within the grounds of Your Home including:\n\nThe Fixtures and Fittings, fitted kitchens (excluding appliances), bathrooms, solar water heaters, solar panels, alarm systems, CCTV cameras and air\n\nconditioning equipment\n\nRadio and television aerials, satellite dishes and masts\n\nLifts\n\nDomestic fixed fuel tanks, including LPG tanks (subject to obtaining the installation certification from the competent authority)\n\nGates, hedges, walls, fences, terraces, paths and drives, lawns, plants, shrubs, trees, ornamental ponds, fountains or statues in the garden or yard\n\nSwimming pools and tennis courts\n\nYour proportionate share of the common areas forming part of a block of apartments.\n\nBicycles Any pedal cycle, bicycle or tricycle and its accessories, owned by You or Your Household. Bicycles do not include any motorised pedal cycle, bicycle or tricycle.",
+  "category": "CompositeElement",
+  "element_id": "92d65169-b3de-45bb-a6af-5097ec5ea069",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 6/63 ===
+{
+  "text": "Domestic Staff A person employed to carry out domestic duties associated with Your Home and not employed by You in any capacity in connection with any business, trade or profession.\n\nContents Household goods and personal effects, money and valuables all belonging to or are Your legal responsibility or that of Your family.",
+  "category": "CompositeElement",
+  "element_id": "ce8bb531-495a-42fb-838e-1df9b1f1f9f9",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 7/63 ===
+{
+  "text": "6 www.elmoinsurance.com Meaning of Words\n\nThe term Contents does not include:\n\nAny living creature, any mechanically propelled vehicle (other than domestic gardening machines), aircraft, hovercraft, watercraft and accessories attached thereto, outboard engines, motorcycles, caravans, trailers, trailer tents and their parts and accessories, credit cards, deeds, bonds, bills of exchange, promissory notes, securities for money, documents and manuscripts\n\nGoods used for business or professional purposes\n\nLandlord’s Fixtures and Fittings\n\nProperty more specifically insured\n\nEndorsements An alteration made to terms of the Policy.\n\nExcess The first part of any claim for which You are responsible.\n\nFixtures and Fittings All items that are fixed to and form part of the structure of the Home including:\n\nDecorations such as wall paper, murals and stencilling\n\nFlooring\n\nBuilt\n\nin wardrobes",
+  "category": "CompositeElement",
+  "element_id": "bf32d4c6-8adf-4f29-bdff-35f894bf0b66",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 8/63 ===
+{
+  "text": "Geographical Area Maltese Islands, Europe or Worldwide as specified in the Schedule.\n\nHigh Risk Items Items of contents which are often attractive to thieves. These are televisions, personal computer, audio and video equipment, jewellery, gold, silver and articles of precious metal, clocks, watches, cameras, furs, pictures, works of art, curios and collections of stamps or coins.\n\nHome The private dwelling of permanent and standard construction comprising of the house named in the Schedule, and outbuildings used for domestic purposes.\n\nHousehold You and members of Your family living permanently with You and in the same residence.\n\n7\n\nCall us on 2343 0000 Meaning of Words\n\nMoney Cash, credit/debit Cards, cheques, postal and money orders, trading stamps which are not part of a stamp collection and traveller’s cheques owned by You or Your Household.\n\nMoney does not include:\n\nPromotional vouchers, air miles vouchers, credit notes, store or loyalty points, lottery tickets, scratch cards, raffle tickets and stamps which are part of a stamp collection",
+  "category": "CompositeElement",
+  "element_id": "2774a681-80da-4b12-8a50-018878a6ec5f",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 9/63 ===
+{
+  "text": "Money used or held for any trade, professional or business purposes\n\nPeriod of Insurance The period shown in the Schedule and any further period for which We accept Your Premium.\n\nPolicy The insurance contract between You and Elmo Insurance Ltd. Full terms and conditions are subject to the following documents:\n\nThe Proposal form\n\nThe Policy schedule\n\nThe Policy document\n\nAny endorsement attached to the Policy\n\nPolicyholder/You/Your The person(s) named as Insured in the Schedule.\n\nPremium The amount paid or to be paid for cover by the Policyholder.\n\nProposal The Proposal Form and any other information provided by You or on Your behalf.\n\nSchedule The current Schedule issued by Us as part of Your Policy showing details of the Insured, the property insured, the Period of Insurance and which sections of the Policy apply.\n\nUnoccupied This is when Your Home is insufficiently furnished for habitation or is not lived in for more than 90 consecutive days.",
+  "category": "CompositeElement",
+  "element_id": "b6a12c31-2425-454e-8273-620c8dcbf667",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 10/63 ===
+{
+  "text": "We/Us/Our/Company\n\nElmo Insurance Ltd.\n\n8 www.elmoinsurance.com Section 1: Buildings\n\nThe Buildings are insured against loss or damage. The following states what is covered and what is not covered by this section.\n\nWhat is covered\n\nWhat is not covered",
+  "category": "CompositeElement",
+  "element_id": "ae820eb1-01eb-4de2-86d9-ee2af28ae165",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 11/63 ===
+{
+  "text": "Fire, Lightning, Explosion\n\nThe first €50 of each and every loss\n\nSmoke (a) Damage caused by any gradually operating\n\n1\n\n2 cause (b) Pollution damage (c) Smoke from fireplace\n\nThe first 0.5% of the total sum insured at the time of loss or damage occasioned directly or indirectly by earthquake, subject to a minimum of €500.\n\n(a) The first €100 of each and every loss occasioned directly or indirectly by storm, tempest, flood (b) 10% of each and every loss in respect of property below street level including basements and underlying garages with a minimum of €500 (c) Loss or damage by humidity, condensation and dampness as a result of ingress of water (d) Loss or damage to gates, fences, earth retaining walls and insect screens (e) Loss or damage caused by subsidence, heave or landslip (a) The first €35 of each and every loss (b) Loss or damage if Your Home is",
+  "category": "CompositeElement",
+  "element_id": "ad244d44-8b1f-4d3c-93c0-b2e3e832e708",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 12/63 ===
+{
+  "text": "Unoccupied (c) Damage to the appliance or installation\n\n3\n\nEarthquake\n\n4\n\nStorm, Tempest and Flood\n\n5\n\nEscape of Water\n\nWater escaping from any fixed plumbing installation, machine, dishwasher, refrigerator, freezer, heating or cooling installation, water bed, water tanks or fish tank.\n\nwashing\n\n6",
+  "category": "CompositeElement",
+  "element_id": "75506496-bbbb-4a1e-9987-a476d57e0827",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 13/63 ===
+{
+  "text": "Escape of Oil\n\nOil leaking from any fixed heating or cooling installation, any pipes or any apparatus.\n\n(a) The first €35 of each and every loss (b) Loss or damage if Your Home is\n\nUnoccupied (c) Damage to the appliance or installation\n\n9\n\nCall us on 2343 0000 Buildings\n\nWhat is covered\n\nWhat is not covered\n\n7",
+  "category": "CompositeElement",
+  "element_id": "92c3fa59-afda-4825-b8a3-d28b1a4df31c",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 14/63 ===
+{
+  "text": "Riot, civil commotion, strikes, labour and political disturbances\n\n8\n\nVandalism and malicious acts (a) The first €35 of each and every loss (b) Loss or damage caused by You or Your\n\nHousehold or by tenants (c) Loss or damage if Your Home is",
+  "category": "CompositeElement",
+  "element_id": "334d69be-42f0-4213-88c1-6d183ce93758",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 15/63 ===
+{
+  "text": "Unoccupied\n\n9\n\nTheft or attempted theft (a) Loss or damage caused by You or Your\n\n10\n\nFalling trees or branches\n\nHousehold or by tenants (b) Loss or damage if Your Home is\n\nUnoccupied (a) The first €35 of each and every loss (b) The cost of removal of the fallen tree or branch (c) Loss or damage to fences and gates",
+  "category": "CompositeElement",
+  "element_id": "a533011d-f598-4082-8f2d-13ef8f3799fa",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 16/63 ===
+{
+  "text": "The first €35 of each and every loss.\n\nImpact with Your Buildings by any vehicle, animal, aircraft or any other aerial device or anything dropped from them.\n\n11\n\n12\n\nBreakage or collapse of television and radio aerials, satellite dish, aerial fittings and masts.\n\n(a) The first €35 of each and every loss (b) Any amount exceeding €500\n\n13 Damage to Underground Services for which You legally responsible for cables or",
+  "category": "CompositeElement",
+  "element_id": "9d8d5ee2-528f-4a14-8930-08e340fcff95",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 17/63 ===
+{
+  "text": "Accidental damage\n\nare\n\nunderground services.\n\nAccidental damage to pipes and cables, resulting during repair or maintenance work to pipes and cables.\n\n14 Glass and Sanitary Fixtures\n\nAccidental breakage of glass, washbasins, splash backs, pedestals, baths, sinks, lavatory cisterns, lavatory pans, shower trays and shower screens all fixed to and forming part of Your Home.\n\nLoss or damage if Your Home is Unoccupied.",
+  "category": "CompositeElement",
+  "element_id": "cc1c7f80-5e51-41ef-a4bb-1dbbdc2fa451",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 18/63 ===
+{
+  "text": "10 www.elmoinsurance.com 15\n\n16\n\nWhat is covered\n\nWhat is not covered\n\nBuildings\n\nRent/Alternative\n\nAny amount exceeding 10% of the sum insured on Buildings.",
+  "category": "CompositeElement",
+  "element_id": "5b5e8adb-ce0f-43a0-a2ed-77effb52a379",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 19/63 ===
+{
+  "text": "of\n\nLoss Accommodation (a) The reasonable cost of Your comparable temporary including accommodation, condominium’s maintenance fees, incurred until You restore Your Home to a habitable condition in the event of the Home being so damaged as to render it uninhabitable by any cause for which is provided indemnity under paragraphs 1-11 (b) The rent You would have received but have lost including up to Two Years of ground rent\n\nLoss of Keys If the keys are stolen or accidentally lost, We will pay for replacing locks, including keys to: (a) Any external doors and windows of (b)\n\nYour Home Intruder alarms and safes installed in Your Home\n\nAny amount exceeding €600.\n\n17 Architects and Surveyors Fees (a) Any amount exceeding 10% of the total sum insured on the Buildings (b) Any fees incurred in preparing any claim under this Policy\n\nAny amount exceeding 10% of the total sum insured on the Buildings.\n\nLoss or damage if Your Home is Unoccupied.\n\n18\n\nWe will pay reasonable costs in respect of architects’ fees, surveyors’ fees and legal fees necessary to rebuild, replace or repair Your Buildings after loss or damage insured by this Policy.",
+  "category": "CompositeElement",
+  "element_id": "801696b1-860c-4aef-9b1a-cafb2768151e",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 20/63 ===
+{
+  "text": "Removal of debris and demolition costs incurred by You Expenses necessarily with Our consent in removing debris, dismantling and/ or demolishing, shoring or propping up of the portion or portions of the insured property destroyed or damaged by any peril insured under this Policy.",
+  "category": "CompositeElement",
+  "element_id": "3a281311-9421-4291-8e7d-748ffab4ffbc",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 21/63 ===
+{
+  "text": "19 Moving Home\n\nIf You enter into a contract to sell Your Home, the purchaser is entitled to benefit from this insurance if the Home is damaged by any cause insured under paragraphs 1-11. Cover will be provided between exchange of contracts and completion of the sale, provided the Home is not otherwise insured.\n\n11\n\nCall us on 2343 0000 Buildings\n\n20\n\n21\n\nWhat is covered\n\nWhat is not covered\n\nTrace and Access We will pay the reasonable and necessary cost of finding the source of water leakage including subsequent repairs to walls, floors or ceilings.\n\n(a) Loss or damage caused by wear and tear (b) Any amount exceeding €600\n\nLoss of Metered Water We will pay for loss of domestic metered water following accidental damage to the fixed water installation.\n\n(a) Loss if Your Home is Unoccupied for more than 90 days to such loss occurring or discovered (b) Any amount exceeding €500",
+  "category": "CompositeElement",
+  "element_id": "d792c974-3a08-45fd-b09c-acf484b3ae8d",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 22/63 ===
+{
+  "text": "22 Compensation for death\n\nWe will pay compensation if You or Your spouse dies from an injury within 3 months from the date of the accident if that injury is caused by fire or an assault by thieves in Your Home.\n\nAny amount exceeding €10,000 in any one Period of Insurance.\n\n23\n\n24\n\nEmergency entry to Your Home Damage to Your Home caused when the fire, police or ambulance service has to force an entry to Your Home because of a medical emergency or to prevent damage to the Buildings.\n\nPlants and Trees in the garden We will pay for loss or damage to the lawns, plants, shrubs or trees in the garden, terraces or yard/s within the boundaries of Your property.\n\n(a) Flood damage to lawns (b) Impact damage by garden machinery or any other vehicle used in the garden (c) Loss or damage caused by pets (d) Any plant exceeding €200 (e) Any shrub or tree exceeding €500\n\n25 Breakdown of air-conditioning equipment Accidental mechanical or electrical breakdown of air-conditioning equipment permanently fixed onto Your property.",
+  "category": "CompositeElement",
+  "element_id": "fd07b116-65b8-4cbf-894f-b977309849e3",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 23/63 ===
+{
+  "text": "(a) The alteration of faulty design, defects, poor workmanship or materials latent faulty (b) Deterioration, wear and tear, vermin, insects, fungus, rot, climatic or atmospheric conditions, the action of light or any gradually operating cause If annual maintenance is not carried out (c) (d) Any amount exceeding €600",
+  "category": "CompositeElement",
+  "element_id": "350b18a7-e7a8-402d-b14e-b44b489d6321",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 24/63 ===
+{
+  "text": "12 www.elmoinsurance.com Buildings\n\nClaims Settlement We will pay the cost of work carried out in repairing or replacing the damaged parts caused to the Buildings including fees and associated costs, but not the cost of complying with building regulations, Local Authority or other statutory requirements, if notice of the need to comply was served upon You before the damage occurred, or these relate to undamaged parts of the Buildings.\n\nAverage Clause If at the time of any loss or damage the rebuilding value of the Buildings shall be greater than the sum insured thereon by more than 85%, then the Insured shall be considered as being his own insurer for the difference, and shall bear a proportional share of the loss.\n\nIf the Buildings have not been maintained in good repair, We will pay the cost of repair or replacement less a deduction for wear and tear. By full rebuilding cost We mean the rebuilding of Your Home in the same form, size, style and condition as when new, including the cost of complying with Local Authority and other statutory requirements, fees and associated costs.",
+  "category": "CompositeElement",
+  "element_id": "a28c0ed9-4356-4de3-a054-2b38bcf9cb76",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 25/63 ===
+{
+  "text": "If repair or replacement is not carried out, We will pay the reduction in the market value resulting from the damage not exceeding what it would have cost to repair the damage to the Home if the repair work had been carried out without delay.\n\nThe maximum amount payable in aggregate under this section is the sum insured shown in the Schedule less any applicable Excess.\n\nAutomatic Reinstatement of the Sum Insured The sum insured under Section 1 will not be reduced following any claim, provided You carry out any recommendations We make to prevent further damage without delay.\n\n13",
+  "category": "CompositeElement",
+  "element_id": "79a4bd8c-06c5-4d0d-b08b-d23a4922b97c",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 26/63 ===
+{
+  "text": "Call us on 2343 0000 Section 2: Contents\n\nWhen in Your Home, the Contents are insured against loss or damage. The following states what is covered and what is not covered under this section.\n\nWhat is covered\n\nWhat is not covered",
+  "category": "CompositeElement",
+  "element_id": "d5be0b02-9e70-45bb-8933-e00445e93962",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 27/63 ===
+{
+  "text": "Fire, Lightning, Explosion\n\nThe first €50 of each and every loss\n\nSmoke (a) Damage caused by any gradually operating\n\n1\n\n2\n\n3\n\nEarthquake cause (b) Pollution damage (c) Smoke from fireplace\n\nThe first 0.5% of the total sum insured at the time of loss or damage occasioned directly or indirectly by earthquake, subject to a minimum of €500.\n\n4\n\nStorm, Tempest and Flood (a) The first €100 of each and every loss occasioned directly or indirectly by storm, tempest, flood (b) 10% of each and every loss in respect of property below street level, including basements, semi- basements and underlying garages with a minimum of €500 (c) Loss or damage by humidity, condensation and dampness as a result of ingress of water (d) Loss or damage caused by subsidence, heave or landslip (a) The first €35 of each and every loss (b) Loss or damage if Your Home is Unoccupied (c) Damage to the appliance or installation (a) The first €35 of each and every loss (b) Loss or damage if Your Home is Unoccupied\n\nEscape of Water Water escaping from any fixed plumbing installation, washing machine, dishwasher, refrigerator, freezer, heating or cooling installation, water bed, water tanks or fish tank.",
+  "category": "CompositeElement",
+  "element_id": "5e0bc30c-027a-410f-90a6-e2cb29d768ba",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 28/63 ===
+{
+  "text": "Escape of Oil Oil leaking from any fixed heating or cooling installation, any pipes or any apparatus.\n\nRiot, civil commotion, strikes, labour and political disturbances (a) The first €35 of each and every loss (b) Loss or damage caused by You or Your\n\nHousehold or by tenants (c) Loss or damage if Your Home is Unoccupied\n\n14\n\n5\n\n6",
+  "category": "CompositeElement",
+  "element_id": "dee84dbd-3b87-4b9c-ac12-16b04aad9440",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 29/63 ===
+{
+  "text": "7 www.elmoinsurance.com Contents\n\nWhat is covered\n\nWhat is not covered",
+  "category": "CompositeElement",
+  "element_id": "df6a7be6-cdee-4304-8f14-52066784e13e",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 30/63 ===
+{
+  "text": "Vandalism and malicious acts\n\nTheft or attempted theft (a) Loss or damage caused by You or Your\n\n8\n\n9\n\n10\n\nFalling trees or branches\n\n11\n\n12\n\n13\n\n14\n\nImpact with Your Buildings where the Contents are damaged by any vehicle, animal, aircraft or any other aerial device or anything dropped from them.\n\nAccidental breakage or collapse of television and radio aerials, satellite dish, aerial fittings and masts.\n\nFreezer contents The freezer contents are insured against deterioration caused by rise or fall in temperature.\n\nLoss of Rent/Alternative Accommodation (a) The reasonable cost of Your temporary comparable accommodation, including condominium’s maintenance fees, incurred until You restore Your Home to a habitable condition in the event of the Home being so damaged as to render it uninhabitable by any cause for which indemnity is provided under paragraphs 1-11 (b) The rent You would have received but have lost including up to Two Years of ground rent\n\nHousehold or by tenants (b) Loss or damage if Your Home is Unoccupied (a) The first €35 of each and every loss (b) The cost of removal if the fallen tree or branch has not caused damage to the Buildings",
+  "category": "CompositeElement",
+  "element_id": "815b902f-5363-478f-90d2-7c4be61eb674",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 31/63 ===
+{
+  "text": "The first €35 of each and every loss.\n\n(a) The first €35 of each and every loss (b) Damage due to the corrosion of the Fixtures and Fittings (c) Any amount exceeding €250\n\nLoss or damage: (a) Caused by the deliberate restriction or withholding of the electricity or gas supply by any supply authority (b) Caused by any strike, lockout or industrial dispute (c) Damage to the freezer itself (d) Damage to the freezer contents if the freezer is more than 10 years old (e) Any amount exceeding €250\n\nAny amount exceeding 10% of the sum insured on Contents.\n\n15\n\nCall us on 2343 0000 Contents\n\nWhat is covered\n\nWhat is not covered\n\n15",
+  "category": "CompositeElement",
+  "element_id": "199c1bfb-eb74-4cab-8ed7-1df2cc9f7d4c",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 32/63 ===
+{
+  "text": "Accidental damage cover\n\nAccidental damage to television,\n\naudio, video, computer equipment\n\nand game consoles.\n\n16\n\nAccidental breakage cover Accidental breakage of mirrors, plate glass tops to furniture, ceramic hobs and fixed glass in furniture.\n\n17 Contents away from the premises Loss or damage covered under paragraphs 1-11 occurring while temporarily removed within the Maltese Islands into any bank, safe deposit, occupied dwelling or into any building where the Insured is residing.\n\n(a) Damage by wear and tear, depreciation, gradually operating cause, process of cleaning repair or restoration, mechanical malfunction of any kind (b) Damage to items designed to be portable (c) The value of the data contained within the computer or on any disk and the cost of reinstating that data (d) Any consequential loss of any kind\n\nAny amount exceeding €2,000.\n\nLoss or damage: (a) By storm or flood to property not contained within a building (b) To Money (c)\n\nIn a furniture store, sales room or exhibition hall (d) From a caravan, mobile home or a motor home (e) During removals and whilst in transit (f) By theft or attempted theft unless it involves:",
+  "category": "CompositeElement",
+  "element_id": "5cbe7b63-6c2c-437e-b74d-d4905eb1cc97",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 33/63 ===
+{
+  "text": "Theft from a bank safe deposit (g) Any amount exceeding 15% of the Contents sum insured\n\n18 Wedding Gifts\n\nAny amount exceeding €5,000.\n\nWedding gifts, excluding money, are insured against any of the paragraphs 1-10 as specified under Section 2: Contents, for 1 month before and after the wedding date, but only while they are: (a) (b)\n\nIn Your Home In the building where the reception is being held In the married couple’s Home or being transported between these specified places (c)",
+  "category": "CompositeElement",
+  "element_id": "9751bb07-064c-4e5e-953b-dbe0a257e610",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 34/63 ===
+{
+  "text": "19 Money (a) Personal Money (b) Credit and Debit Cards\n\n20\n\nPedal Cycles and Sports\n\nEquipment\n\n16 (a) Any amount exceeding €500 (b) Any amount exceeding €1,500\n\nAny amount exceeding €500.\n\nwww.elmoinsurance.com What is covered\n\nWhat is not covered\n\nContents (a) Loss or damage to valuables or money (b) Loss or damage during items are being removed (c) Any amount exceeding €500 (a) Tyres or wheels damaged while in use (b) Theft of prams or buggies while left away from Your property unless in a locked building to which only You have access; or From a locked vehicle which has been broken into by using force and violent entry (c) Any amount exceeding €500",
+  "category": "CompositeElement",
+  "element_id": "0c6ce00c-b5a3-4c4e-a951-1d7da29521ae",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 35/63 ===
+{
+  "text": "21 Contents in the Open\n\n22\n\n23\n\nWe will pay for loss or damage to Contents while in the open within the boundaries of the land belonging to Your Property.\n\nPrams, buggies and wheelchairs We will pay for accidental loss or damage to Your pram, buggy or wheelchair happening anywhere in the Maltese Islands. Relative accessories are only covered if they are stolen or damage with Your pram, buggy or wheelchair.\n\nEmergency entry to Your Home Damage to Your Home caused when the fire, police or ambulance service has to force an entry to Your Home because of a medical emergency or to prevent damage to the Buildings.\n\nClaims Settlement We will pay the cost of replacement as new or, at Our option, We will replace as new except for:\n\nHousehold linen and clothing where a deduction of wear and tear will be made. By household linen We mean towels, bed and table linen\n\nItems that can be economically repaired (including household linen and clothing) where the cost of repair will be paid\n\nAny Betterment in the replaced item",
+  "category": "CompositeElement",
+  "element_id": "62fc2d52-38b1-4235-909f-055261ad3bf6",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 36/63 ===
+{
+  "text": "Average Clause If, at the time of any loss or damage, the value of the Contents shall be greater than the sum insured thereon by more than 85%, then the Insured shall be considered as being his own insurer for the difference, and shall bear a proportional share of the loss.\n\nThe Contents’ sum insured should include the cost of replacing all the Contents as new, (less an allowance for wear and tear in respect of household linen and clothing).\n\n17",
+  "category": "CompositeElement",
+  "element_id": "71eb6310-a170-49f6-8756-5a07c35a0475",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 37/63 ===
+{
+  "text": "Call us on 2343 0000 Section 3: Personal Possessions\n\nThe Personal Possesions cover applies for the personal effects You have chosen to specify and which appear on Your latest Schedule.\n\nWhat is covered\n\nWhat is not covered\n\nAccidental loss or damage to individually specified personal effects belonging to You or Your household within the Geographical Area as specified in the Schedule.\n\n(a) Loss or damage caused by wear and tear, depreciation, moth, vermin, atmospheric or climatic conditions (b) Gradually operating cause, process of cleaning, dyeing, repair or restoration, delay, confiscation (c) Detention by order or any Government or Public Authority (d) Loss by deception unless entry to the house is gained by deception (e) The cost of replacing or repairing electrical or mechanical equipment that has broken down or been misused\n\nClaims Settlement We will pay the cost of replacement as new or, at Our option, We will replace as new except for items that can be economically repaired where the cost of repair will be paid.",
+  "category": "CompositeElement",
+  "element_id": "185d50b6-114c-4f6a-9f78-2e5213c66baa",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 38/63 ===
+{
+  "text": "Any Betterment is to be deducted from the total amount of claim.\n\nThe maximum amount payable is the sum insured (subject to any limits or Excesses) as stated in the Schedule.\n\n18 www.elmoinsurance.com Section 4: Liabilities",
+  "category": "CompositeElement",
+  "element_id": "f0320598-97f1-4268-9933-04aa15110f3a",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 39/63 ===
+{
+  "text": "As Owner or Occupier of the Home and Your Personal Capacity\n\nWHAT IS COVERED The legal liability at law of Your Household:\n\nAs owner of Your Buildings and land belonging to Your Home\n\nAs occupier of Your Home and its land\n\nYour personal capacity to pay damages and costs to others which arise from any single event occurring during the Period of Insurance which result in:\n\nAccidental death, disease, illness or accidental physical injury to anyone\n\nAccidental damage to physical property\n\nIn case of the Insured’s death, Your legal personal representatives will have the benefit of this section for liability incurred by You for an event covered by this section, provided that the legal personal representatives observe the terms of the Policy as far as they can apply. We will also pay defence costs and expenses incurred with Our written consent.\n\nWHAT IS NOT COVERED • Loss or damage to any Buildings, land or Contents which belongs to or are the legal responsibility of Your Household\n\nInjury, death, disease or illness to any of Your Household (other than Your Domestic Staff)",
+  "category": "CompositeElement",
+  "element_id": "6e6b1899-8c0d-41dc-bee2-229870dca9ff",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 40/63 ===
+{
+  "text": "Liability arising from any employment, trade, profession or business of any of Your Household\n\nLiability accepted by any of Your Household under any agreement, unless the liability would exist without the agreement\n\nLiability covered by any other Policy\n\nDamage to property belonging to or held in trust by or in the custody or control of the Insured\n\nAny wilful or malicious acts\n\n19\n\nCall us on 2343 0000 Liabilities\n\nLiability for accidental bodily injury to an employee under contract of service to the Insured and arising out of and in the course of such employment\n\nAny liabilities arising from the transmission of any communicable disease or virus\n\nThe ownership, possession or use of:",
+  "category": "CompositeElement",
+  "element_id": "459be092-95c9-4a84-b5a6-85cd1e2d1800",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 41/63 ===
+{
+  "text": "i. mechanically propelled vehicles (except pedestrian controlled garden implements), caravans, aircraft, hovercraft or boats ii. Caravans or trailers iii. Aircraft (including model aircraft) iv. Watercraft other than hand or foot-propelled water craft, sailboards and surf boards, toy and model watercraft v. Hovercraft vi. Animals other than domestic dogs and cats and horses used for private hacking. (No cover is however provided for any liability arising from Pit-Bull Terriers, Japanese Tosa, Dogo Argentino and Fila Braziliero dog breeds or any other dog bred or cross-bred to have the physical and behavioural characteristics of a fighting dog)\n\nAny amount exceeding €600,000\n\nAny amount in excess of €4,800,000 in respect of all compensation, costs and expenses for all claims arising during the Period of Insurance",
+  "category": "CompositeElement",
+  "element_id": "c2037273-2b00-4eb9-9974-edcd5786eafd",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 42/63 ===
+{
+  "text": "As Employer of Domestic Staff\n\nWHAT IS COVERED Any amount that You become legally liable to pay as compensation (including claimant’s costs and expenses) in respect of:\n\nAccidental death, bodily injury or illness of any Domestic Staff arising out of and in the course of such employment\n\nIn case of the Insured’s death, Your legal personal representatives will have the benefit of this section for liability incurred by You for an event covered by this section, provided that the legal personal representatives observe the terms of the Policy as far as they can apply.\n\nWe will also pay defence costs and expenses incurred with Our written consent.\n\nThis section also provides insurance against liability within the terms of any collective agreement or of any legal notice issued according to legislation for payment of wages during a continuous period of incapacity in respect of injuries to employees occurring during the actual discharge of the employee’s duty.",
+  "category": "CompositeElement",
+  "element_id": "8c9ebce7-c10c-4dd2-ad64-75deaf1d4723",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 43/63 ===
+{
+  "text": "20 www.elmoinsurance.com\n\nLiabilities\n\nWHAT IS NOT COVERED • The full amount of any injury benefit entitlement under such legislation which shall be deducted from any such payment\n\nThe first six days of injury\n\nAny period after twelve months from the date of injury\n\nAny injury due to contributory negligence on the part of the employee or contravention by the employee of any safety rules laid down by the employer\n\nAny liabilities arising from:\n\ni. The transmission of any communicable disease or virus ii. Any agreement or contract unless liability would have existed otherwise iii. Injuries out of the profession or business of the Insured\n\nAny amount exceeding €2,400,000 in any one claim\n\nAny amount in excess of €4,800,000 in respect of all compensation, costs and expenses for all claims arising during the Period of Insurance\n\n21\n\nCall us on 2343 0000 Liabilities",
+  "category": "CompositeElement",
+  "element_id": "8ad84be4-a4c8-4868-9b9a-ca09723845c1",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 44/63 ===
+{
+  "text": "Section 5: Optional Extension - Personal Money and Credit Cards\n\nWhat is covered\n\nMoney\n\nLoss of Money, within the Maltese Islands only, belonging to the Insured and used solely for private, social and domestic purposes.\n\nWhat is not covered (a) The first €35 of each and every loss (b) Loss due to confiscation, or depreciation in value or to errors or omissions in receipts, payments or accountancy (c) Any amount in excess of €500",
+  "category": "CompositeElement",
+  "element_id": "9a429811-7110-432e-940b-e475064cd2a3",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 45/63 ===
+{
+  "text": "Credit Cards\n\nAny amount in excess of €1,200.\n\nFinancial loss resulting from any Credit Card being stolen or accidentally lost and subsequently used by someone other than the Insured, within the Maltese Islands.\n\nClaims Settlement We will pay the amount for which the Insured is responsible, provided the Insured has complied with all the terms and conditions under which the card is issued and notified the issuing authority by e-mail or fax if the official notification address of the card issuing authority is not within the Maltese Islands.",
+  "category": "CompositeElement",
+  "element_id": "0df25cfe-2748-4b09-9352-b361ea79f7a2",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 46/63 ===
+{
+  "text": "22 www.elmoinsurance.com General Exclusions\n\nWe shall not pay benefits towards the following, as they are excluded from Your Policy.\n\nRadioactive contamination We will not pay for loss or damage to any property, any resulting loss or expense or any legal liability that is caused by or contributed to, or that arises from:\n\nIonising radiations or contamination by radioactivity from any nuclear fuel or from any nuclear waste from the combustion of nuclear fuel\n\nThe radioactive, toxic, explosive or other hazardous properties of any explosive nuclear assembly or nuclear component of such an assembly\n\nWar Risks We will not pay any loss or damage happening through or as a consequence of terrorism, war, invasion, act of foreign enemy hostilities, rebellion, revolution, civil war, insurrection or military or usurped power.\n\nSonic Bangs We will not pay any loss or damage by pressure waves caused by aircraft or other aerial devices travelling at sonic or supersonic speeds.",
+  "category": "CompositeElement",
+  "element_id": "d4f3a0c7-bdd8-4b2e-8d6d-367250584743",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 47/63 ===
+{
+  "text": "Other Exclusions • Damage caused by wear and tear • Faulty workmanship, design or materials • Reduced value after it has been repaired or replaced • Any gradually operating cause including but not limited to seepage of water over a period of time\n\nVermin, insects, mildew, fungus, climatic or atmospheric condition, wet or dry rot\n\n23",
+  "category": "CompositeElement",
+  "element_id": "d98708af-6b66-4a35-a3bf-33262faa110e",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 48/63 ===
+{
+  "text": "Call us on 2343 0000 General Exclusions\n\nSubsidence, landslip or heave We will not pay any damages or losses resulting from subsidence, landslip or heave. This also excludes:\n\nany damages arising from normal settlement or bedding down of new structures\n\nany damages caused by the buildings being constructed, demolished, altered or repaired or any ground works or excavation works at Your premises\n\nTerrorism This insurance excludes any loss damage cost or expense of whatsoever nature or any death, bodily injury or illness directly caused by, resulting from or in connection with any act of terrorism regardless of any other cause or event contributing concurrently or in any other sequence to the death injury or illness.\n\nAny act of terrorism means an act, including but not limited to the use of force or violence and/ or threat thereof, of any person or group(s) of persons, whether acting alone or on behalf of or in connection with any organization(s) or government(s), committed for religious, ideological or similar purposes including the influence of any government and/or to put the public, or any section of the public in fear.",
+  "category": "CompositeElement",
+  "element_id": "aeed81c2-5338-4046-b32e-f2572c24caa1",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 49/63 ===
+{
+  "text": "This Policy also excludes any death, bodily injury, or illness directly or indirectly caused by resulting from or in connection with any action taken in controlling, preventing, suppressing or in any way relating to any act of terrorism.\n\nIf We allege that by reason of this exception, any death, bodily injury or illness is not covered by this insurance the burden of proving the contrary shall be upon the Insured person.",
+  "category": "CompositeElement",
+  "element_id": "f4e0bde5-4d04-4190-9e82-b24f96445439",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 50/63 ===
+{
+  "text": "24 www.elmoinsurance.com General Conditions\n\nThe following conditions apply to Your Policy.\n\nMaking a Claim • What You must do. If loss, damage or liability occurs which may result in a claim under this Policy, You must tell Us in writing within 30 days from date of loss or when it is known to You. You must also send Us immediately any writ, summons, legal document or prosecution made against You\n\nDo not negotiate. You or any member of Your household must not negotiate, admit or deny liability without Our written permission\n\nTell the police. You must tell the police about all incidents related to accidental loss, theft, attempted theft, malicious damage or vandalism\n\nRights and Responsibilities • We may enter any building where a loss or damage has occurred and deal with any salvage in a reasonable manner. No salvage may be abandoned to Us\n\nWe may take over and conduct in the name of the Insured with complete and exclusive control, the defence or settlement of any claim\n\nWe may also start legal action in the name of the Insured to recover from others, compensation in respect of anything covered by this Policy",
+  "category": "CompositeElement",
+  "element_id": "e65ad3f6-6223-424c-8182-f8c5a55af49d",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 51/63 ===
+{
+  "text": "Your Duty of Care You and Your household must take all reasonable steps to prevent loss, damage or accidents and maintain the insured property in a good state of repair. You must also tell Us as soon as possible about any change in the information You gave Us if it will affect this Policy. If You do not, Your Policy may not be valid or You may not be properly covered.\n\n25",
+  "category": "CompositeElement",
+  "element_id": "d2b5724a-8961-479d-82b1-72f5a5172c8b",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 52/63 ===
+{
+  "text": "Call us on 2343 0000 General Conditions\n\nArbitration All differences arising out of the Policy shall be referred to the decision of an arbitrator appointed under current statutory provisions within one month after a written request by You or Us. An award must be made by the arbitrator before any court proceedings can be started against Us. If We refuse liability for a claim and this claim is not referred to arbitration within the period as defined by Legislation, the claim shall be deemed to have been withdrawn and cannot subsequently be revived.\n\nDishonest Claims We will not pay any claim under this Policy if a claim is dishonest or exaggerated in any way. We reserve the right to cancel cover immediately and We can tell the police of any such dishonest claim.",
+  "category": "CompositeElement",
+  "element_id": "4214a7e3-f9b7-434e-91e6-5c3767db800c",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 53/63 ===
+{
+  "text": "Cancellation You may cancel this Policy at any time by writing to Us. You may be entitled to a refund on short-period basis of Your Premium as long as no claim has been lodged during the current Period of Insurance. We can cancel this Policy by giving You seven days notice by a recorded delivery letter at the address shown in the latest Schedule. If We cancel the Policy, You may be entitled to a refund for any Period of Insurance which You have not used.\n\nContribution If any liability, loss or damage is covered by any other insurance who are similarly but not equally liable, We will only pay Our rateable proportion of the claim.\n\nContract Clause The Contract of Insurance shall for all intents and purposes be deemed to be a Maltese Contract and shall be governed by and according to Maltese Law and subject to the exclusive jurisdiction of the Maltese Courts.",
+  "category": "CompositeElement",
+  "element_id": "9a47683b-998f-4bf8-92de-5adca652d291",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 54/63 ===
+{
+  "text": "Maltese Jurisdiction Clause The Insurers’ indemnity provided by this Policy, shall apply only to judgements or orders that are delivered or obtained from a Court or in arbitration within the Maltese Islands. Furthermore, the aforesaid indemnity shall not apply to a judgement or order obtained in Malta for the enforcement of a judgement or arbitration award obtained elsewhere or to cost and expenses of litigation recovered by any claimant from the Insured, which costs and expenses of litigation are not incurred in the Maltese Islands.",
+  "category": "CompositeElement",
+  "element_id": "46f40e94-bb53-430b-81b5-dd593e9beab0",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 55/63 ===
+{
+  "text": "26 www.elmoinsurance.com General Conditions\n\nSanction Limitation and Exclusion Clause The Company shall not be deemed to provide cover and shall not be liable to pay any claim or pay any benefit hereunder to the extent that the provision of such cover, payment of such claim or provision of such benefit would expose the Company to any sanction, prohibition or restriction under United Nations resolutions or the trade or economic sanctions, laws or regulations of the European Union.\n\nSafe Warranty Our liability under the Contents section of this Policy shall not exceed €20,000 in respect of theft or attempted theft of jewellery which is not at the time of the theft or attempted theft locked in a safe approved by Us. For the purpose of this section, jewellery shall include all articles of precious metal intended for the ornamentation of the person or to be worn.\n\nMatching of items, pairs and sets clause We will only pay for individual loss or damaged items. We will not pay the cost of altering or replacing any items or parts of items which are not lost or damaged or which form part of a set, suite or other article, of the same type, colour or design.",
+  "category": "CompositeElement",
+  "element_id": "83808962-357c-4085-8bdc-ac5cf6546d88",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 56/63 ===
+{
+  "text": "High Risk Items Our liability in respect of the total value of the High Risk Items shall not exceed one third of the Contents sum insured in any one Period of Insurance, unless specified in the Schedule of this Policy.\n\nOur liability in respect of any one High Risk Item shall not exceed €2,000, unless specified in the Schedule of this Policy.\n\nKeep Us informed We have issued this Policy to You on the basis of what You have told Us about yourself, Your family and Your property. That is why the information given to Us in Your proposal is so important, and why it has been made the basis of the contract between You and Us. Please, therefore, let Us know immediately of any changes that affect what You have told Us; such as, if You move house or if anything happens to change the use, the nature, or the amount of the property insured.\n\nMaintenance Your Policy does not cover You for the cost of wear and tear – it is not a maintenance contract. It is a condition of the Policy that You keep Your property in good order and take reasonable steps to avoid damage.",
+  "category": "CompositeElement",
+  "element_id": "04d94be2-dcd0-409b-b70a-4631a3c1efd6",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 57/63 ===
+{
+  "text": "27\n\nCall us on 2343 0000 Data Protection\n\nThe following conditions apply to Your Policy.\n\nYou have the reassurance that the personal information We hold, is treated in confidence and We fully comply with the Data Protection Act in Malta.\n\nWe will process any personal and/or sensitive data for the following purposes:\n\nTo underwrite access and manage Your home insurance Policy, including contacting You for renewal of Your Policy and to process any claims\n\nTo other insurance companies, insurance intermediaries, and the Commissioner of Police purely to detect / prevent fraud and any improper claims or insurance fraud\n\nTo occasionally inform You about:\n\nOur range of other insurance products, unless We have written instructions from You to the contrary\n\nUnder the terms of the Data Protection Act 1998, You may request a copy of the details We hold about You. We reserve the right to charge a fee for this service.",
+  "category": "CompositeElement",
+  "element_id": "afce3ed4-39f8-4d43-ab17-12fd7f2bbccf",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 58/63 ===
+{
+  "text": "28 www.elmoinsurance.com Customer Satisfaction\n\nElmo Insurance Limited is committed to provide you with the highest level of service. However if you are not satisfied with our services, please refer the matter to our Complaints Officer at:",
+  "category": "CompositeElement",
+  "element_id": "1ffabb58-e6d3-4d71-b8fd-0738a8b65cff",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 59/63 ===
+{
+  "text": "Address: Elmo Insurance Limited, Abate Rigord Street, Ta’ Xbiex, XBX 1111, Malta\n\nTel: 00356 23430000\n\nE\n\nMail: complaints@elmoinsurance.com\n\nYour complaints will be acknowledged by our Complaints Officer and a response will be sent to you within a maximum time period of fifteen working days.\n\nIn the event that your complaint remains unresolved, you may write to the Office of the Arbiter for Financial Services at First Floor, St Calcedonius Street, Floriana, FRN 5130, Malta. Freephone: 80072366. Telephone: 21249245. You can also download a complaint form from: www.financialarbiter.org.mt. This is without prejudice to any other judicial action which you may wish to resort to.\n\nYou may also seek assistance from the Malta Insurance Association with whom this company is affiliated.\n\nPlease visit www.elmoinsurance.com to download our latest policy wording.\n\n29",
+  "category": "CompositeElement",
+  "element_id": "235037b1-caf0-42b9-883c-173497fa8ca4",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 60/63 ===
+{
+  "text": "Call us on 2343 0000 Our Standards\n\nWe aim to provide You with access to Policies that are affordable and provide You with peace of mind. We always act with the highest ethical standards of conduct and professional integrity whilst striving to meet Our member’s expectations.\n\nWe try to achieve the following service standards:\n\nRespond to Your application for a Policy, or to amend cover, within five working days\n\nProcess efficiently properly presented, eligible invoices for benefit\n\nRespond to Your correspondence and any other Policy queries within five working days\n\n30 www.elmoinsurance.com Elmo Insurance Ltd, Abate Rigord Street, Ta’ Xbiex, XBX 1111, Malta T: (+356) 2343 0000 | www.elmoinsurance.com",
+  "category": "CompositeElement",
+  "element_id": "9d5ecf82-a242-4086-b893-6271035425f7",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 61/63 ===
+{
+  "text": "BRANCH OFFICES\n\nB’KARA BRANCH\n\nNaxxar Road\n\nB’Kara BKR 9044\n\n2343 0322\n\nCOSPICUA BRANCH\n\n48 Bormla Gate\n\nCospicua BML 2062\n\n2343 0301\n\nPAOLA BRANCH\n\nPaola Square\n\nPaola PLA 1261\n\n2343 0306\n\nQORMI BRANCH",
+  "category": "CompositeElement",
+  "element_id": "76836856-b962-499c-9990-e09c0c0c3bfb",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 62/63 ===
+{
+  "text": "St. Bartholomeo Street\n\nQormi QRM 2187\n\n2343 0311\n\nRABAT BRANCH\n\n23A Saqqajja Square\n\nRabat RBT 1192\n\n2343 0332\n\nST. PAUL’S BAY BRANCH 612 Mosta Road St. Paul’s Bay SPB 3112 2343 0310\n\nVALLETTA BRANCH",
+  "category": "CompositeElement",
+  "element_id": "38c677f2-b8b1-4a88-8a93-732e63383765",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+
+=== CHUNK 63/63 ===
+{
+  "text": "Cassar & Cooper\n\n54 South Street\n\nValletta VLT 1103\n\n2343 0316\n\nZEBBUG BRANCH\n\nMdina Road\n\nZebbug ZBG 9017\n\n2343 0326/7\n\nElmo Insurance Ltd is authorised to carry on general insurance business and is regulated by the Malta Financial Services Authority.",
+  "category": "CompositeElement",
+  "element_id": "2456faab-8925-4101-acd0-ad600d5348ad",
+  "parent_id": null,
+  "page_number": null
+}
+
+--------------------------------------------------------------------------------
+

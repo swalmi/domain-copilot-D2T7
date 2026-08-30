@@ -11,7 +11,9 @@ langchain-ollama==0.2.3
 langchain-postgres==0.0.13
 langchain-community==0.3.18
 langchain-unstructured==0.1.6
-unstructured==0.16.19
+unstructured==0.27.5
+unstructured-client==0.32.3
+unstructured-inference==1.6.13
 pytest==8.3.4
 pytest-asyncio==0.25.3
 ragas==0.2.12
