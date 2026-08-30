@@ -68,6 +68,11 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
         async def chunk_exists(self, content_hash: str) -> bool:
             return False
 
+        async def get_chunks_by_section(
+            self, policy_id: str, version: str, section: str
+        ) -> list[CitedChunk]:
+            return []
+
     class DummyClaimRepository(ClaimRepository):
         """Concrete test implementation of ClaimRepository."""
 
