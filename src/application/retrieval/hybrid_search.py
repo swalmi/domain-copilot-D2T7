@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 
 from src.domain.entities.policy import CitedChunk
@@ -28,10 +29,21 @@ async def hybrid_search(
     vector_store: VectorStore,
     embedder,
     query: str,
-    filters: dict,
+    filters: dict | None = None,
+    policy_id: str | None = None,
+    policy_type: str | None = None,
+    effective_date_before: date | None = None,
     top_k: int = 5,
 ) -> list[CitedChunk]:
     """Execute hybrid dense vector and keyword search fused with Reciprocal Rank Fusion."""
+    filters_dict = dict(filters) if filters else {}
+    if policy_id is not None:
+        filters_dict["policy_id"] = policy_id
+    if policy_type is not None:
+        filters_dict["policy_type"] = policy_type
+    if effective_date_before is not None:
+        filters_dict["effective_date_before"] = effective_date_before
+
     if hasattr(embedder, "embed_with_cache"):
         query_embedding = await embedder.embed_with_cache(query)
     elif hasattr(embedder, "embed"):
@@ -40,10 +52,10 @@ async def hybrid_search(
         query_embedding = await embedder(query)
 
     dense_results = await vector_store.search(
-        query_embedding=query_embedding, filters=filters, top_k=20
+        query_embedding=query_embedding, filters=filters_dict, top_k=20
     )
     keyword_results = await vector_store.keyword_search(
-        query_text=query, filters=filters, top_k=20
+        query_text=query, filters=filters_dict, top_k=20
     )
 
     fused_results = reciprocal_rank_fusion([dense_results, keyword_results], k=60)
