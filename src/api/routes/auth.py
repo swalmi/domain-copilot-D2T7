@@ -5,17 +5,17 @@ import bcrypt
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import get_db_session
+from src.api.limiter import limiter
 from src.infrastructure.config import get_settings
 from src.infrastructure.db.models import UserModel
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-limiter = Limiter(key_func=get_remote_address)
+
+
 
 
 class LoginRequest(BaseModel):

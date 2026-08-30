@@ -102,7 +102,9 @@ def test_upload_validation_accepts_valid_text_document() -> None:
 
 def test_rate_limiting_triggers_429_too_many_requests() -> None:
     """Verify POST /auth/login triggers HTTP 429 Too Many Requests when exceeding 5 requests per minute."""
+    from src.api.limiter import limiter
     app.state.limiter.enabled = True
+    limiter.enabled = True
     try:
         for _ in range(5):
             client.post(
@@ -116,3 +118,5 @@ def test_rate_limiting_triggers_429_too_many_requests() -> None:
         assert res.status_code == 429
     finally:
         app.state.limiter.enabled = False
+        limiter.enabled = False
+
