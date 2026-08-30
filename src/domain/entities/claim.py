@@ -21,4 +21,6 @@ class Claim(BaseModel):
         "approved",
         "rejected",
         "refused",
+        "cancelled",
     ]
+
