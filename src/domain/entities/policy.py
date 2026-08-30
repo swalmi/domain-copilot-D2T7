@@ -26,3 +26,4 @@ class CitedChunk(BaseModel):
     version: str
     effective_date: date
     chunk_type: Literal["narrative", "table"]
+    policy_type: Literal["auto", "home", "liability"] = "home"
