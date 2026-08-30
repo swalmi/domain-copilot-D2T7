@@ -18,3 +18,11 @@ class InMemoryClaimRepository(ClaimRepository):
     async def get_by_id(self, claim_id: UUID) -> Claim | None:
         """Retrieve a claim entity by unique ID from memory."""
         return self._claims.get(claim_id)
+
+    async def list_pending_approvals(self) -> list[Claim]:
+        """Retrieve all claims currently pending manual approval."""
+        return [
+            claim
+            for claim in self._claims.values()
+            if claim.status in ("pending_approval", "submitted", "processing")
+        ]
