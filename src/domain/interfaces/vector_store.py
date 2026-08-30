@@ -25,3 +25,9 @@ class VectorStore(ABC):
     @abstractmethod
     async def chunk_exists(self, content_hash: str) -> bool:
         """Check if a chunk with the specified content hash already exists in the store."""
+
+    @abstractmethod
+    async def get_chunks_by_section(
+        self, policy_id: str, version: str, section: str
+    ) -> list[CitedChunk]:
+        """Retrieve all chunks belonging to a specific policy version and section."""

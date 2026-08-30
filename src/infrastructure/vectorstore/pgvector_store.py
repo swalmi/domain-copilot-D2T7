@@ -115,6 +115,41 @@ class PgVectorStore(VectorStore):
         res = await self._session.execute(stmt)
         return res.scalar_one_or_none() is not None
 
+    async def get_chunks_by_section(
+        self, policy_id: str, version: str, section: str
+    ) -> list[CitedChunk]:
+        """Retrieve all chunks belonging to a specific policy version and section ordered by page."""
+        stmt = (
+            select(ChunkModel, DocumentModel.filename)
+            .join(DocumentModel, ChunkModel.document_id == DocumentModel.id)
+            .where(
+                ChunkModel.policy_id == policy_id,
+                ChunkModel.version == version,
+                ChunkModel.section == section,
+            )
+            .order_by(ChunkModel.page.asc(), ChunkModel.id.asc())
+        )
+        res = await self._session.execute(stmt)
+        rows = res.all()
+
+        cited_chunks: list[CitedChunk] = []
+        for chunk_obj, filename in rows:
+            cited_chunks.append(
+                CitedChunk(
+                    chunk_id=chunk_obj.id,
+                    text=chunk_obj.text,
+                    source_document=filename,
+                    section=chunk_obj.section or "",
+                    page=chunk_obj.page or 1,
+                    policy_id=chunk_obj.policy_id,
+                    version=chunk_obj.version,
+                    effective_date=chunk_obj.effective_date,
+                    chunk_type=chunk_obj.chunk_type,
+                    policy_type=chunk_obj.policy_type,
+                )
+            )
+        return cited_chunks
+
     async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
         """Insert a policy chunk and its vector embedding idempotently into the store."""
         content_hash = compute_chunk_hash(chunk.text)
