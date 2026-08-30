@@ -82,7 +82,7 @@ class IngestDocumentUseCase:
                 if await self._vector_store.chunk_exists(c_hash):
                     continue
 
-                embedding = await self._embedder.embed(chunk_text)
+                embedding = await self._embedder.embed_with_cache(chunk_text)
 
                 c_id = chunk_dict.get("element_id")
                 chunk_uuid = None
