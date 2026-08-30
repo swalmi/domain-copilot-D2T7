@@ -24,4 +24,5 @@ def test_health_check_endpoint() -> None:
     """Verify system health check route returns OK status."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "app": "Domain Copilot"}
+    assert response.json() == {"status": "ok"}
+

@@ -19,5 +19,3 @@
 - **Docstrings**: Every function and class must have a docstring explaining its purpose in one sentence.
 - **Externalized Prompts**: All prompts sent to LLMs must live in `prompts/` as `.md` files, never as inline string literals in Python code.
 - **Commit Message Format**: Follow Conventional Commits format for any commit message drafted: `type(scope): summary`.
-- **Git Branching Policy**: Never delete feature or topic branches after merging PRs — keep all local and remote branches preserved.
-
