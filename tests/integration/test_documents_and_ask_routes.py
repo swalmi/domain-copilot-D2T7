@@ -58,22 +58,26 @@ async def setup_test_environment(db_session: AsyncSession) -> None:
         "inserted_count": 2,
     }
 
+    async def mock_execute_stream(*args, **kwargs):
+        yield {"type": "token", "content": "Water damage is covered up to $10,000 policy limit."}
+        yield {
+            "type": "done",
+            "citations": [
+                {
+                    "chunk_id": "22222222-2222-2222-2222-222222222222",
+                    "text_snippet": "Water damage coverage terms",
+                    "source": "sample_policy.txt",
+                    "section": "Section II - Coverage",
+                    "page": 3,
+                    "policy_id": "POL-1001",
+                    "version": "v1",
+                }
+            ],
+            "refused": False,
+        }
+
     mock_ask_case = AsyncMock(spec=AskQuestionUseCase)
-    mock_ask_case.execute.return_value = {
-        "answer": "Water damage is covered up to $10,000 policy limit.",
-        "citations": [
-            {
-                "chunk_id": "22222222-2222-2222-2222-222222222222",
-                "text_snippet": "Water damage coverage terms",
-                "source": "sample_policy.txt",
-                "section": "Section II - Coverage",
-                "page": 3,
-                "policy_id": "POL-1001",
-                "version": "v1",
-            }
-        ],
-        "refused": False,
-    }
+    mock_ask_case.execute_stream.side_effect = mock_execute_stream
 
     app.dependency_overrides[get_db_session] = mock_get_db
     app.dependency_overrides[get_ingest_document_use_case] = lambda: mock_ingest_case
@@ -112,7 +116,7 @@ def test_documents_and_ask_routes_flow() -> None:
     assert list_res.status_code == 200
     assert isinstance(list_res.json(), list)
 
-    # 4. Ask Question POST /ask
+    # 4. Ask Question POST /ask (SSE Streaming Response)
     ask_res = client.post(
         "/ask",
         json={
@@ -122,8 +126,9 @@ def test_documents_and_ask_routes_flow() -> None:
         },
     )
     assert ask_res.status_code == 200
-    data = ask_res.json()
-    assert data["refused"] is False
-    assert "Water damage is covered" in data["answer"]
-    assert len(data["citations"]) == 1
-    assert data["citations"][0]["policy_id"] == "POL-1001"
+    assert "text/event-stream" in ask_res.headers["content-type"]
+    sse_text = ask_res.text
+    assert "data: Water damage is covered up to $10,000 policy limit." in sse_text
+    assert "data: [DONE]" in sse_text
+    assert "POL-1001" in sse_text
+
