@@ -82,6 +82,10 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
         async def get_by_id(self, claim_id: UUID) -> Claim | None:
             return None
 
+        async def list_pending_approvals(self) -> list[Claim]:
+            return []
+
+
     class DummyDocumentRepository(DocumentRepository):
         """Concrete test implementation of DocumentRepository."""
 
