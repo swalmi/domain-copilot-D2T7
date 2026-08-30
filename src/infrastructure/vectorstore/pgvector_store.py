@@ -124,7 +124,12 @@ class PgVectorStore(VectorStore):
 
         doc_id = None
         try:
-            doc_id = UUID(chunk.source_document)
+            potential_uuid = UUID(chunk.source_document)
+            doc_check = await self._session.execute(
+                select(DocumentModel.id).where(DocumentModel.id == potential_uuid)
+            )
+            if doc_check.scalar_one_or_none() is not None:
+                doc_id = potential_uuid
         except (ValueError, TypeError):
             pass
 
