@@ -11,11 +11,16 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.application.use_cases.ask_question import AskQuestionUseCase
+from src.application.use_cases.ingest_document import IngestDocumentUseCase
 from src.application.use_cases.run_adjudication import RunAdjudicationWorkflowUseCase
 from src.domain.interfaces.claim_repository import ClaimRepository
+from src.domain.interfaces.document_repository import DocumentRepository
 from src.domain.interfaces.vector_store import VectorStore
 from src.infrastructure.config import get_settings
 from src.infrastructure.db.repositories.claim_repository import InMemoryClaimRepository
+from src.infrastructure.db.repositories.document_repository import (
+    SqlalchemyDocumentRepository,
+)
 from src.infrastructure.llm.ollama_provider import OllamaProvider
 from src.infrastructure.llm.openrouter_provider import OpenRouterProvider
 from src.infrastructure.llm.provider_router import ProviderRouter
@@ -90,6 +95,26 @@ def get_vector_store(
 def get_claim_repository() -> ClaimRepository:
     """Provide single-instance claim repository for claim entity persistence."""
     return _claim_repository
+
+
+def get_document_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentRepository:
+    """Instantiate SqlalchemyDocumentRepository bound to active database session."""
+    return SqlalchemyDocumentRepository(session=session)
+
+
+def get_ingest_document_use_case(
+    llm_provider: ProviderRouter = Depends(get_provider_router),
+    vector_store: VectorStore = Depends(get_vector_store),
+    document_repo: DocumentRepository = Depends(get_document_repository),
+) -> IngestDocumentUseCase:
+    """Construct IngestDocumentUseCase instance with ProviderRouter, VectorStore, and DocumentRepository."""
+    return IngestDocumentUseCase(
+        llm_provider=llm_provider,
+        vector_store=vector_store,
+        document_repo=document_repo,
+    )
 
 
 def get_ask_question_use_case(
