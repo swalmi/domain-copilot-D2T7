@@ -109,15 +109,17 @@ class PgVectorStore(VectorStore):
             )
         return cited_chunks
 
+    async def chunk_exists(self, content_hash: str) -> bool:
+        """Check if a chunk with the specified content hash already exists in the database."""
+        stmt = select(ChunkModel.id).where(ChunkModel.content_hash == content_hash)
+        res = await self._session.execute(stmt)
+        return res.scalar_one_or_none() is not None
+
     async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
         """Insert a policy chunk and its vector embedding idempotently into the store."""
         content_hash = compute_chunk_hash(chunk.text)
 
-        existing_stmt = select(ChunkModel.id).where(
-            ChunkModel.content_hash == content_hash
-        )
-        existing_res = await self._session.execute(existing_stmt)
-        if existing_res.scalar_one_or_none() is not None:
+        if await self.chunk_exists(content_hash):
             return
 
         doc_id = None
