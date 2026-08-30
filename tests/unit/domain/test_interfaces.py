@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+import uuid
 from uuid import UUID
 
 import pytest
@@ -64,6 +65,9 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
         async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
             pass
 
+        async def chunk_exists(self, content_hash: str) -> bool:
+            return False
+
     class DummyClaimRepository(ClaimRepository):
         """Concrete test implementation of ClaimRepository."""
 
@@ -75,6 +79,11 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
 
     class DummyDocumentRepository(DocumentRepository):
         """Concrete test implementation of DocumentRepository."""
+
+        async def create_document(
+            self, filename: str, content_hash: str, status: str
+        ) -> UUID:
+            return uuid.uuid4()
 
         async def save_document_status(self, document_id: UUID, status: str) -> None:
             pass

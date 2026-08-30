@@ -6,6 +6,12 @@ class DocumentRepository(ABC):
     """Abstract interface defining persistence operations for policy documents."""
 
     @abstractmethod
+    async def create_document(
+        self, filename: str, content_hash: str, status: str
+    ) -> UUID:
+        """Create a new document record and return its UUID."""
+
+    @abstractmethod
     async def save_document_status(self, document_id: UUID, status: str) -> None:
         """Update the processing status of a policy document."""
 

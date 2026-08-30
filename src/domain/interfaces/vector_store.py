@@ -21,3 +21,7 @@ class VectorStore(ABC):
     @abstractmethod
     async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
         """Insert or update a policy chunk and its associated embedding in the store."""
+
+    @abstractmethod
+    async def chunk_exists(self, content_hash: str) -> bool:
+        """Check if a chunk with the specified content hash already exists in the store."""
