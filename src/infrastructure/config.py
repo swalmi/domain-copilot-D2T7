@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot"
     )
+    redis_url: str = "redis://localhost:6379/0"
+
 
     ollama_base_url: str = "http://localhost:11434"
     ollama_chat_model: str = "llama3.2:3b"
