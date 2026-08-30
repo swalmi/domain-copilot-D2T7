@@ -7,6 +7,7 @@ from src.api.routes import (
     claims_router,
     documents_router,
     health_router,
+    runs_router,
 )
 from src.infrastructure.config import get_settings
 
@@ -31,6 +32,8 @@ app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(ask_router)
 app.include_router(claims_router)
+app.include_router(runs_router)
+
 
 
 
