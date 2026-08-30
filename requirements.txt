@@ -1,0 +1,17 @@
+fastapi==0.115.8
+uvicorn==0.34.0
+sqlalchemy==2.0.38
+alembic==1.14.1
+celery==5.4.0
+redis==5.2.1
+pydantic==2.10.6
+langchain==0.3.19
+langchain-openai==0.3.6
+langchain-ollama==0.2.3
+langchain-postgres==0.0.13
+langchain-community==0.3.18
+langchain-unstructured==0.1.6
+unstructured==0.16.19
+pytest==8.3.4
+pytest-asyncio==0.25.3
+ragas==0.2.12
