@@ -11,6 +11,7 @@ interface Citation {
 export const AskQAStream: React.FC = () => {
   const [query, setQuery] = useState('');
   const [policyNumber, setPolicyNumber] = useState('POL-1001');
+  const [availablePolicies, setAvailablePolicies] = useState<{ id: string; filename: string }[]>([]);
   const [answer, setAnswer] = useState('');
   const [citations, setCitations] = useState<Citation[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -35,6 +36,7 @@ export const AskQAStream: React.FC = () => {
     try {
       const response = await fetch('/ask', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, policy_number: policyNumber }),
       });
@@ -94,6 +96,25 @@ export const AskQAStream: React.FC = () => {
       setIsStreaming(false);
     }
   };
+
+  // Load available policies for dropdown
+  React.useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/documents', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setAvailablePolicies(data.map((d: any) => ({ id: d.id, filename: d.filename })));
+      } catch {
+        // ignore
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const simulateMockResponse = (q: string) => {
     if (q.toLowerCase().includes('termite') || q.toLowerCase().includes('flood')) {
@@ -173,15 +194,19 @@ export const AskQAStream: React.FC = () => {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--color-fg-secondary)]">
-              Policy ID
-            </label>
-            <input
-              type="text"
+            <label className="mb-1 block text-xs font-medium text-[var(--color-fg-secondary)]">Policy</label>
+            <select
               className="karen-input font-mono text-xs"
               value={policyNumber}
               onChange={(e) => setPolicyNumber(e.target.value)}
-            />
+            >
+              <option value="">-- Select Policy --</option>
+              {availablePolicies.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.filename} ({p.id})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

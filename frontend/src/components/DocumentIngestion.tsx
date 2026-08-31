@@ -18,6 +18,8 @@ export const DocumentIngestion: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [documents, setDocuments] = useState<IngestedDocument[]>([]);
+  const [correlationId, setCorrelationId] = useState<string | null>(null);
+  const [traceEvents, setTraceEvents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDocuments();
@@ -25,7 +27,7 @@ export const DocumentIngestion: React.FC = () => {
 
   const fetchDocuments = async () => {
     try {
-      const res = await fetch('/documents');
+      const res = await fetch('/documents', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setDocuments(data);
@@ -77,14 +79,23 @@ export const DocumentIngestion: React.FC = () => {
     try {
       const res = await fetch('/documents', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 
       if (res.ok) {
-        setUploadMessage({
-          type: 'success',
-          text: `Document '${file.name}' ingested successfully into vector database.`,
-        });
+        const data = await res.json();
+        if (data.status === 'already_ingested') {
+          setUploadMessage({ type: 'error', text: 'Document already ingested previously.' });
+        } else {
+          setUploadMessage({
+            type: 'success',
+            text: `Document '${file.name}' accepted for ingestion.`,
+          });
+          if (data.correlation_id) {
+            setCorrelationId(data.correlation_id);
+          }
+        }
         setFile(null);
         fetchDocuments();
       } else {
@@ -113,7 +124,33 @@ export const DocumentIngestion: React.FC = () => {
     } finally {
       setIsUploading(false);
     }
+
   };
+
+  // Poll run trace events when correlationId is available
+  useEffect(() => {
+    if (!correlationId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/runs/${correlationId}`);
+        if (res.ok) {
+          const events = await res.json();
+          if (!cancelled) setTraceEvents(events);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    };
+
+    const interval = setInterval(poll, 1000);
+    poll();
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      setCorrelationId(null);
+    };
+  }, [correlationId]);
 
   return (
     <div className="animate-rise space-y-6">
@@ -215,7 +252,8 @@ export const DocumentIngestion: React.FC = () => {
           </div>
         )}
 
-        <div className="flex justify-end pt-1">
+        {/* Submit */}
+        <div className="flex items-center justify-end gap-2 pt-2">
           <button
             type="submit"
             disabled={!file || isUploading}
@@ -275,6 +313,25 @@ export const DocumentIngestion: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Ingestion Trace Events (business-like) */}
+      {traceEvents.length > 0 && (
+        <div className="soft-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="eyebrow">Ingestion Progress</span>
+            <span className="text-xs text-[var(--color-fg-tertiary)]">Live trace</span>
+          </div>
+          <div className="space-y-2 text-sm font-mono text-[var(--color-fg-secondary)] max-h-48 overflow-auto">
+            {traceEvents.map((ev, i) => (
+              <div key={i} className="rounded border p-2 bg-[var(--color-panel-elevated)]">
+                <div className="text-xs font-medium">{ev.step_name} — {ev.event_type}</div>
+                <div className="text-[12px] text-[var(--color-fg)]">{JSON.stringify(ev.payload)}</div>
+                <div className="text-[11px] text-[var(--color-fg-tertiary)]">{new Date(ev.timestamp).toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

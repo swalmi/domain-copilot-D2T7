@@ -13,6 +13,7 @@ from src.domain.interfaces.claim_repository import ClaimRepository
 from src.domain.interfaces.llm_provider import LLMProvider
 from src.domain.interfaces.vector_store import VectorStore
 from src.infrastructure.observability.trace_logger import traced_step
+from src.infrastructure.observability.pause_registry import wait_if_paused
 
 logger = logging.getLogger(__name__)
 
@@ -86,12 +87,15 @@ class RunAdjudicationWorkflowUseCase:
                 )
 
             # 3. Exclusion Analyst Step
+            # Respect pause requests between agent steps
+            await wait_if_paused(claim.id)
             analyst = ExclusionAnalyst(llm_provider=self._llm_provider)
             exclusion_result = await self._execute_with_retry(
                 lambda: analyst.run(claim, coverage_match, self._vector_store)
             )
 
             # 4. Adjudication Drafter Step
+            await wait_if_paused(claim.id)
             drafter = AdjudicationDrafter(llm_provider=self._llm_provider)
             draft = await self._execute_with_retry(
                 lambda: drafter.run(claim, coverage_match, exclusion_result, self._claim_repo)

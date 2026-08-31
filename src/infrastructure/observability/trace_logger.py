@@ -9,6 +9,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
+import json
 
 logger = logging.getLogger("trace_logger")
 
@@ -68,6 +69,12 @@ def record_trace_event(
     if correlation_id not in _in_memory_trace_events:
         _in_memory_trace_events[correlation_id] = []
     _in_memory_trace_events[correlation_id].append(event)
+    # Also persist an exaggerated, human-friendly log line to the configured file logger
+    try:
+        logger.info(json.dumps(event, default=str))
+    except Exception:
+        # Ensure tracing never raises due to logging failure
+        logger.debug("Failed to write trace event to file logger")
     return event
 
 

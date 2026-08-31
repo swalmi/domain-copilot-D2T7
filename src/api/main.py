@@ -5,6 +5,9 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+import logging
+from pathlib import Path
+import json
 
 from src.api.limiter import limiter
 from src.api.routes import (
@@ -24,6 +27,18 @@ app = FastAPI(
     title=settings.app_title,
     description="Domain Copilot API for domain policy Q&A and automated claim adjudication.",
     version="1.0.0",
+)
+
+# Configure file logging for workflow and trace events
+root_dir = Path(__file__).resolve().parents[2]
+log_file = root_dir / "workflow.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    handlers=[
+        logging.FileHandler(log_file, encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
 )
 
 app.state.limiter = limiter

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Zap,
-  Calculator,
   ShieldCheck,
   Ban,
   Clock,
@@ -44,6 +43,7 @@ export const ClaimAdjudication: React.FC = () => {
     try {
       const res = await fetch('/claims', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           policy_number: policyNumber,
@@ -122,6 +122,26 @@ export const ClaimAdjudication: React.FC = () => {
       // Mock cancel
     }
     setResult((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
+  };
+
+  const handlePause = async () => {
+    if (!result?.claim_id) return;
+    try {
+      await fetch(`/claims/${result.claim_id}/pause`, { method: 'POST', credentials: 'include' });
+      setStepStatus('Workflow paused by user');
+    } catch {
+      setStepStatus('Failed to pause workflow (demo-only)');
+    }
+  };
+
+  const handleResume = async () => {
+    if (!result?.claim_id) return;
+    try {
+      await fetch(`/claims/${result.claim_id}/resume`, { method: 'POST', credentials: 'include' });
+      setStepStatus('Workflow resumed by user');
+    } catch {
+      setStepStatus('Failed to resume workflow (demo-only)');
+    }
   };
 
   return (
@@ -258,6 +278,16 @@ export const ClaimAdjudication: React.FC = () => {
                 <button onClick={handleCancel} className="btn btn-danger btn-sm">
                   <Ban className="h-3.5 w-3.5" /> Cancel Celery Job
                 </button>
+              )}
+              {result.status !== 'cancelled' && result.status !== 'approved' && (
+                <>
+                  <button onClick={handlePause} className="btn btn-warning btn-sm">
+                    <Clock className="h-3.5 w-3.5" /> Pause
+                  </button>
+                  <button onClick={handleResume} className="btn btn-success btn-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Resume
+                  </button>
+                </>
               )}
             </div>
           </div>
