@@ -23,7 +23,7 @@ class EditAndApproveRequest(BaseModel):
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def list_pending_approvals(
-    current_user: UserPayload = Depends(require_role("adjuster")),
+    current_user: UserPayload = Depends(require_role("corp")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> list[dict[str, Any]]:
     """Return all pending claim decisions requiring manual adjuster review."""
@@ -44,7 +44,7 @@ async def list_pending_approvals(
 @router.post("/{claim_id}/approve", status_code=status.HTTP_200_OK)
 async def approve_claim(
     claim_id: UUID,
-    current_user: UserPayload = Depends(require_role("adjuster")),
+    current_user: UserPayload = Depends(require_role("corp")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> dict[str, Any]:
     """Approve a claim decision (Strictly restricted to adjuster role)."""
@@ -73,7 +73,7 @@ async def approve_claim(
 @router.post("/{claim_id}/reject", status_code=status.HTTP_200_OK)
 async def reject_claim(
     claim_id: UUID,
-    current_user: UserPayload = Depends(require_role("adjuster")),
+    current_user: UserPayload = Depends(require_role("corp")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> dict[str, Any]:
     """Reject a claim decision (Strictly restricted to adjuster role)."""
@@ -103,7 +103,7 @@ async def reject_claim(
 async def edit_and_approve_claim(
     claim_id: UUID,
     payload: EditAndApproveRequest,
-    current_user: UserPayload = Depends(require_role("adjuster")),
+    current_user: UserPayload = Depends(require_role("corp")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> dict[str, Any]:
     """Edit claim payout/notes and approve (Strictly restricted to adjuster role)."""

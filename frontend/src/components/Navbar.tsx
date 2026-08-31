@@ -7,52 +7,76 @@ import {
   Activity,
   Moon,
   Sun,
-  UserCheck,
-  ShieldAlert,
+  LogOut,
+  LayoutDashboard,
+  ScrollText,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import type { UserRole } from '../context/AuthContext';
 
-
-export type TabType = 'qa' | 'claims' | 'approvals' | 'documents' | 'trace';
+export type TabType =
+  | 'dashboard'
+  | 'qa'
+  | 'claims'
+  | 'approvals'
+  | 'documents'
+  | 'trace';
 
 interface NavbarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onAuthClick: (view: 'login' | 'register') => void;
+  onLogoClick: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  onAuthClick,
+  onLogoClick,
+}) => {
   const { theme, toggleTheme } = useTheme();
-  const { user, setRole } = useAuth();
+  const { user, logout } = useAuth();
 
-  const navItems = [
-    { id: 'qa' as TabType, label: 'Q&A Stream', icon: MessageSquare },
-    { id: 'claims' as TabType, label: 'Claim Adjudication', icon: Zap },
-    { id: 'approvals' as TabType, label: 'Approvals Queue', icon: ShieldCheck },
-    { id: 'documents' as TabType, label: 'Policy Documents', icon: FileText },
-    { id: 'trace' as TabType, label: 'Trace Audit', icon: Activity },
+  const navItems: { id: TabType; label: string; icon: typeof MessageSquare; public: boolean; roles?: ('client' | 'corp')[] }[] = [
+    { id: 'qa' as TabType, label: 'Ask', icon: MessageSquare, public: true },
+    { id: 'documents' as TabType, label: 'Policies', icon: FileText, public: true },
+    { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard, public: false },
+    { id: 'claims' as TabType, label: 'Claim Adjudication', icon: Zap, public: false, roles: ['client'] },
+    { id: 'approvals' as TabType, label: 'Approvals', icon: ShieldCheck, public: false, roles: ['corp'] },
+    { id: 'trace' as TabType, label: 'Audit Trace', icon: Activity, public: false, roles: ['corp'] },
   ];
 
+  const visible = navItems.filter((item) => {
+    if (item.public) return true;
+    if (!user) return false;
+    if (item.roles) return item.roles.includes(user.role);
+    return true;
+  });
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-panel)] px-4 py-3 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-transparent bg-transparent px-4 py-3 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <button
+          onClick={onLogoClick}
+          className="flex items-center gap-3"
+          title="Back to home"
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] font-mono text-sm font-bold text-[var(--color-fg)]">
-            D2
+            DC
           </div>
-          <div>
-            <div className="eyebrow">Variant D2T7</div>
+          <div className="text-left">
+            <div className="eyebrow">Domain Copilot</div>
             <h1 className="text-sm font-semibold tracking-tight text-[var(--color-fg)]">
-              Domain Copilot
+              Claims Intelligence
             </h1>
           </div>
-        </div>
+        </button>
 
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs (public + role-gated) */}
         <nav className="hidden items-center gap-1.5 md:flex">
-          {navItems.map((item) => {
+          {visible.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
@@ -72,43 +96,51 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           })}
         </nav>
 
-        {/* Status, Role & Theme Controls */}
+        {/* Auth + Theme Controls */}
         <div className="flex items-center gap-2.5">
-          {/* Live Readiness Pulse */}
-          <span className="hidden items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-fg-secondary)] sm:flex">
-            <span className="karen-pulse h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" aria-hidden="true" />
-            Backend Ready
-          </span>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-3 py-1.5 sm:flex">
+                <ScrollText className="h-3.5 w-3.5 text-[var(--color-fg-secondary)]" />
+                <span className="max-w-[160px] truncate text-[11px] font-medium text-[var(--color-fg-secondary)]">
+                  {user.email}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    user.role === 'corp'
+                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                      : 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
+                  }`}
+                >
+                  {user.role}
+                </span>
+              </div>
+              <button
+                onClick={() => logout()}
+                className="flex h-8 items-center gap-1.5 rounded-full border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-3 text-xs font-medium text-[var(--color-fg-secondary)] transition-all hover:text-[var(--color-fg)]"
+                title="Log out"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onAuthClick('login')}
+                className="btn btn-ghost btn-sm"
+              >
+                Log in
+              </button>
+              <button
+                onClick={() => onAuthClick('register')}
+                className="btn btn-primary btn-sm"
+              >
+                Register
+              </button>
+            </div>
+          )}
 
-          {/* Role Switcher */}
-          <div className="flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] p-0.5">
-            <button
-              onClick={() => setRole('claims_handler')}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
-                user?.role === 'claims_handler'
-                  ? 'bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
-                  : 'text-[var(--color-fg-secondary)] hover:text-[var(--color-fg)]'
-              }`}
-              title="Switch to Claims Handler Role"
-            >
-              <UserCheck className="h-3 w-3" />
-              Handler
-            </button>
-            <button
-              onClick={() => setRole('adjuster')}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
-                user?.role === 'adjuster'
-                  ? 'bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
-                  : 'text-[var(--color-fg-secondary)] hover:text-[var(--color-fg)]'
-              }`}
-              title="Switch to Senior Adjuster Role"
-            >
-              <ShieldAlert className="h-3 w-3" />
-              Adjuster
-            </button>
-          </div>
-
-          {/* Theme Toggle Button */}
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] text-[var(--color-fg-secondary)] transition-all hover:text-[var(--color-fg)]"

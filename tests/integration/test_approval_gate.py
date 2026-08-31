@@ -30,19 +30,19 @@ async def db_session() -> AsyncSession:
 
 @pytest_asyncio.fixture(autouse=True)
 async def setup_test_env(db_session: AsyncSession) -> None:
-    """Fixture seeding claims_handler and adjuster user accounts."""
-    handler_user = UserModel(
-        email="handler@domaincopilot.com",
+    """Fixture seeding client and corp user accounts."""
+    client_user = UserModel(
+        email="client@domaincopilot.com",
         hashed_password=hash_password("Pass123!"),
-        role="claims_handler",
+        role="client",
     )
-    adjuster_user = UserModel(
-        email="adjuster@domaincopilot.com",
+    corp_user = UserModel(
+        email="corp@domaincopilot.com",
         hashed_password=hash_password("Pass123!"),
-        role="adjuster",
+        role="corp",
     )
-    db_session.add(handler_user)
-    db_session.add(adjuster_user)
+    db_session.add(client_user)
+    db_session.add(corp_user)
     await db_session.commit()
 
     async def mock_get_db():
@@ -55,34 +55,14 @@ async def setup_test_env(db_session: AsyncSession) -> None:
 
 @patch("src.api.routes.claims.process_claim_adjudication.delay")
 def test_approval_gate_rbac_enforcement(mock_task_delay: MagicMock) -> None:
-    """Verify claims_handler is blocked (403) and adjuster can list and approve claims (200)."""
+    """Verify client can submit claims but is blocked (403) from approvals, and corp can approve."""
     mock_task_delay.return_value.id = "celery-approval-task-123"
 
-    # 1. Login as claims_handler and try to approve an unapproved claim -> 403 Forbidden
+    # 1. Login as client and submit a claim -> 202 Accepted
     client.post(
         "/auth/login",
-        json={"email": "handler@domaincopilot.com", "password": "Pass123!"},
+        json={"email": "client@domaincopilot.com", "password": "Pass123!"},
     )
-
-    approve_attempt = client.post("/approvals/11111111-1111-1111-1111-111111111111/approve")
-    assert approve_attempt.status_code == 403
-
-    # Logout handler
-    client.post("/auth/logout")
-
-    # 2. Login as adjuster
-    adjuster_login = client.post(
-        "/auth/login",
-        json={"email": "adjuster@domaincopilot.com", "password": "Pass123!"},
-    )
-    assert adjuster_login.status_code == 200
-
-    # 3. List pending approvals as adjuster -> 200 OK
-    list_res = client.get("/approvals")
-    assert list_res.status_code == 200
-    assert isinstance(list_res.json(), list)
-
-    # 4. Submit claim and approve as adjuster -> 200 OK
     submit_res = client.post(
         "/claims",
         json={
@@ -95,6 +75,26 @@ def test_approval_gate_rbac_enforcement(mock_task_delay: MagicMock) -> None:
     assert submit_res.status_code == 202
     created_claim_id = submit_res.json()["claim_id"]
 
+    # 2. Client tries to approve -> 403 Forbidden
+    approve_attempt = client.post(f"/approvals/{created_claim_id}/approve")
+    assert approve_attempt.status_code == 403
+
+    # Logout client
+    client.post("/auth/logout")
+
+    # 3. Login as corp
+    corp_login = client.post(
+        "/auth/login",
+        json={"email": "corp@domaincopilot.com", "password": "Pass123!"},
+    )
+    assert corp_login.status_code == 200
+
+    # 4. List pending approvals as corp -> 200 OK
+    list_res = client.get("/approvals")
+    assert list_res.status_code == 200
+    assert isinstance(list_res.json(), list)
+
+    # 5. Approve the submitted claim as corp -> 200 OK
     approve_res = client.post(f"/approvals/{created_claim_id}/approve")
     assert approve_res.status_code == 200
     assert approve_res.json()["decision"] == "approved"

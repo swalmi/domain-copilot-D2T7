@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from src.api.deps import UserPayload, get_ask_question_use_case, get_current_user
+from src.api.deps import get_ask_question_use_case
 from src.application.use_cases.ask_question import AskQuestionUseCase
 
 router = APIRouter(prefix="/ask", tags=["Q&A"])
@@ -24,7 +24,6 @@ class AskRequest(BaseModel):
 @router.post("")
 async def ask_question(
     payload: AskRequest,
-    current_user: UserPayload = Depends(get_current_user),
     use_case: AskQuestionUseCase = Depends(get_ask_question_use_case),
 ) -> StreamingResponse:
     """Execute domain Q&A RAG pipeline streaming LLM answer tokens via Server-Sent Events (SSE)."""
