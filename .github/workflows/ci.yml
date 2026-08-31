@@ -1,3 +1,73 @@
+name: CI — tests & security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    name: Backend — Python tests & audits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest -q
+
+      - name: Run pip-audit
+        run: |
+          python -m pip install pip-audit
+          pip-audit --progress=off
+
+      - name: Run gitleaks (secret scan)
+        uses: zricethezav/gitleaks-action@v2
+        with:
+          args: '--report-format json --report-path gitleaks-report.json'
+
+  frontend:
+    name: Frontend — build & audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: |
+          npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm run build --if-present || echo "no build step"
+
+      - name: Run npm audit
+        working-directory: frontend
+        run: |
+          npm audit --audit-level=moderate || true
 name: CI Pipeline
 
 on:
