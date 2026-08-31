@@ -7,7 +7,13 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from src.api.deps import UserPayload, get_claim_repository, get_current_user
+from src.api.deps import (
+    UserPayload,
+    get_claim_repository,
+    get_current_user,
+    require_role,
+)
+from src.infrastructure.observability.pause_registry import pause_run, resume_run, is_paused
 from src.domain.entities.claim import Claim
 from src.domain.interfaces.claim_repository import ClaimRepository
 from src.infrastructure.tasks.celery_app import celery_app
@@ -34,7 +40,7 @@ class CreateClaimRequest(BaseModel):
 @router.post("", status_code=status.HTTP_202_ACCEPTED)
 async def submit_claim(
     payload: CreateClaimRequest,
-    current_user: UserPayload = Depends(get_current_user),
+    current_user: UserPayload = Depends(require_role("client")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> dict[str, Any]:
     """Submit a new insurance claim for asynchronous processing via Celery worker."""
@@ -66,6 +72,24 @@ async def submit_claim(
         "task_id": task.id,
         "status": "pending",
     }
+
+@router.post("/{claim_id}/pause", status_code=status.HTTP_200_OK)
+async def pause_claim(
+    claim_id: UUID,
+    current_user: UserPayload = Depends(require_role("corp")),
+) -> dict[str, str]:
+    """Pause an active claim workflow (cluster-safe using Redis pub/sub)."""
+    await pause_run(claim_id)
+    return {"status": "paused", "claim_id": str(claim_id)}
+
+@router.post("/{claim_id}/resume", status_code=status.HTTP_200_OK)
+async def resume_claim(
+    claim_id: UUID,
+    current_user: UserPayload = Depends(require_role("corp")),
+) -> dict[str, str]:
+    """Resume a previously paused claim workflow (cluster-safe)."""
+    await resume_run(claim_id)
+    return {"status": "resumed", "claim_id": str(claim_id)}
 
 
 @router.get("/{claim_id}", status_code=status.HTTP_200_OK)

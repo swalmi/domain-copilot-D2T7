@@ -4,7 +4,6 @@ import {
   CheckCircle,
   XCircle,
   Edit3,
-  Lock,
   AlertTriangle,
   FileText,
 } from 'lucide-react';
@@ -21,8 +20,7 @@ interface ApprovalItem {
 }
 
 export const ApprovalsQueue: React.FC = () => {
-  const { user, setRole } = useAuth();
-  const isAdjuster = user?.role === 'adjuster';
+  const { user } = useAuth();
 
   const [items, setItems] = useState<ApprovalItem[]>([]);
   const [filter, setFilter] = useState<string>('all');
@@ -169,27 +167,7 @@ export const ApprovalsQueue: React.FC = () => {
         </div>
       </div>
 
-      {/* RBAC Guard Notice */}
-      {!isAdjuster ? (
-        <div className="soft-card p-6 text-center space-y-3">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-400">
-            <Lock className="h-6 w-6" />
-          </div>
-          <h3 className="text-base font-semibold text-[var(--color-fg)]">
-            RBAC Access Restricted (HTTP 403 Forbidden)
-          </h3>
-          <p className="mx-auto max-w-md text-xs text-[var(--color-fg-secondary)]">
-            You are currently logged in as <span className="font-mono text-[var(--color-fg)]">claims_handler</span>. Access to the approval queue requires the <span className="font-mono text-[var(--color-fg)]">adjuster</span> role.
-          </p>
-          <button
-            onClick={() => setRole('adjuster')}
-            className="btn btn-primary btn-sm mt-2"
-          >
-            Switch Role to Senior Adjuster
-          </button>
-        </div>
-      ) : (
-        /* Approval Queue Table */
+      {/* Approval Queue Table */}
         <div className="soft-card overflow-hidden">
           <div className="scroll-thin overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -273,7 +251,6 @@ export const ApprovalsQueue: React.FC = () => {
             </table>
           </div>
         </div>
-      )}
 
       {/* Edit & Approve Modal */}
       {editingItem && (

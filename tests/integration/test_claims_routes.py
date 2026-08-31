@@ -34,7 +34,7 @@ async def setup_test_env(db_session: AsyncSession) -> None:
     user = UserModel(
         email="claims_user@domaincopilot.com",
         hashed_password=hash_password("Pass123!"),
-        role="claims_handler",
+        role="client",
     )
     db_session.add(user)
     await db_session.commit()

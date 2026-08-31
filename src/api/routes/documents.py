@@ -9,9 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import (
     UserPayload,
-    get_current_user,
     get_db_session,
     get_ingest_document_use_case,
+    require_role,
 )
 from src.application.use_cases.ingest_document import IngestDocumentUseCase
 from src.infrastructure.db.models import DocumentModel
@@ -57,7 +57,7 @@ async def upload_document(
     policy_type: str = Form("home"),
     version: str = Form("v1"),
     effective_date: date = Form(default_factory=date.today),
-    current_user: UserPayload = Depends(get_current_user),
+    current_user: UserPayload = Depends(require_role("corp")),
     ingest_use_case: IngestDocumentUseCase = Depends(get_ingest_document_use_case),
 ) -> dict[str, Any]:
     """Upload and synchronously ingest policy document file into vector database with validation."""
@@ -85,7 +85,6 @@ async def upload_document(
 @router.get("", status_code=status.HTTP_200_OK)
 async def list_documents(
     session: AsyncSession = Depends(get_db_session),
-    current_user: UserPayload = Depends(get_current_user),
 ) -> list[dict[str, Any]]:
     """Retrieve list of all uploaded policy documents with processing status."""
     stmt = select(DocumentModel).order_by(DocumentModel.created_at.desc())
