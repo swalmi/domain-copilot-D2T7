@@ -8,8 +8,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
@@ -18,9 +20,12 @@ services:
       retries: 3
 
   worker:
+    profiles: ["worker"]
     build:
       context: .
       dockerfile: Dockerfile.worker
+      args:
+        INSTALL_WORKER_DEPS: "0"
     env_file:
       - .env
     depends_on:
@@ -38,6 +43,11 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-domain_copilot}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-domain_copilot} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
