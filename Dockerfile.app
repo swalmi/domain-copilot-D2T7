@@ -4,6 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
+# Ensure Python can import the `src` package path
+ENV PYTHONPATH=/app
+
 # Minimal system deps for the API runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagic1 \
