@@ -16,6 +16,7 @@ from src.infrastructure.ingestion.document_loader import (
     load_and_chunk,
 )
 from src.infrastructure.ingestion.table_title_linker import link_tables_to_titles
+from src.infrastructure.observability.trace_logger import record_trace_event
 
 logger = logging.getLogger(__name__)
 
@@ -44,17 +45,32 @@ class IngestDocumentUseCase:
         effective_date: date,
     ) -> dict:
         """Execute the ingestion pipeline for a policy document."""
+        # Correlation id for traceability of this ingestion run
+        correlation_id = uuid.uuid4()
         try:
             with open(file_path, "rb") as f:
                 raw_bytes = f.read()
             doc_hash = compute_document_hash(raw_bytes)
+            record_trace_event(
+                correlation_id,
+                "IngestDocument",
+                "input",
+                {"file_path": file_path, "policy_id": policy_id, "content_hash": doc_hash},
+            )
         except Exception as e:
             logger.error(f"Failed to read document {file_path}: {e}", exc_info=True)
-            return {"status": "failed", "error": str(e)}
+            record_trace_event(correlation_id, "IngestDocument", "error", {"error": str(e)})
+            return {"status": "failed", "error": str(e), "correlation_id": str(correlation_id)}
 
         existing_doc_id = await self._document_repo.get_document_by_hash(doc_hash)
         if existing_doc_id is not None:
-            return {"status": "already_ingested"}
+            record_trace_event(
+                correlation_id,
+                "IngestDocument",
+                "decision",
+                {"status": "already_ingested", "existing_document_id": str(existing_doc_id)},
+            )
+            return {"status": "already_ingested", "existing_document_id": str(existing_doc_id), "correlation_id": str(correlation_id)}
 
         doc_id = await self._document_repo.create_document(
             filename=Path(file_path).name,
@@ -71,15 +87,34 @@ class IngestDocumentUseCase:
                 effective_date=effective_date,
             )
             chunks = link_tables_to_titles(raw_chunks)
+            record_trace_event(
+                correlation_id,
+                "IngestDocument",
+                "processing",
+                {"chunks_found": len(chunks)},
+            )
 
             inserted_count = 0
-            for chunk_dict in chunks:
+            for idx, chunk_dict in enumerate(chunks):
                 chunk_text = chunk_dict.get("text", "")
                 if not chunk_text:
                     continue
 
                 c_hash = compute_chunk_hash(chunk_text)
+                # Record chunk pre-check
+                record_trace_event(
+                    correlation_id,
+                    "IngestDocument:Chunk",
+                    "precheck",
+                    {"chunk_index": idx, "content_hash": c_hash},
+                )
                 if await self._vector_store.chunk_exists(c_hash):
+                    record_trace_event(
+                        correlation_id,
+                        "IngestDocument:Chunk",
+                        "skipped",
+                        {"chunk_index": idx, "reason": "already_exists", "content_hash": c_hash},
+                    )
                     continue
 
                 embedding = await self._embedder.embed(chunk_text)
@@ -106,15 +141,29 @@ class IngestDocumentUseCase:
 
                 await self._vector_store.upsert(cited_chunk, embedding)
                 inserted_count += 1
+                record_trace_event(
+                    correlation_id,
+                    "IngestDocument:Chunk",
+                    "upserted",
+                    {"chunk_index": idx, "chunk_id": str(cited_chunk.chunk_id), "content_hash": c_hash},
+                )
 
             await self._document_repo.save_document_status(doc_id, "success")
+            record_trace_event(
+                correlation_id,
+                "IngestDocument",
+                "completed",
+                {"document_id": str(doc_id), "chunks_count": len(chunks), "inserted_count": inserted_count},
+            )
             return {
                 "status": "success",
                 "document_id": str(doc_id),
                 "chunks_count": len(chunks),
                 "inserted_count": inserted_count,
+                "correlation_id": str(correlation_id),
             }
         except Exception as e:
             logger.error(f"Ingestion processing failed for {file_path}: {e}", exc_info=True)
+            record_trace_event(correlation_id, "IngestDocument", "error", {"error": str(e)})
             await self._document_repo.save_document_status(doc_id, "failed")
-            return {"status": "failed", "error": str(e)}
+            return {"status": "failed", "error": str(e), "correlation_id": str(correlation_id)}
