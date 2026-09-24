@@ -220,3 +220,13 @@ __marimo__/
 # Local notes file
 notes
 
+ # Generated audit / workflow logs (repo-root sinks)
+system_logs.txt
+workflow.log
+chunk_log.json
+claim_logs.json
+retrieval_log.json
+token_usage.json
+# Per-document chunk files
+chunks/
+
