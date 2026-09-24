@@ -24,7 +24,8 @@ class Settings(BaseSettings):
 
 
     ollama_base_url: str = "http://localhost:11434"
-    ollama_chat_model: str = "llama3.2:3b"
+    # llama3.2:3b cannot fit on the host (3.7GB RAM, OOM-kills uvicorn); 1b is the working model.
+    ollama_chat_model: str = "llama3.2:1b"
     ollama_embedding_model: str = "nomic-embed-text"
 
     openrouter_api_key: str = ""
