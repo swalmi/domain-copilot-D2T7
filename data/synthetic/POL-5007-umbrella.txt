@@ -1,0 +1,13 @@
+# Commercial Umbrella Sample Policy
+
+Policy ID: POL-5007
+Effective: 2025-04-01
+
+ATTACHED POLICIES
+This umbrella follows form over scheduled underlying general auto and employers liability policies.
+LIMIT
+The umbrella limit is $1,000,000 each occurrence and aggregate, excess of $1,000,000 underlying.
+SELF-INSURED RETENTION
+A self-insured retention of $10,000 applies where underlying coverage is exhausted or unavailable.
+EXCLUSIONS
+Contractual liability assumed without insurable interest, pollution on owned sites, and professional errors are excluded.

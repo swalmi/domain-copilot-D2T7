@@ -1,0 +1,15 @@
+# Travel Medical Sample Policy
+
+Policy ID: POL-5003
+Effective: 2025-06-15
+
+ELIGIBILITY
+Coverage applies to insured persons while traveling outside their country of residence for trips up to 180 days.
+MEDICAL BENEFITS
+Emergency medical treatment, hospitalization, and ambulance services are covered up to $1,000,000 per trip.
+DEDUCTIBLE
+A $250 deductible applies per calendar year for non-emergency outpatient care.
+EXCLUSIONS
+Pre-existing conditions not stabilized for 180 days, elective cosmetic procedures, and participation in professional sports are excluded.
+EVIACUATION
+Medical evacuation benefit is $250,000 and requires insurer authorization before transport when safe to do so.

@@ -1,7 +1,6 @@
 import json
 import os
 import subprocess
-import time
 
 GH_TOKEN = os.popen("sed -E 's/.*:(ghp_[^@]+)@.*/\\1/' ~/.git-credentials").read().strip()
 env = os.environ.copy()
