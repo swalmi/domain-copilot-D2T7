@@ -10,11 +10,10 @@ langchain-openai==0.3.6
 langchain-ollama==0.2.3
 langchain-postgres==0.0.13
 langchain-community==0.3.18
-langchain-unstructured==0.1.6
-unstructured==0.27.5
+unstructured[pdf]==0.27.5
 unstructured-client==0.32.3
-unstructured-inference==1.6.2
-onnxruntime==1.19.2
+unstructured-inference==1.6.13
+python-docx==1.2.0
 pytest==8.3.4
 pytest-asyncio==0.25.3
 ragas==0.2.12
@@ -24,5 +23,6 @@ passlib==1.7.4
 bcrypt==5.0.0
 email-validator==2.3.0
 asyncpg==0.31.0
+psycopg[binary]==3.3.6
 python-multipart==0.0.32
 slowapi==0.1.9
