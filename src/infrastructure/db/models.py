@@ -1,8 +1,9 @@
 import uuid
 from datetime import date, datetime, timezone
+from decimal import Decimal
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -80,6 +81,59 @@ class UserModel(Base):
     )
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class ClaimModel(Base):
+    """SQLAlchemy model representing an insurance claim and its adjudication result."""
+
+    __tablename__ = "claims"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    policy_number: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    date_of_loss: Mapped[date] = mapped_column(Date, nullable=False)
+    incident_description: Mapped[str] = mapped_column(Text, nullable=False)
+    claim_amount_requested: Mapped[Decimal] = mapped_column(
+        Numeric(14, 2), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), index=True, nullable=True
+    )
+    pipeline_stage: Mapped[str | None] = mapped_column(String, nullable=True)
+    correlation_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), index=True, nullable=True
+    )
+    celery_task_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    calculated_payout: Mapped[Decimal | None] = mapped_column(
+        Numeric(14, 2), nullable=True
+    )
+    deductible_applied: Mapped[Decimal | None] = mapped_column(
+        Numeric(14, 2), nullable=True
+    )
+    policy_limit: Mapped[Decimal | None] = mapped_column(
+        Numeric(14, 2), nullable=True
+    )
+    recommendation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    reasoning_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    citations: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    adjusted_payout: Mapped[Decimal | None] = mapped_column(
+        Numeric(14, 2), nullable=True
+    )
+    adjuster_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    admin_justification: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
 
 
 class TraceEventModel(Base):

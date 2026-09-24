@@ -7,7 +7,6 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 import logging
 from pathlib import Path
-import json
 
 from src.api.limiter import limiter
 from src.api.routes import (
@@ -18,8 +17,10 @@ from src.api.routes import (
     documents_router,
     health_router,
     runs_router,
+    usage_router,
 )
 from src.infrastructure.config import get_settings
+from src.infrastructure.observability.system_logger import configure_system_logger
 
 settings = get_settings()
 
@@ -40,6 +41,10 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
+
+# Point the structured system logger at the repo-root sink at startup so every
+# pipeline phase (ingestion, retrieval, generation) is appended there.
+configure_system_logger(root_dir / "system_logs.txt")
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -70,3 +75,4 @@ app.include_router(ask_router)
 app.include_router(claims_router)
 app.include_router(runs_router)
 app.include_router(approvals_router)
+app.include_router(usage_router)

@@ -8,6 +8,7 @@ celery_app = Celery(
     "domain_copilot_tasks",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    include=["src.infrastructure.tasks.claim_tasks"],
 )
 
 celery_app.conf.update(

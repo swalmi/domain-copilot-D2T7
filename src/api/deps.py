@@ -17,7 +17,9 @@ from src.domain.interfaces.claim_repository import ClaimRepository
 from src.domain.interfaces.document_repository import DocumentRepository
 from src.domain.interfaces.vector_store import VectorStore
 from src.infrastructure.config import get_settings
-from src.infrastructure.db.repositories.claim_repository import InMemoryClaimRepository
+from src.infrastructure.db.repositories.claim_repository import (
+    SqlAlchemyClaimRepository,
+)
 from src.infrastructure.db.repositories.document_repository import (
     SqlalchemyDocumentRepository,
 )
@@ -27,7 +29,6 @@ from src.infrastructure.llm.provider_router import ProviderRouter
 from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 _async_session_factory: async_sessionmaker[AsyncSession] | None = None
-_claim_repository: ClaimRepository = InMemoryClaimRepository()
 
 
 class UserPayload(BaseModel):
@@ -77,12 +78,17 @@ def get_openrouter_provider() -> OpenRouterProvider:
     )
 
 
-def get_provider_router(
-    ollama: OllamaProvider = Depends(get_ollama_provider),
-    openrouter: OpenRouterProvider = Depends(get_openrouter_provider),
-) -> ProviderRouter:
+def get_provider_router() -> ProviderRouter:
     """Wire Ollama as primary provider and OpenRouter as fallback in a ProviderRouter instance."""
-    return ProviderRouter(primary=ollama, fallback=openrouter)
+    return build_provider_router()
+
+
+def build_provider_router() -> ProviderRouter:
+    """Plain (non-DI) factory for the provider router, usable outside FastAPI requests."""
+    return ProviderRouter(
+        primary=get_ollama_provider(),
+        fallback=get_openrouter_provider(),
+    )
 
 
 def get_vector_store(
@@ -92,9 +98,11 @@ def get_vector_store(
     return PgVectorStore(session=session)
 
 
-def get_claim_repository() -> ClaimRepository:
-    """Provide single-instance claim repository for claim entity persistence."""
-    return _claim_repository
+def get_claim_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> SqlAlchemyClaimRepository:
+    """Provide a PostgreSQL-backed claim repository bound to the request session."""
+    return SqlAlchemyClaimRepository(session=session)
 
 
 def get_document_repository(

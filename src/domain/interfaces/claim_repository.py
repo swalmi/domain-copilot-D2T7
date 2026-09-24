@@ -18,3 +18,15 @@ class ClaimRepository(ABC):
     @abstractmethod
     async def list_pending_approvals(self) -> list[Claim]:
         """Retrieve all claims currently pending manual approval."""
+
+    @abstractmethod
+    async def list_all(self) -> list[Claim]:
+        """Retrieve every claim regardless of status (admin review)."""
+
+    @abstractmethod
+    async def list_by_user(self, user_id: UUID) -> list[Claim]:
+        """Retrieve all claims owned by a specific user."""
+
+    @abstractmethod
+    async def delete(self, claim_id: UUID) -> bool:
+        """Permanently remove a claim; return True if a row was deleted."""
