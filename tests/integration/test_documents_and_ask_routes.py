@@ -127,7 +127,7 @@ def test_documents_and_ask_routes_flow() -> None:
     assert ask_res.status_code == 200
     assert "text/event-stream" in ask_res.headers["content-type"]
     sse_text = ask_res.text
-    assert "data: Water damage is covered up to $10,000 policy limit." in sse_text
+    assert 'data: {"token": "Water damage is covered up to $10,000 policy limit."}' in sse_text
     assert "data: [DONE]" in sse_text
     assert "POL-1001" in sse_text
 

@@ -5,6 +5,8 @@ import pytest
 from src.infrastructure.llm.ollama_provider import OllamaProvider
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+# 3b OOMs this host (3.6GB RAM); follow the configured chat model (default 1b).
+OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "llama3.2:1b")
 
 
 @pytest.fixture
@@ -12,7 +14,7 @@ def ollama_provider() -> OllamaProvider:
     """Fixture initializing OllamaProvider targeting the active Ollama instance."""
     return OllamaProvider(
         base_url=OLLAMA_BASE_URL,
-        chat_model="llama3.2:3b",
+        chat_model=OLLAMA_CHAT_MODEL,
         embedding_model="nomic-embed-text",
     )
 

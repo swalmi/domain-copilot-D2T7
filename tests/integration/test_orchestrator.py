@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.agents.coverage_matcher import CoverageMatcher
 from src.application.use_cases.run_adjudication import (
@@ -30,19 +30,27 @@ class InMemoryClaimRepository(ClaimRepository):
     async def get_by_id(self, claim_id: uuid.UUID) -> Claim | None:
         return self.claims.get(claim_id)
 
+    async def list_pending_approvals(self) -> list[Claim]:
+        return [
+            c
+            for c in self.claims.values()
+            if c.status in ("pending_approval", "submitted", "processing", "report_ready")
+        ]
+
+    async def list_all(self) -> list[Claim]:
+        return list(self.claims.values())
+
+    async def list_by_user(self, user_id: uuid.UUID) -> list[Claim]:
+        return [c for c in self.claims.values() if c.user_id == user_id]
+
+    async def delete(self, claim_id: uuid.UUID) -> bool:
+        return self.claims.pop(claim_id, None) is not None
+
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncSession:
-    """Fixture providing an active AsyncSession connected to the local database."""
-    engine = create_async_engine(
-        "postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot"
-    )
-    session_factory = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with session_factory() as session:
-        yield session
-    await engine.dispose()
+async def db_session(isolated_db_session: AsyncSession) -> AsyncSession:
+    """Redirect to the scratch database so the seeded corpus is never modified."""
+    return isolated_db_session
 
 
 @pytest.fixture

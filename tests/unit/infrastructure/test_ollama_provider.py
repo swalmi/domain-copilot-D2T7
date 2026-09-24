@@ -94,7 +94,9 @@ async def test_call_tool_returns_dict(mock_ollama_components) -> None:
     result = await provider.call_tool("Find deductible", tools=tools)
 
     assert isinstance(result, dict)
-    assert result == {"name": "search_policy", "args": {"query": "deductible"}}
+    assert result["name"] == "search_policy"
+    assert result["args"] == {"query": "deductible"}
+    assert "raw_content" in result
 
 
 @pytest.mark.asyncio

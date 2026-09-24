@@ -35,7 +35,7 @@ async def setup_sse_test_env(db_session: AsyncSession) -> None:
     user = UserModel(
         email="sse_user@domaincopilot.com",
         hashed_password=hash_password("Pass123!"),
-        role="claims_handler",
+        role="client",
     )
     db_session.add(user)
     await db_session.commit()
@@ -72,7 +72,7 @@ async def setup_sse_test_env(db_session: AsyncSession) -> None:
 
 
 def test_sse_token_streaming_endpoint() -> None:
-    """Verify POST /ask returns text/event-stream with incremental tokens and final [DONE] payload."""
+    """Verify POST /ask returns text/event-stream with incremental JSON tokens and final [DONE] payload."""
     login_res = client.post(
         "/auth/login",
         json={"email": "sse_user@domaincopilot.com", "password": "Pass123!"},
@@ -88,8 +88,11 @@ def test_sse_token_streaming_endpoint() -> None:
 
     sse_lines = res.text.strip().split("\n\n")
     assert len(sse_lines) >= 4
-    assert sse_lines[0] == "data: Token1 "
-    assert sse_lines[1] == "data: Token2 "
-    assert sse_lines[2] == "data: Token3"
-    assert sse_lines[3].startswith("data: [DONE]")
+    assert sse_lines[0] == 'data: {"token": "Token1 "}'
+    assert sse_lines[1] == 'data: {"token": "Token2 "}'
+    assert sse_lines[2] == 'data: {"token": "Token3"}'
+    assert sse_lines[3].startswith("data: {")
+    assert '"done": true' in sse_lines[3]
     assert "POL-2002" in sse_lines[3]
+    assert "correlation_id" in sse_lines[3]
+    assert sse_lines[4] == "data: [DONE]"
