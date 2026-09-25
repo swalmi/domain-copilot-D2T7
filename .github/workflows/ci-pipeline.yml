@@ -1,0 +1,137 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  fast-tests:
+    name: Lint, Fast Tests & Security Scan
+    runs-on: ubuntu-latest
+
+    env:
+      # Required by tests/unit/api/test_deps.py (client built at import time)
+      OPENAI_API_KEY: ci-dummy-key
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff pip-audit pytest
+          # --no-deps: onnxruntime upper bound conflicts with
+          # unstructured-inference (see Dockerfile.app)
+          pip install --no-deps langchain-unstructured==0.1.6
+
+      - name: Run Ruff (Linter)
+        run: |
+          ruff check src/ tests/
+
+      - name: Run Pytest (Unit & Contract Tests)
+        run: |
+          PYTHONPATH=. pytest tests/unit/
+
+      - name: Run Dependency Vulnerability Scan (pip-audit)
+        run: |
+          pip-audit || true
+
+      - name: Run Secret Scan (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  integration-tests:
+    name: Integration Tests (Docker Compose)
+    runs-on: ubuntu-latest
+
+    env:
+      # hi_res runs layout detection + tesseract OCR and needs minutes per PDF
+      # on a 2-vCPU runner; 'fast' reads the text layer, which every corpus
+      # document has. Production keeps the hi_res default.
+      UNSTRUCTURED_PDF_STRATEGY: fast
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: domain_copilot
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest aiosqlite asyncpg
+          # --no-deps: onnxruntime upper bound conflicts with
+          # unstructured-inference (see Dockerfile.app)
+          pip install --no-deps langchain-unstructured==0.1.6
+
+      - name: Apply database migrations
+        env:
+          # alembic's env.py builds a *sync* engine, so the URL must not use
+          # the asyncpg driver (the app itself keeps the async URL below).
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: domain-copilot-jwt-secret-key-must-be-at-least-32-bytes
+          PYTHONPATH: .
+        run: |
+          alembic upgrade head
+
+      - name: Seed corpus
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot
+          PYTHONPATH: .
+        run: |
+          # Several tests (test_ask_question_answered_by_corpus, hybrid search)
+          # read the seeded corpus; seed_corpus.py falls back to deterministic
+          # embeddings when Ollama is unreachable, as it is on runners.
+          python scripts/seed_corpus.py
+
+      - name: Run Integration Tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: domain-copilot-jwt-secret-key-must-be-at-least-32-bytes
+        run: |
+          # test_ollama_provider exercises a live Ollama daemon with real model
+          # calls; no model runtime exists on the runner, so it runs locally
+          # against the docker compose stack instead.
+          PYTHONPATH=. pytest tests/integration/ --ignore=tests/integration/test_ollama_provider.py
