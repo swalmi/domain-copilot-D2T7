@@ -83,3 +83,67 @@ def test_claims_async_submission_and_retrieval(mock_task_delay: MagicMock) -> No
     assert claim_data["id"] == claim_id
     assert claim_data["policy_number"] == "POL-5555"
     assert claim_data["status"] == "submitted"
+
+
+@patch("src.api.routes.claims.process_claim_adjudication.delay")
+def test_claim_submission_is_idempotent_for_a_retried_key(
+    mock_task_delay: MagicMock,
+) -> None:
+    """Retrying a submission with the same idempotency key must not double-dispatch.
+
+    Twist T7: a client that never saw the 202 (timeout, retry) replays the same
+    request and gets the original claim back — one row, one Celery job.
+    """
+    mock_task_delay.return_value.id = "celery-task-idem-0001"
+
+    login_res = client.post(
+        "/auth/login",
+        json={"email": "claims_user@domaincopilot.com", "password": "Pass123!"},
+    )
+    assert login_res.status_code == 200
+
+    payload = {
+        "policy_number": "POL-7777",
+        "date_of_loss": "2026-04-01",
+        "incident_description": "Hail damage to roof shingles.",
+        "claim_amount_requested": "4200.00",
+        "idempotency_key": "retry-key-2026-04-01",
+    }
+
+    first = client.post("/claims", json=payload)
+    assert first.status_code == 202
+    first_data = first.json()
+    assert first_data["idempotent_replay"] is False
+
+    second = client.post("/claims", json=payload)
+    assert second.status_code == 202
+    second_data = second.json()
+    assert second_data["idempotent_replay"] is True
+    assert second_data["claim_id"] == first_data["claim_id"]
+    assert second_data["correlation_id"] == first_data["correlation_id"]
+
+    # Header form: same key, same claim; a different key creates a new claim.
+    header_res = client.post(
+        "/claims",
+        json={k: v for k, v in payload.items() if k != "idempotency_key"},
+        headers={"Idempotency-Key": "retry-key-2026-04-01"},
+    )
+    assert header_res.status_code == 202
+    assert header_res.json()["claim_id"] == first_data["claim_id"]
+
+    other = client.post(
+        "/claims",
+        json={k: v for k, v in payload.items() if k != "idempotency_key"},
+        headers={"Idempotency-Key": "retry-key-2026-04-02"},
+    )
+    assert other.status_code == 202
+    assert other.json()["claim_id"] != first_data["claim_id"]
+
+    # One job for the first submission; replays never re-dispatch.
+    assert mock_task_delay.call_count == 2
+
+    listed = client.get("/claims")
+    assert listed.status_code == 200
+    claim_ids = {c["id"] for c in listed.json()}
+    assert first_data["claim_id"] in claim_ids
+    assert other.json()["claim_id"] in claim_ids

@@ -212,17 +212,23 @@ Submit a new insurance claim for asynchronous multi-agent adjudication via Celer
   "policy_number": "ISO-PP-00-01",
   "date_of_loss": "2026-08-15",
   "incident_description": "Electrical surge damaged kitchen appliances during storm.",
-  "claim_amount_requested": "4500.00"
+  "claim_amount_requested": "4500.00",
+  "idempotency_key": "optional-client-key-8-128-chars"
 }
 ```
+- **Idempotency (twist T7)**: send the 8–128 character key either as `idempotency_key` in the body or as an `Idempotency-Key` header. The key maps to a deterministic claim id, so a retry returns the **original** claim with `"idempotent_replay": true` and never dispatches a second worker job. Omit the key (or send a new one) to create a distinct claim.
 - **Response `202 Accepted`**:
 ```json
 {
-  "status": "queued",
   "claim_id": "c1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
-  "correlation_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
+  "task_id": "8f2b1c9e-4a7d-4e21-9d3c-5b0a6e1f7c22",
+  "correlation_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+  "status": "pending",
+  "idempotent_replay": false
 }
 ```
+A replayed submission returns `202` with the stored `status`, the original `claim_id`/`correlation_id`, and `"idempotent_replay": true`.
+An out-of-range key returns `422`.
 
 #### `GET /claims` / `GET /claims/{id}`
 List claims (client sees own; corp sees all) and retrieve adjudication status, pipeline stage, calculated payout, and recommendation.

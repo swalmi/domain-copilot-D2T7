@@ -2,9 +2,9 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 import logging
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from src.api.deps import (
@@ -28,6 +28,18 @@ router = APIRouter(prefix="/claims", tags=["Claims"])
 # The durable celery_task_id on the Claim record is the authoritative source.
 _claim_task_map: dict[UUID, str] = {}
 
+# Twist T7 — idempotent submission. A retried POST with the same idempotency key
+# resolves to the same claim id, so the replay finds the original row instead of
+# creating a duplicate claim and a duplicate Celery job.
+_IDEMPOTENCY_NAMESPACE = uuid5(NAMESPACE_URL, "insureAI/claim-submission")
+_MIN_IDEMPOTENCY_KEY = 8
+_MAX_IDEMPOTENCY_KEY = 128
+
+
+def claim_id_for_idempotency_key(user_id: str, idempotency_key: str) -> UUID:
+    """Derive the stable claim id that a retried submission must land on."""
+    return uuid5(_IDEMPOTENCY_NAMESPACE, f"{user_id}:{idempotency_key}")
+
 # Statuses a corp adjuster may permanently delete (a decision has been taken).
 _CORP_DELETABLE_STATUSES = frozenset(
     {"approved", "rejected", "refused", "cancelled", "failed"}
@@ -45,6 +57,15 @@ class CreateClaimRequest(BaseModel):
     date_of_loss: date
     incident_description: str = Field(..., max_length=10000)
     claim_amount_requested: Decimal = Field(..., gt=Decimal("0.00"), le=Decimal("10000000.00"))
+    idempotency_key: str | None = Field(
+        default=None,
+        min_length=_MIN_IDEMPOTENCY_KEY,
+        max_length=_MAX_IDEMPOTENCY_KEY,
+        description=(
+            "Optional client-generated key. Retrying the submission with the same "
+            "key returns the original claim instead of creating a duplicate."
+        ),
+    )
 
 
 def serialize_claim(claim: Claim) -> dict[str, Any]:
@@ -97,11 +118,56 @@ def _assert_claim_access(claim: Claim, current_user: UserPayload) -> None:
 @router.post("", status_code=status.HTTP_202_ACCEPTED)
 async def submit_claim(
     payload: CreateClaimRequest,
+    request: Request,
     current_user: UserPayload = Depends(require_role("client")),
     claim_repo: ClaimRepository = Depends(get_claim_repository),
 ) -> dict[str, Any]:
-    """Submit a new insurance claim for asynchronous processing via Celery worker."""
-    claim_id = uuid4()
+    """Submit a new insurance claim for asynchronous processing via Celery worker.
+
+    Idempotent when the client supplies an idempotency key — as an
+    ``Idempotency-Key`` header or ``idempotency_key`` in the body. A replay
+    returns the original claim (``idempotent_replay: true``) and never
+    dispatches a second Celery job.
+    """
+    idempotency_key = request.headers.get("Idempotency-Key") or payload.idempotency_key
+    if idempotency_key and not (
+        _MIN_IDEMPOTENCY_KEY <= len(idempotency_key) <= _MAX_IDEMPOTENCY_KEY
+        and idempotency_key.isprintable()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                f"Idempotency key must be {_MIN_IDEMPOTENCY_KEY}-"
+                f"{_MAX_IDEMPOTENCY_KEY} printable characters."
+            ),
+        )
+
+    if idempotency_key:
+        claim_id = claim_id_for_idempotency_key(current_user.id, idempotency_key)
+        existing = await claim_repo.get_by_id(claim_id)
+        if existing is not None:
+            emit_system_log(
+                "adjudication",
+                "claim_submission_replayed",
+                {
+                    "claim_id": str(existing.id),
+                    "idempotency_key_len": len(idempotency_key),
+                    "status": existing.status,
+                    "user_id": current_user.id,
+                },
+            )
+            return {
+                "claim_id": str(existing.id),
+                "task_id": existing.celery_task_id,
+                "correlation_id": str(existing.correlation_id)
+                if existing.correlation_id
+                else None,
+                "status": existing.status,
+                "idempotent_replay": True,
+            }
+    else:
+        claim_id = uuid4()
+
     correlation_id = uuid4()
     claim = Claim(
         id=claim_id,
@@ -152,6 +218,7 @@ async def submit_claim(
         "task_id": task.id,
         "correlation_id": str(correlation_id),
         "status": "pending",
+        "idempotent_replay": False,
     }
 
 
