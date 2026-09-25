@@ -1,8 +1,11 @@
+import uuid
+from datetime import date
 from io import BytesIO
 from unittest.mock import AsyncMock
 
 import pytest_asyncio
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.api.deps import (
@@ -14,7 +17,7 @@ from src.api.main import app
 from src.api.routes.auth import hash_password
 from src.application.use_cases.ask_question import AskQuestionUseCase
 from src.application.use_cases.ingest_document import IngestDocumentUseCase
-from src.infrastructure.db.models import Base, UserModel
+from src.infrastructure.db.models import Base, ChunkModel, DocumentModel, UserModel
 
 client = TestClient(app)
 
@@ -131,3 +134,78 @@ def test_documents_and_ask_routes_flow() -> None:
     assert "data: [DONE]" in sse_text
     assert "POL-1001" in sse_text
 
+
+
+@pytest_asyncio.fixture
+async def seeded_policy_document(db_session: AsyncSession) -> uuid.UUID:
+    """Insert one document plus chunk rows carrying a policy id and payload."""
+    # Must contain hex letters: SQLite gives the UUID column NUMERIC affinity,
+    # and an all-digit id would be coerced to a real and break the round trip.
+    doc_id = uuid.UUID("33333333-3333-4333-8333-33333333abce")
+    db_session.add(
+        DocumentModel(
+            id=doc_id,
+            filename="iso-pp-00-01.txt",
+            content_hash="hash-list-documents-regression",
+            status="success",
+        )
+    )
+    for index in range(3):
+        db_session.add(
+            ChunkModel(
+                document_id=doc_id,
+                policy_id="ISO-PP-00-01",
+                policy_type="home",
+                version="v1",
+                effective_date=date(2026, 1, 1),
+                section=f"SECTION {index}",
+                chunk_type="narrative",
+                page=index + 1,
+                text=f"coverage wording {index} " * 40,
+                content_hash=f"chunk-hash-regression-{index}",
+                embedding=[0.1] * 768,
+            )
+        )
+    await db_session.commit()
+    return doc_id
+
+
+def test_list_documents_maps_policy_id_without_loading_chunk_payload(
+    seeded_policy_document: uuid.UUID,
+    db_session: AsyncSession,
+) -> None:
+    """GET /documents must resolve policy_id without selecting chunk payloads.
+
+    The endpoint originally eager-loaded every chunk row (text plus a 768-d
+    embedding) just to read one policy_id, which cost seconds on a seeded
+    corpus. This guards both the response shape and the query shape.
+    """
+    statements: list[str] = []
+
+    def _record(_conn, _cursor, statement, _parameters, _context, _many) -> None:
+        statements.append(statement)
+
+    bind = db_session.bind
+    sync_engine = getattr(bind, "sync_engine", bind)
+    event.listen(sync_engine, "before_cursor_execute", _record)
+    try:
+        res = client.get("/documents")
+    finally:
+        event.remove(sync_engine, "before_cursor_execute", _record)
+
+    assert res.status_code == 200
+    payload = res.json()
+    assert isinstance(payload, list)
+
+    seeded = next(
+        (doc for doc in payload if doc["id"] == str(seeded_policy_document)), None
+    )
+    assert seeded is not None, "seeded document missing from the listing"
+    assert seeded["policy_id"] == "ISO-PP-00-01"
+
+    heavy = [
+        statement
+        for statement in statements
+        if "chunks.text" in statement or "chunks.embedding" in statement
+    ]
+    assert heavy == [], "listing must not pull chunk text/embeddings"

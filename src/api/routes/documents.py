@@ -22,7 +22,7 @@ from src.api.deps import (
 )
 from src.application.use_cases.ingest_document import IngestDocumentUseCase
 from src.domain.interfaces.document_repository import DocumentRepository
-from src.infrastructure.db.models import DocumentModel
+from src.infrastructure.db.models import ChunkModel, DocumentModel
 from src.infrastructure.observability.document_chunk_store import delete_document_chunks
 from src.infrastructure.observability.system_logger import emit_system_log
 
@@ -161,19 +161,27 @@ async def list_documents(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[dict[str, Any]]:
     """Retrieve list of all uploaded policy documents with processing status."""
-    stmt = (
-        select(DocumentModel)
-        .options(selectinload(DocumentModel.chunks))
-        .order_by(DocumentModel.created_at.desc())
-    )
+    stmt = select(DocumentModel).order_by(DocumentModel.created_at.desc())
     res = await session.execute(stmt)
     documents = res.scalars().all()
+
+    # One lightweight query for the policy id per document — loading the full
+    # chunk rows (text + 768-d embeddings) made this endpoint take seconds.
+    policy_by_document: dict[uuid.UUID, str] = {}
+    if documents:
+        policy_stmt = (
+            select(ChunkModel.document_id, ChunkModel.policy_id)
+            .where(ChunkModel.document_id.in_([doc.id for doc in documents]))
+            .distinct()
+        )
+        for doc_id, policy_id in (await session.execute(policy_stmt)).all():
+            policy_by_document.setdefault(doc_id, policy_id)
 
     return [
         {
             "id": str(doc.id),
             "filename": doc.filename,
-            "policy_id": doc.chunks[0].policy_id if doc.chunks else None,
+            "policy_id": policy_by_document.get(doc.id),
             "status": doc.status,
             "created_at": doc.created_at.isoformat(),
         }
