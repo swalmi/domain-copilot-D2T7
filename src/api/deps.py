@@ -134,7 +134,7 @@ def get_ask_question_use_case(
     return AskQuestionUseCase(
         llm_provider=llm_provider,
         vector_store=vector_store,
-        min_confidence_score=settings.min_confidence_score,
+        max_cosine_distance=settings.max_cosine_distance,
     )
 
 

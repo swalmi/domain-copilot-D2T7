@@ -158,7 +158,7 @@ def create_retrieval_log(
         },
 
         "query_embedding": {
-            "values": query_embedding[:5],
+            "values": [float(v) for v in query_embedding[:5]],
             "dimension": len(query_embedding),
             "norm": round(sum(v * v for v in query_embedding) ** 0.5, 6),
         },

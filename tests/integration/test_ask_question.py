@@ -33,6 +33,24 @@ def mock_llm_provider() -> AsyncMock:
     return provider
 
 
+async def _corpus_embedding(db_session: AsyncSession) -> list[float]:
+    """Return a real chunk embedding so the refusal gate sees a plausible query.
+
+    A constant vector such as ``[0.1] * 768`` is far from every real embedding,
+    so the cosine-distance gate correctly treats it as an out-of-corpus query and
+    refuses before the LLM is reached. Tests that want an *answered* response
+    must therefore query with a vector that actually resembles the corpus.
+    """
+    from sqlalchemy import select
+
+    from src.infrastructure.db.models import ChunkModel
+
+    stmt = select(ChunkModel.embedding).limit(1)
+    embedding = (await db_session.execute(stmt)).scalar_one()
+    assert embedding is not None, "corpus is empty; run the ingestion first"
+    return list(embedding)
+
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_ask_question_answered_by_corpus(
@@ -40,10 +58,13 @@ async def test_ask_question_answered_by_corpus(
 ) -> None:
     """Verify AskQuestionUseCase answers valid corpus query with citations and refused=False."""
     store = PgVectorStore(db_session)
+    # hybrid_search prefers embed_with_cache, so both must carry a real vector.
+    corpus_embedding = await _corpus_embedding(db_session)
+    mock_llm_provider.embed.return_value = corpus_embedding
+    mock_llm_provider.embed_with_cache.return_value = corpus_embedding
     use_case = AskQuestionUseCase(
         llm_provider=mock_llm_provider,
         vector_store=store,
-        min_confidence_score=0.01,
     )
 
     result = await use_case.execute(query="Building and Personal Property")
@@ -67,11 +88,16 @@ async def test_ask_question_out_of_corpus_pre_llm_refusal(
     """Verify AskQuestionUseCase refuses out-of-corpus query pre-LLM without calling complete()."""
     store = PgVectorStore(db_session)
 
-    # Instantiate use case with high confidence threshold or empty filter matching nothing
+    # Point the query directly away from the corpus. RRF cannot catch this: it is
+    # rank-based, so a nonsense query still ranks *some* chunk first. Only the
+    # absolute cosine distance reveals that nothing relevant was found.
+    away = await _corpus_embedding(db_session)
+    negated = [-float(v) for v in away]
+    mock_llm_provider.embed.return_value = negated
+    mock_llm_provider.embed_with_cache.return_value = negated
     use_case = AskQuestionUseCase(
         llm_provider=mock_llm_provider,
         vector_store=store,
-        min_confidence_score=0.05,  # Higher than single-list max RRF score 1/61 (~0.01639)
     )
 
     out_of_corpus_query = "Quantum electrodynamics Feynman diagram loop expansion in 11D space"
