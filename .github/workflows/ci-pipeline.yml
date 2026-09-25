@@ -94,7 +94,9 @@ jobs:
 
       - name: Apply database migrations
         env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot
+          # alembic's env.py builds a *sync* engine, so the URL must not use
+          # the asyncpg driver (the app itself keeps the async URL below).
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot
           REDIS_URL: redis://localhost:6379/0
           JWT_SECRET: domain-copilot-jwt-secret-key-must-be-at-least-32-bytes
           PYTHONPATH: .
