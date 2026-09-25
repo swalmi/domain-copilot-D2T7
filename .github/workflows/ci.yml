@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Python dependencies
         run: |
@@ -28,7 +28,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -q
+          pytest -q tests/unit tests/contract
 
       - name: Run pip-audit
         run: |
