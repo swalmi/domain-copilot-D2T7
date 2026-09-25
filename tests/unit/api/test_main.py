@@ -13,11 +13,11 @@ def test_docs_page_loads() -> None:
 
 
 def test_openapi_json_schema() -> None:
-    """Verify OpenAPI schema title matches Domain Copilot configuration."""
+    """Verify OpenAPI schema title matches insureAI configuration."""
     response = client.get("/openapi.json")
     assert response.status_code == 200
     schema = response.json()
-    assert schema["info"]["title"] == "Domain Copilot"
+    assert schema["info"]["title"] == "insureAI"
 
 
 def test_health_check_endpoint() -> None:

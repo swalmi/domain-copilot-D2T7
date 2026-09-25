@@ -1,6 +1,6 @@
 # System Design Document
 
-Project: Domain Copilot
+Project: insureAI
 Date: 2026-08-31
 
 ## Overview

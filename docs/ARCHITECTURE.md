@@ -6,7 +6,7 @@ This file contains C4 diagrams (levels 1-3), data-flow notes, ER diagram summary
 ```mermaid
 graph LR
   User[User (Browser)] -->|HTTP| WebApp[Frontend (Vite/React)]
-  WebApp -->|REST| API[Domain Copilot API (FastAPI)]
+  WebApp -->|REST| API[insureAI API (FastAPI)]
   API -->|SQL| Postgres[(Postgres + pgvector)]
   API -->|Broker| Redis[(Redis - broker & pause registry)]
   API -->|Celery tasks| Celery[Celery Workers]

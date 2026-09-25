@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    app_title: str = "Domain Copilot"
+    app_title: str = "insureAI"
     allow_origins: list[str] = Field(
         default_factory=lambda: ["http://localhost:3000", "http://localhost:8000"]
     )

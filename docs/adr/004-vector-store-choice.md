@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-The domain copilot system requires both relational storage for policy metadata, document tracking, and ingestion state, as well as high-performance vector storage for similarity search over document chunk embeddings. At our target deployment scale (~30 policy documents), system design efficiency, operational simplicity, and minimal container deployment overhead are critical.
+The insureAI system requires both relational storage for policy metadata, document tracking, and ingestion state, as well as high-performance vector storage for similarity search over document chunk embeddings. At our target deployment scale (~30 policy documents), system design efficiency, operational simplicity, and minimal container deployment overhead are critical.
 
 ## Decision
 We select **PostgreSQL + pgvector extension** as a unified single-database solution over operating a dedicated standalone vector database (such as Pinecone, Qdrant, or Weaviate).

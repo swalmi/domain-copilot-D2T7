@@ -1,6 +1,6 @@
 # Business Requirements Document (BRD)
 
-Project: Domain Copilot
+Project: insureAI
 Owner: Project Author
 Date: 2026-08-31
 

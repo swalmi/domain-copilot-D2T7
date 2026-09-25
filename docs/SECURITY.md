@@ -60,7 +60,7 @@ Notes:
 # Security Policy & Threat-to-Control Matrix
 
 ## Overview
-Domain Copilot implements defense-in-depth security controls targeting the **OWASP Web Top 10** and additional domain-specific threats across API endpoints, data ingestion pipelines, external processing templates, and execution tracing.
+insureAI implements defense-in-depth security controls targeting the **OWASP Web Top 10** and additional domain-specific threats across API endpoints, data ingestion pipelines, external processing templates, and execution tracing.
 
 ---
 
@@ -84,4 +84,4 @@ Domain Copilot implements defense-in-depth security controls targeting the **OWA
 ---
 
 ## Conclusion
-Domain Copilot maintains zero secrets across git commit history and enforces complete threat mitigations across web and external-processing attack vectors.
+insureAI maintains zero secrets across git commit history and enforces complete threat mitigations across web and external-processing attack vectors.
