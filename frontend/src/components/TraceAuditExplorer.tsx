@@ -95,7 +95,7 @@ export const TraceAuditExplorer: React.FC = () => {
     <div className="animate-rise space-y-6">
       <div>
         <span className="eyebrow">FR-9 Observability & Auditing</span>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+        <h2 className="mt-1 page-title">
           Trace Audit Explorer
         </h2>
         <p className="mt-1 text-sm text-[var(--color-fg-secondary)]">
@@ -123,12 +123,12 @@ export const TraceAuditExplorer: React.FC = () => {
       </form>
 
       {/* PII Scrubbing Compliance Banner */}
-      <div className="soft-card p-4 border border-blue-500/20 bg-blue-500/5 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs font-medium text-blue-400">
-          <ShieldAlert className="h-4 w-4" />
+      <div className="soft-card flex items-center justify-between border border-[var(--color-border)] bg-[var(--color-bg-tertiary)] p-4">
+        <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-fg-secondary)]">
+          <ShieldAlert className="h-4 w-4 text-[var(--color-fg)]" />
           <span>OWASP PII Redaction Active: SSNs, emails, and phone numbers are automatically sanitized before log storage.</span>
         </div>
-        <span className="font-mono text-[11px] text-blue-300">Sanitized</span>
+        <span className="badge badge-success font-mono">Sanitized</span>
       </div>
 
       {/* Event Timeline List */}
@@ -151,12 +151,12 @@ export const TraceAuditExplorer: React.FC = () => {
                         {ev.step_name}
                       </span>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-medium font-mono uppercase ${
+                        className={`badge font-mono uppercase ${
                           ev.event_type === 'decision'
-                            ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                            ? 'badge-success'
                             : ev.event_type === 'input'
-                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                            : 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/30'
+                            ? 'badge-neutral'
+                            : 'badge-neutral'
                         }`}
                       >
                         {ev.event_type}
@@ -191,7 +191,7 @@ export const TraceAuditExplorer: React.FC = () => {
                       <CheckCircle2 className="h-3 w-3" /> PII Scrubbed
                     </span>
                   </div>
-                  <pre className="rounded-xl border border-[var(--color-border-light)] bg-[var(--color-recessed)] p-3 font-mono text-xs text-green-400 overflow-x-auto scroll-thin">
+                  <pre className="code-surface scroll-thin max-h-[420px] overflow-y-auto">
                     {JSON.stringify(ev.payload, null, 2)}
                   </pre>
                 </div>

@@ -282,7 +282,7 @@ export const DocumentIngestion: React.FC = () => {
         <span className="eyebrow">
           {canManagePolicies ? 'Document Corpus Pipeline' : 'Policy Library'}
         </span>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+        <h2 className="mt-1 page-title">
           {canManagePolicies ? 'Policy Document Ingestion' : 'Available Policies'}
         </h2>
         <p className="mt-1 text-sm text-[var(--color-fg-secondary)]">

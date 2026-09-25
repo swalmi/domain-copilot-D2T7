@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import {
-  FileText,
-  MessageSquare,
-  ShieldCheck,
-  Zap,
-  Activity,
-  Moon,
-  Sun,
-  LogOut,
-  LayoutDashboard,
-  ScrollText,
-  Server,
-  ServerOff,
-} from 'lucide-react';
+import React from 'react';
+import { Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { Brand } from './Brand';
+import { useVisibleNavSections } from './nav';
 
 export type TabType =
   | 'dashboard'
+  | 'profile'
   | 'qa'
   | 'claims'
   | 'approvals'
@@ -31,53 +21,14 @@ interface NavbarProps {
   onLogoClick: () => void;
 }
 
-const WorkerHealthIndicator: React.FC = () => {
-  const [workers, setWorkers] = useState<string[] | null>(null);
-  const [down, setDown] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const check = async () => {
-      try {
-        const res = await fetch('/health/worker', { credentials: 'include' });
-        const data = await res.json();
-        if (cancelled) return;
-        setDown(!res.ok);
-        setWorkers(res.ok ? (data.workers ?? []) : null);
-      } catch {
-        if (!cancelled) setDown(true);
-      }
-    };
-    check();
-    const id = setInterval(check, 15000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, []);
-
-  return (
-    <button
-      className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all sm:flex ${
-        down
-          ? 'border-red-500/30 bg-red-500/10 text-red-400'
-          : workers && workers.length > 0
-            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-            : 'border-[var(--color-border)] bg-[var(--color-bg-tertiary)] text-[var(--color-fg-tertiary)]'
-      }`}
-      title={
-        down
-          ? 'Worker health check failed'
-          : workers && workers.length > 0
-            ? `Workers online: ${workers.join(', ')}`
-            : 'Worker: checking…'
-      }
-    >
-      {down ? <ServerOff className="h-3.5 w-3.5" /> : <Server className="h-3.5 w-3.5" />}
-      {down ? 'Worker offline' : workers && workers.length > 0 ? `Workers: ${workers.length}` : 'Worker: …'}
-    </button>
-  );
-};
+const initials = (email: string): string =>
+  email
+    .split('@')[0]
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('') || '?';
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
@@ -87,81 +38,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-
-  const navItems: { id: TabType; label: string; icon: typeof MessageSquare; public: boolean; roles?: ('client' | 'corp')[] }[] = [
-    { id: 'qa' as TabType, label: 'Ask', icon: MessageSquare, public: true },
-    { id: 'documents' as TabType, label: 'Policies', icon: FileText, public: true },
-    { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard, public: false },
-    { id: 'claims' as TabType, label: 'Claim Adjudication', icon: Zap, public: false, roles: ['client'] },
-    { id: 'approvals' as TabType, label: 'Approvals', icon: ShieldCheck, public: false, roles: ['corp'] },
-    { id: 'trace' as TabType, label: 'Audit Trace', icon: Activity, public: false, roles: ['corp'] },
-  ];
-
-  const visible = navItems.filter((item) => {
-    if (item.public) return true;
-    if (!user) return false;
-    if (item.roles) return item.roles.includes(user.role);
-    return true;
-  });
+  const sections = useVisibleNavSections();
+  const flatItems = sections.flatMap((section) => section.items);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-transparent bg-transparent px-4 py-3 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        {/* Brand */}
-        <button
-          onClick={onLogoClick}
-          className="flex items-center gap-3"
-          title="Back to home"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] font-mono text-sm font-bold text-[var(--color-fg)]">
-            DC
-          </div>
-          <div className="text-left">
-            <div className="eyebrow">Domain Copilot</div>
-            <h1 className="text-sm font-semibold tracking-tight text-[var(--color-fg)]">
-              Claims Intelligence
-            </h1>
-          </div>
-        </button>
+    <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-md">
+      <div className="page-shell flex h-16 items-center justify-between gap-4 px-4 md:px-6">
+        <Brand onClick={onLogoClick} />
 
-        {/* Navigation Tabs (public + role-gated) */}
-        <nav className="hidden items-center gap-1.5 md:flex">
-          {visible.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-[var(--color-active-bg)] text-[var(--color-active-fg)] border border-[var(--color-border-light)]'
-                    : 'text-[var(--color-fg-secondary)] hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-fg)]'
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Auth + Theme Controls */}
-        <div className="flex items-center gap-2.5">
-          <WorkerHealthIndicator />
-
+        <div className="flex items-center gap-2">
           {user ? (
-            <div className="flex items-center gap-2">
-              <div className="hidden items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-3 py-1.5 sm:flex">
-                <ScrollText className="h-3.5 w-3.5 text-[var(--color-fg-secondary)]" />
-                <span className="max-w-[160px] truncate text-[11px] font-medium text-[var(--color-fg-secondary)]">
+            <>
+              <div className="hidden items-center gap-2.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] py-1 pl-1 pr-3 sm:flex">
+                <span className="avatar h-7 w-7 text-[11px]">{initials(user.email)}</span>
+                <span className="max-w-[150px] truncate text-xs font-medium text-[var(--color-fg-secondary)]">
                   {user.email}
                 </span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                    user.role === 'corp'
-                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                      : 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
+                  className={`badge ${
+                    user.role === 'corp' ? 'badge-warning' : 'badge-neutral'
                   }`}
                 >
                   {user.role}
@@ -169,39 +64,64 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <button
                 onClick={() => logout()}
-                className="flex h-8 items-center gap-1.5 rounded-full border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-3 text-xs font-medium text-[var(--color-fg-secondary)] transition-all hover:text-[var(--color-fg)]"
+                className="btn btn-ghost btn-sm"
                 title="Log out"
               >
-                <LogOut className="h-3.5 w-3.5" /> Logout
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
-            </div>
+            </>
           ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => onAuthClick('login')}
-                className="btn btn-ghost btn-sm"
-              >
+            <>
+              <button onClick={() => onAuthClick('login')} className="btn btn-ghost btn-sm">
                 Log in
               </button>
-              <button
-                onClick={() => onAuthClick('register')}
-                className="btn btn-primary btn-sm"
-              >
-                Register
+              <button onClick={() => onAuthClick('register')} className="btn btn-primary btn-sm">
+                Get started
               </button>
-            </div>
+            </>
           )}
 
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] text-[var(--color-fg-secondary)] transition-all hover:text-[var(--color-fg)]"
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            className="btn btn-ghost btn-icon"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label="Toggle color theme"
           >
-            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </button>
+        </div>
+      </div>
+
+      {/* Mobile navigation — replaces the desktop sidebar */}
+      <div className="scroll-thin border-t border-[var(--color-border)] lg:hidden">
+        <div className="page-shell flex items-center gap-1.5 overflow-x-auto px-4 py-2 md:px-6">
+          {flatItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  isActive
+                    ? 'bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
+                    : 'border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-fg-secondary)] hover:text-[var(--color-fg)]'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.9} />
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </header>
   );
 };
+
+export default Navbar;

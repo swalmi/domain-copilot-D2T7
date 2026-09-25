@@ -210,7 +210,7 @@ export const ApprovalsQueue: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span className="eyebrow">Human-in-the-Loop Gate</span>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+          <h2 className="mt-1 page-title">
             Adjuster Approval Queue
           </h2>
           <p className="mt-1 text-sm text-[var(--color-fg-secondary)]">
@@ -270,7 +270,11 @@ export const ApprovalsQueue: React.FC = () => {
                       ${item.claim_amount_requested}
                     </td>
                     <td className="p-3.5 font-mono text-xs font-bold text-[var(--color-success)]">
-                      ${item.final_payout || item.recommended_payout || '—'}
+                      {item.final_payout || item.recommended_payout ? (
+                        `$${item.final_payout || item.recommended_payout}`
+                      ) : (
+                        <span className="font-normal text-[var(--color-fg-tertiary)]">—</span>
+                      )}
                     </td>
                     <td className="p-3.5">
                       <span className={statusPill(item.status)}>
