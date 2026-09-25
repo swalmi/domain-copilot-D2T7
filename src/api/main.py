@@ -26,7 +26,7 @@ settings = get_settings()
 
 app = FastAPI(
     title=settings.app_title,
-    description="Domain Copilot API for domain policy Q&A and automated claim adjudication.",
+    description="insureAI API for domain policy Q&A and automated claim adjudication.",
     version="1.0.0",
 )
 
