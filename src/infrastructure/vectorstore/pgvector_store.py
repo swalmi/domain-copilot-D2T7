@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime, timezone
 from uuid import UUID
@@ -12,6 +13,31 @@ from src.infrastructure.ingestion.document_loader import (
     compute_chunk_hash,
     compute_document_hash,
 )
+
+# Cap on terms contributed by one query so the tsquery stays small and cheap.
+QUERY_TERM_LIMIT = 12
+
+
+def build_keyword_query(query_text: str):
+    """Build a full-text query for a natural-language question.
+
+    ``plainto_tsquery`` ANDs every token, so a real question such as
+    "what consumer protections govern claims settlement practices?" matches no
+    chunk at all — the keyword leg of the hybrid search then silently returns
+    nothing and retrieval degrades to dense-only. Each significant term is
+    stemmed by Postgres and combined with OR, so matching any of them scores;
+    ``ts_rank`` orders by how many of them matched.
+    """
+    terms = list(dict.fromkeys(re.findall(r"[a-z0-9']+", query_text.lower())))
+    terms = [t for t in terms if len(t) > 1][:QUERY_TERM_LIMIT]
+    if not terms:
+        return func.plainto_tsquery("english", query_text)
+    # tsquery values combine with || (OR), not with SQL OR. self_group()
+    # parenthesises the chain so it binds to @@ and ts_rank correctly.
+    combined = func.plainto_tsquery("english", terms[0])
+    for term in terms[1:]:
+        combined = combined.op("||")(func.plainto_tsquery("english", term))
+    return combined.self_group()
 
 
 def _apply_filters(stmt, filters: dict | None):
@@ -78,7 +104,7 @@ class PgVectorStore(VectorStore):
     ) -> list[CitedChunk]:
         """Search for relevant policy chunks using Postgres full-text keyword matching."""
         ts_vector = func.to_tsvector("english", ChunkModel.text)
-        ts_query = func.plainto_tsquery("english", query_text)
+        ts_query = build_keyword_query(query_text)
 
         stmt = (
             select(ChunkModel, DocumentModel.filename)

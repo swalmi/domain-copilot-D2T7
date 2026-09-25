@@ -6,6 +6,11 @@ from src.domain.interfaces.vector_store import VectorStore
 from src.infrastructure.observability.retrieval_logger import create_retrieval_log
 from src.infrastructure.observability.system_logger import emit_system_log
 
+#: Candidates fetched per leg before RRF fusion. A wider pool lets a chunk that
+#: one leg ranks poorly (e.g. keyword rank 22 of a dense-favoured query) still
+#: contribute its second leg's score and reach the final top-k.
+CANDIDATE_POOL = 40
+
 
 def reciprocal_rank_fusion_with_scores(
     result_lists: list[list[CitedChunk]], k: int = 60
@@ -62,10 +67,10 @@ async def hybrid_search_with_scores(
         query_embedding = await embedder(query)
 
     dense_results = await vector_store.search(
-        query_embedding=query_embedding, filters=filters_dict, top_k=20
+        query_embedding=query_embedding, filters=filters_dict, top_k=CANDIDATE_POOL
     )
     keyword_results = await vector_store.keyword_search(
-        query_text=query, filters=filters_dict, top_k=20
+        query_text=query, filters=filters_dict, top_k=CANDIDATE_POOL
     )
 
     fused_results = reciprocal_rank_fusion_with_scores(
