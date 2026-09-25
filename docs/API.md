@@ -1,6 +1,6 @@
-# Domain Copilot API Specification
+# insureAI API Specification
 
-The Domain Copilot API provides endpoints for policy document ingestion, real-time RAG Q&A streaming, automated claim adjudication workflows, manual adjuster approval gates, and step-by-step execution auditing.
+The insureAI API provides endpoints for policy document ingestion, real-time RAG Q&A streaming, automated claim adjudication workflows, manual adjuster approval gates, and step-by-step execution auditing.
 
 ---
 
@@ -34,7 +34,7 @@ Liveness probe indicating the web application server is online.
 ```json
 {
   "status": "ok",
-  "app_name": "Domain Copilot API",
+  "app_name": "insureAI API",
   "version": "1.0.0"
 }
 ```

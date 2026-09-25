@@ -1,4 +1,4 @@
-# Domain Copilot - handoff state (verified via bash/grep + py_compile + live E2E)
+# insureAI - handoff state (verified via bash/grep + py_compile + live E2E)
 ## Done (this session)
 - system_logger.py: emit_system_log(phase, event, payload, correlation_id) + configure/get_path/set_correlation_id
   - FIXED import bug: `from collections.abc import Any` -> `from typing import Any` (broke app boot)

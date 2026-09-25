@@ -8,7 +8,7 @@ Audience: post-graduate trainees who have “demoed” RAG once.
 ## Slide 1 — Title
 **RAG Beyond the Demo**
 What breaks when you put retrieval-augmented generation in front of a real adjuster.
-*Domain Copilot reference implementation (D2 insurance claims).*
+*insureAI reference implementation (D2 insurance claims).*
 
 ## Slide 2 — Learning outcomes
 By the end you can:

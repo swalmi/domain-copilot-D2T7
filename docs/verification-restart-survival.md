@@ -1,7 +1,7 @@
 # Verification Report — Worker Restart Survival & Task Idempotency
 
 ## Overview
-This document records the empirical verification tests conducted to validate Celery worker restart survival, task message recovery via Redis broker, and claim submission idempotency in Domain Copilot.
+This document records the empirical verification tests conducted to validate Celery worker restart survival, task message recovery via Redis broker, and claim submission idempotency in insureAI.
 
 ---
 
