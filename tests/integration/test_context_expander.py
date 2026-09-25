@@ -11,8 +11,14 @@ from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncSession:
-    """Fixture providing an active AsyncSession connected to the local database."""
+async def db_session(isolated_db_session: AsyncSession) -> AsyncSession:
+    """Redirect to the scratch database so the seeded corpus is never modified."""
+    return isolated_db_session
+
+
+@pytest_asyncio.fixture
+async def corpus_db_session() -> AsyncSession:
+    """Read-only session on the seeded demo corpus (used by the corpus test below)."""
     engine = create_async_engine(
         "postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot"
     )
@@ -84,10 +90,10 @@ async def test_expand_to_parent_sections(db_session: AsyncSession) -> None:
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_expand_to_parent_sections_on_seeded_corpus(
-    db_session: AsyncSession,
+    corpus_db_session: AsyncSession,
 ) -> None:
     """Verify context expansion against seeded corpus chunks."""
-    store = PgVectorStore(db_session)
+    store = PgVectorStore(corpus_db_session)
 
     # Perform dense search to get a real chunk from seeded database
     search_results = await store.search(

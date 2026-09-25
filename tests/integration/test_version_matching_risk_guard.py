@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.retrieval.hybrid_search import hybrid_search
 from src.domain.entities.policy import CitedChunk
@@ -12,17 +12,9 @@ from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncSession:
-    """Fixture providing an active AsyncSession connected to the local database."""
-    engine = create_async_engine(
-        "postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot"
-    )
-    session_factory = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with session_factory() as session:
-        yield session
-    await engine.dispose()
+async def db_session(isolated_db_session: AsyncSession) -> AsyncSession:
+    """Redirect to the scratch database so the seeded corpus is never modified."""
+    return isolated_db_session
 
 
 @pytest.fixture

@@ -28,9 +28,11 @@ This document has two parts: Part A describes the target unconstrained architect
 - Ingestion: Extract → Chunk → Embed → Index pipeline implemented in `src/application/use_cases/ingest_document.py` using `PgVectorStore` and an embedding adapter.
 - Vector store: `PgVectorStore` backed by `pgvector` (open-source) for MVP deployments.
 - Orchestration: Linear orchestrator `RunAdjudicationWorkflowUseCase` executing multiple processing steps with retry/backoff and traces; Celery worker for async jobs.
-- Observability: `trace_logger` in-memory store with JSON lines written to `workflow.log`; `/runs/{correlation_id}` API endpoint.
+- Observability: `trace_logger` + structured `system_logs.txt` sink; `/runs/{correlation_id}` API endpoint.
+- Token/cost accounting (FR-9): `token_usage.json` written on every LLM call (`record_token_usage`); queryable via `GET /usage` and `GET /usage/summary` (correlation-id filter).
+- Ask cancellation (FR-6): SSE generator detects client disconnect, emits `generation/stream_cancelled`, and stops further LLM tokens; UI **Stop** uses `AbortController`.
 - Pause/Resume: Redis-backed pause registry using `redis.asyncio` with pub/sub to coordinate API & Celery workers.
-- Frontend: Vite + React UI with key screens (ingest, ask, claims, trace explorer).
+- Frontend: Vite + React UI with key screens (ingest, ask with Stop, claims, approval queue, trace explorer).
 
 ### Gap Table (Target vs Implemented)
 | Component | Target | Implemented? | Why deferred / notes | Interim mitigation | Effort to close |
@@ -38,7 +40,8 @@ This document has two parts: Part A describes the target unconstrained architect
 | Managed rate limiting | API Gateway with global quotas | Partially | App-level rate limiting used (`slowapi`) — not managed | Accept in-process limiter; document gap | ~4h + infra ($) |
 | Secrets manager | Vault / AWS Secrets Manager | Deferred | Local `.env` configuration used for dev | Keep `.env.example`; require secret-scan before publish | ~3h + infra ($) |
 | Managed vector DB | Pinecone/Weaviate | Deferred | Using `pgvector` for MVP — lower scale | Pgvector is simple to run locally and portable adapters exist | ~6h + $X/month |
-| Observability stack | OpenTelemetry + Jaeger + Prometheus + Loki | Partially | Local JSON logs + in-memory traces implemented | Logging + `workflow.log` provides demo-grade observability | ~8h + infra ($) |
+| Observability stack | OpenTelemetry + Jaeger + Prometheus + Loki | Partially | Correlation IDs + `system_logs.txt` + `/runs` + `/usage` (FR-9) shipped; full OTel/Jaeger not wired | Custom JSON sinks are demo-grade and grep-friendly | ~8h + infra ($) |
+| Per-user token budgets (T3) | Budget governor + model routing | Partially | Per-call accounting + spend view live (`GET /usage`); hard cut-off / budget-aware routing not enforced | Stretch: reject when user total > N (`token_usage.py` summary) | ~4h |
 | Multi-region availability | Yes | Deferred | Time/resource constraints | Single-region deployment documented and health checks included | ~2-3 days + ops |
 
 ## Design Decisions and Alternatives

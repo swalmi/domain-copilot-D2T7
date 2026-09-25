@@ -1,0 +1,13 @@
+# Workers Compensation Sample Policy
+
+Policy ID: POL-5006
+Effective: 2025-01-15
+
+COVERAGE
+We provide statutory workers compensation benefits for accidental injury arising out of and in the course of employment.
+EMPLOYERS LIABILITY
+Employers liability limits are $100,000/$500,000/$100,000 for bodily injury by accident, bodily injury by disease, and each employee.
+EXCLUSIONS
+Intentional self-inflicted injury, commuting accidents outside employer control, and independent contractor injuries are excluded.
+REPORTING
+Injuries must be reported to the carrier within 24 hours of employer knowledge.

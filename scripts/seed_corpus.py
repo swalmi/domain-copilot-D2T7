@@ -3,7 +3,9 @@ from datetime import datetime
 import json
 import os
 import sys
-import time
+
+# Allow `python scripts/seed_corpus.py` as documented in README (repo root on path).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -47,12 +49,16 @@ async def main() -> None:
     if "@db:" in db_url and not os.path.exists("/.dockerenv"):
         db_url = db_url.replace("@db:", "@localhost:")
 
-    manifest_path = "seed-data/manifest.json"
+    # README documents `data/metadata.json` (30 docs); seed-data/manifest.json is
+    # a smaller alternative set. SEED_MANIFEST overrides both.
+    manifest_path = os.getenv("SEED_MANIFEST", "data/metadata.json")
+    if not os.path.exists(manifest_path):
+        manifest_path = "seed-data/manifest.json"
     if not os.path.exists(manifest_path):
         manifest_path = "data/metadata.json"
 
     if not os.path.exists(manifest_path):
-        print(f"Error: Manifest file not found at seed-data/manifest.json or data/metadata.json")
+        print("Error: Manifest file not found (data/metadata.json or seed-data/manifest.json)")
         sys.exit(1)
 
     with open(manifest_path, "r") as f:
@@ -63,12 +69,18 @@ async def main() -> None:
         engine, class_=AsyncSession, expire_on_commit=False
     )
 
+    # Host-side runs must reach Ollama on localhost (compose service name won't resolve).
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    if "//ollama:" in ollama_url and not os.path.exists("/.dockerenv"):
+        ollama_url = ollama_url.replace("//ollama:", "//localhost:")
+    chat_model = os.getenv("OLLAMA_CHAT_MODEL", "llama3.2:1b")
+
     try:
-        provider: LLMProvider = OllamaProvider()
+        provider: LLMProvider = OllamaProvider(base_url=ollama_url, chat_model=chat_model)
         await provider.embed("health check")
         print("Connected to OllamaProvider for embeddings.")
-    except Exception:
-        print("Ollama unavailable, using FallbackDeterministicProvider for local embeddings.")
+    except Exception as exc:
+        print(f"Ollama unavailable ({exc}); using FallbackDeterministicProvider.")
         provider = FallbackDeterministicProvider()
 
     print(f"\nSeeding {len(entries)} documents from {manifest_path}...\n")

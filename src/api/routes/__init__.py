@@ -7,6 +7,7 @@ from src.api.routes.claims import router as claims_router
 from src.api.routes.documents import router as documents_router
 from src.api.routes.health import router as health_router
 from src.api.routes.runs import router as runs_router
+from src.api.routes.usage import router as usage_router
 
 __all__ = [
     "approvals_router",
@@ -16,4 +17,5 @@ __all__ = [
     "documents_router",
     "health_router",
     "runs_router",
+    "usage_router",
 ]

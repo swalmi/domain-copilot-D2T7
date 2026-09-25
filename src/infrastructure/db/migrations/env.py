@@ -25,7 +25,9 @@ def get_url() -> str:
         port = os.getenv("POSTGRES_PORT", "5432")
         db_url = f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db_name}"
 
-    if db_url.startswith("postgresql://"):
+    if db_url.startswith("postgresql+asyncpg://"):
+        db_url = db_url.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
+    elif db_url.startswith("postgresql://"):
         db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
     if "@db:" in db_url and not os.path.exists("/.dockerenv"):

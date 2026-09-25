@@ -1,6 +1,5 @@
 # Worker-specific, heavier dependencies (ingestion, inference)
-langchain-unstructured==0.1.6
-unstructured==0.27.5
+unstructured[pdf]==0.27.5
 unstructured-client==0.32.3
-unstructured-inference==1.6.2
-onnxruntime==1.19.2
+unstructured-inference==1.6.13
+python-docx==1.2.0

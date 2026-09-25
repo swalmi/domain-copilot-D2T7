@@ -1,3 +1,7 @@
+import asyncio
+import threading
+import time
+from collections.abc import Callable
 from typing import ClassVar
 
 from src.application.agents.base_agent import BaseAgent
@@ -20,10 +24,10 @@ class AdjudicationDrafter(BaseAgent):
     ALLOWED_TOOLS: ClassVar[list[str]] = ["submit_for_approval"]
 
     def __init__(
-        self, llm_provider: LLMProvider, name: str = "AdjudicationDrafter"
+        self, llm_provider: LLMProvider, name: str = "AdjudicationDrafter", on_progress: Callable[[dict], None] | None = None
     ) -> None:
         """Initialize AdjudicationDrafter with LLM provider and agent name."""
-        super().__init__(llm_provider=llm_provider, name=name)
+        super().__init__(llm_provider=llm_provider, name=name, on_progress=on_progress)
 
     async def run(
         self,
@@ -44,7 +48,35 @@ class AdjudicationDrafter(BaseAgent):
             coverage_confidence=coverage_match.confidence,
         )
 
-        reasoning = await self.llm_provider.complete(prompt)
+        start = time.monotonic()
+        done = threading.Event()
+        beat_task: asyncio.Task | None = None
+        if self._on_progress is not None:
+
+            async def _beat() -> None:
+                while not done.is_set():
+                    await asyncio.sleep(1.0)
+                    if not done.is_set():
+                        self._on_progress(
+                            {
+                                "agent": self.name,
+                                "stage": "llm_complete",
+                                "elapsed_s": round(time.monotonic() - start, 1),
+                                "detail": "LLM generation in flight…",
+                            }
+                        )
+
+            beat_task = asyncio.create_task(_beat())
+        try:
+            reasoning = await self.llm_provider.complete(prompt)
+        finally:
+            done.set()
+            if beat_task is not None:
+                beat_task.cancel()
+                try:
+                    await beat_task
+                except asyncio.CancelledError:
+                    pass
 
         if coverage_match.confidence == "no_match" or exclusion_result.calculated_payout == 0:
             recommendation = "deny"
@@ -66,6 +98,8 @@ class AdjudicationDrafter(BaseAgent):
             reasoning_text=reasoning,
             citations=citations,
             confidence=confidence_rating,  # type: ignore[arg-type]
+            deductible_applied=exclusion_result.deductible_applied,
+            policy_limit=exclusion_result.policy_limit,
         )
 
         if claim_repo is not None:

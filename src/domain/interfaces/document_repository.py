@@ -18,3 +18,10 @@ class DocumentRepository(ABC):
     @abstractmethod
     async def get_document_by_hash(self, content_hash: str) -> UUID | None:
         """Retrieve a policy document ID by its content hash to prevent duplicates."""
+
+    @abstractmethod
+    async def delete_document(self, document_id: UUID) -> bool:
+        """Delete a document and all of its chunks by document ID.
+
+        Returns ``False`` when no document with the given ID exists.
+        """

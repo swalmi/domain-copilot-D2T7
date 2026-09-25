@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Send, FileText, AlertCircle, RefreshCw, BookmarkCheck } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Send, FileText, AlertCircle, RefreshCw, BookmarkCheck, Square } from 'lucide-react';
 
 interface Citation {
   section_title: string;
@@ -10,19 +10,28 @@ interface Citation {
 
 export const AskQAStream: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [policyNumber, setPolicyNumber] = useState('POL-1001');
+  const [policyNumber, setPolicyNumber] = useState('ISO-PP-00-01');
   const [availablePolicies, setAvailablePolicies] = useState<{ id: string; filename: string }[]>([]);
   const [answer, setAnswer] = useState('');
   const [citations, setCitations] = useState<Citation[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [refused, setRefused] = useState(false);
+  const [streamError, setStreamError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const sampleQueries = [
     'What is the deductible for windstorm or hail damage?',
     'What is the policy limit for personal property under Section I?',
     'Are subterranean termite or flood losses excluded?',
-    'Does policy POL-1001 cover living expenses during repair?',
+    'Does policy ISO-PP-00-01 cover living expenses during repair?',
   ];
+
+  const stopStreaming = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsStreaming(false);
+    setStreamError('Generation cancelled.');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,18 +40,23 @@ export const AskQAStream: React.FC = () => {
     setAnswer('');
     setCitations([]);
     setRefused(false);
+    setStreamError(null);
     setIsStreaming(true);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     try {
       const response = await fetch('/ask', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, policy_number: policyNumber }),
+        body: JSON.stringify({ query, policy_id: policyNumber || null }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        throw new Error(`Error: ${response.statusText} (${response.status})`);
       }
 
       // Check if response is stream or JSON
@@ -52,6 +66,7 @@ export const AskQAStream: React.FC = () => {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let currentText = '';
+        let streamDone = false;
 
         if (reader) {
           while (true) {
@@ -64,7 +79,7 @@ export const AskQAStream: React.FC = () => {
             for (const line of lines) {
               if (line.startsWith('data: ')) {
                 const rawData = line.slice(6).trim();
-                if (rawData === '[DONE]') break;
+                if (rawData === '[DONE]') continue;
 
                 try {
                   const parsed = JSON.parse(rawData);
@@ -76,11 +91,38 @@ export const AskQAStream: React.FC = () => {
                       setRefused(true);
                     }
                   }
+                  if (parsed.cancelled) {
+                    streamDone = true;
+                    setStreamError('Generation cancelled.');
+                  }
+                  if (parsed.done) {
+                    streamDone = true;
+                    if (parsed.error) {
+                      setStreamError(`The policy engine reported an error: ${parsed.error}`);
+                    }
+                    if (Array.isArray(parsed.citations)) {
+                      setCitations(
+                        parsed.citations.map((c: any) => ({
+                          section_title: c.section || '',
+                          source_file: c.source || '',
+                          page_number: c.page ?? undefined,
+                          snippet: c.text_snippet || '',
+                        })),
+                      );
+                    }
+                    if (parsed.refused) setRefused(true);
+                  }
                 } catch {
                   // Ignore JSON parse errors for raw lines
                 }
               }
             }
+          }
+
+          if (!streamDone && !currentText) {
+            setStreamError('The backend closed the connection before returning an answer. Please retry.');
+          } else if (!streamDone) {
+            setStreamError('The answer stream was truncated before completion. Please retry.');
           }
         }
       } else {
@@ -89,10 +131,18 @@ export const AskQAStream: React.FC = () => {
         if (data.citations) setCitations(data.citations);
         if (data.refused) setRefused(true);
       }
-    } catch {
-      // Fallback mock stream demonstration if backend connection needs fallback
-      simulateMockResponse(query);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setStreamError('Generation cancelled.');
+      } else {
+        setStreamError(
+          err instanceof Error && err.message.startsWith('Error:')
+            ? err.message
+            : 'Could not reach the policy engine. Check that the backend is running and retry.',
+        );
+      }
     } finally {
+      abortRef.current = null;
       setIsStreaming(false);
     }
   };
@@ -105,7 +155,16 @@ export const AskQAStream: React.FC = () => {
         const res = await fetch('/documents', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        if (!cancelled) setAvailablePolicies(data.map((d: any) => ({ id: d.id, filename: d.filename })));
+        if (!cancelled) {
+          setAvailablePolicies(
+            data.map((d: any) => ({
+              id: d.policy_id ?? d.id,
+              filename: d.policy_id
+                ? `${d.filename} (${d.policy_id})`
+                : d.filename,
+            })),
+          );
+        }
       } catch {
         // ignore
       }
@@ -115,41 +174,6 @@ export const AskQAStream: React.FC = () => {
       cancelled = true;
     };
   }, []);
-
-  const simulateMockResponse = (q: string) => {
-    if (q.toLowerCase().includes('termite') || q.toLowerCase().includes('flood')) {
-      setRefused(true);
-      setAnswer('Not enough information in the corpus to answer this question.');
-      setCitations([
-        {
-          section_title: 'SECTION I - EXCLUSIONS',
-          source_file: 'homeowners_policy_v1.pdf',
-          page_number: 12,
-          snippet: 'Subterranean termite and flood losses are explicitly excluded unless specifically endorsed.',
-        },
-      ]);
-      return;
-    }
-
-    const text = `Under Policy ${policyNumber}, Section I (Dwelling & Personal Property), coverage applies to direct physical loss. The deductible applied per occurrence is $500.00, with a dwelling policy limit of $250,000.00.`;
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i <= text.length) {
-        setAnswer(text.slice(0, i));
-        i += 3;
-      } else {
-        clearInterval(interval);
-        setCitations([
-          {
-            section_title: 'SECTION I - COVERAGE & DEDUCTIBLES',
-            source_file: 'homeowners_policy_v1.pdf',
-            page_number: 4,
-            snippet: 'Deductible of $500.00 applies to each loss under Section I.',
-          },
-        ]);
-      }
-    }, 20);
-  };
 
   return (
     <div className="animate-rise space-y-6">
@@ -203,14 +227,24 @@ export const AskQAStream: React.FC = () => {
               <option value="">-- Select Policy --</option>
               {availablePolicies.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.filename} ({p.id})
-                </option>
+                    {p.filename}
+                  </option>
               ))}
             </select>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-1">
+          {isStreaming && (
+            <button
+              type="button"
+              onClick={stopStreaming}
+              className="btn btn-danger"
+              title="Cancel generation (stops server-side LLM work)"
+            >
+              <Square className="h-4 w-4" /> Stop
+            </button>
+          )}
           <button
             type="submit"
             disabled={!query.trim() || isStreaming}
@@ -230,8 +264,14 @@ export const AskQAStream: React.FC = () => {
       </form>
 
       {/* Output Panel */}
-      {(answer || isStreaming) && (
+      {(answer || isStreaming || streamError) && (
         <div className="soft-card p-6 space-y-4">
+          {streamError && (
+            <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-xs text-red-400">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{streamError}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
             <div className="flex items-center gap-2">
               <BookmarkCheck className="h-4 w-4 text-[var(--color-fg-secondary)]" />

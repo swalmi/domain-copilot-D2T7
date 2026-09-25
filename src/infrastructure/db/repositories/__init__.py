@@ -2,10 +2,14 @@
 
 from src.infrastructure.db.repositories.claim_repository import (
     InMemoryClaimRepository,
+    SqlAlchemyClaimRepository,
 )
 from src.infrastructure.db.repositories.document_repository import (
     SqlalchemyDocumentRepository,
 )
 
-__all__ = ["InMemoryClaimRepository", "SqlalchemyDocumentRepository"]
-
+__all__ = [
+    "InMemoryClaimRepository",
+    "SqlAlchemyClaimRepository",
+    "SqlalchemyDocumentRepository",
+]

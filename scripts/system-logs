@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# system-logs — THE single live view of the whole system.
+#
+# Tails the repo-root system_logs.txt JSONL sink (fed by the ingestion stages,
+# retrieval, generation, adjudication agents, claim lifecycle and approval
+# gate) and prints it colorized, live.
+#
+#   ./scripts/system-logs          # last 5 events + live follow
+#   ./scripts/system-logs -f       # follow from now (no history)
+#   Ctrl+C                         # stop watching (the system keeps running)
+# ---------------------------------------------------------------------------
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+LINES=5
+if [ "${1:-}" = "-f" ]; then
+  LINES=0
+fi
+
+SINK="$ROOT/system_logs.txt"
+touch "$SINK"
+
+echo -e "\033[1mSYSTEM LOGS — watching $SINK (Ctrl+C to stop)\033[0m"
+echo -e "\033[2mphases: ingestion | retrieval | generation | adjudication | approval\033[0m"
+
+# -F follows across log truncation/recreation; python -u keeps output unbuffered.
+exec tail -n "$LINES" -F "$SINK" | python3 -u "$ROOT/scripts/format_system_logs.py"

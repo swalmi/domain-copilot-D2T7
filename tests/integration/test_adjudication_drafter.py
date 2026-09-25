@@ -28,6 +28,22 @@ class InMemoryClaimRepository(ClaimRepository):
     async def get_by_id(self, claim_id: uuid.UUID) -> Claim | None:
         return self.claims.get(claim_id)
 
+    async def list_pending_approvals(self) -> list[Claim]:
+        return [
+            c
+            for c in self.claims.values()
+            if c.status in ("pending_approval", "submitted", "processing", "report_ready")
+        ]
+
+    async def list_all(self) -> list[Claim]:
+        return list(self.claims.values())
+
+    async def list_by_user(self, user_id: uuid.UUID) -> list[Claim]:
+        return [c for c in self.claims.values() if c.user_id == user_id]
+
+    async def delete(self, claim_id: uuid.UUID) -> bool:
+        return self.claims.pop(claim_id, None) is not None
+
 
 @pytest.fixture
 def mock_llm_provider() -> AsyncMock:

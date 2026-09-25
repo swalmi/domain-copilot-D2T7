@@ -1,0 +1,15 @@
+# Boat and Marine Liability Sample Policy
+
+Policy ID: POL-5001
+Effective: 2025-01-01
+
+SECTION I - PERILS INSURED
+We cover direct physical loss or damage to the insured watercraft caused by fire, lightning, explosion, theft, vandalism, and collision while navigating.
+SECTION II - DEDUCTIBLE
+The deductible for each occurrence is $1,000 for hull damage and $2,500 for liability claims.
+SECTION III - LIMITS
+The maximum policy limit for hull coverage is $75,000. Liability limit per occurrence is $300,000.
+EXCLUSIONS
+Flood, tsunami, wear and tear, mechanical breakdown, and war risks are excluded.
+ADDITIONAL COVERAGES
+Emergency towing up to $500 per disablement is included when the vessel is stranded.

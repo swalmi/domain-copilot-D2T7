@@ -14,3 +14,5 @@ class AdjudicationDraft(BaseModel):
     reasoning_text: str
     citations: list[CitedChunk]
     confidence: Literal["high", "medium", "low"]
+    deductible_applied: Decimal | None = None
+    policy_limit: Decimal | None = None
