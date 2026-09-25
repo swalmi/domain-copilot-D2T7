@@ -14,6 +14,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# Console scripts (alembic, uvicorn) put .venv/bin on sys.path instead of the
+# repo root, so make `src.*` importable without an editable install.
+export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8000}"
 PYTHON="${PYTHON:-python3}"
@@ -108,4 +112,7 @@ alembic upgrade head
 # 5. Run the backend.
 # ---------------------------------------------------------------------------
 echo "[dev] Starting backend on ${HOST}:${PORT} (Ctrl+C to stop)"
-exec uvicorn src.api.main:app --reload --host "$HOST" --port "$PORT"
+# Only watch application code: the repo root also holds .venv, node_modules and
+# the runtime log sinks (workflow.log, system_logs.txt, token_usage.json), which
+# the API writes on every request — watching those reloaded the app constantly.
+exec uvicorn src.api.main:app --reload --reload-dir "$ROOT/src" --host "$HOST" --port "$PORT"

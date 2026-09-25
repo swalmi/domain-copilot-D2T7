@@ -106,46 +106,72 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
   useEffect(() => {
     const controllers: AbortController[] = [];
+    let cancelled = false;
 
     const load = async () => {
+      const requests: Promise<void>[] = [];
       const docCtrl = new AbortController();
       controllers.push(docCtrl);
-      fetch('/documents', { signal: docCtrl.signal })
-        .then((res) => (res.ok ? res.json() : Promise.reject()))
-        .then((data) => setDocuments(data))
-        .catch(() => setDocuments([]));
+      requests.push(
+        fetch('/documents', { signal: docCtrl.signal })
+          .then((res) => (res.ok ? res.json() : Promise.reject()))
+          .then((data) => setDocuments(data))
+          .catch((err) => {
+            if (err?.name !== 'AbortError') setDocuments([]);
+          })
+      );
 
       if (isCorp) {
         const ctrl = new AbortController();
         controllers.push(ctrl);
         const opts: RequestInit = { credentials: 'include', signal: ctrl.signal };
 
-        fetch('/approvals', opts)
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((data) => setApprovals(Array.isArray(data) ? data : []))
-          .catch(() => setApprovals([]));
+        requests.push(
+          fetch('/approvals', opts)
+            .then((res) => (res.ok ? res.json() : Promise.reject()))
+            .then((data) => setApprovals(Array.isArray(data) ? data : []))
+            .catch((err) => {
+              if (err?.name !== 'AbortError') setApprovals([]);
+            })
+        );
 
-        fetch('/auth/clients-count', opts)
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((data) => setClientCount(data.client_count))
-          .catch(() => setClientCount(null));
+        requests.push(
+          fetch('/auth/clients-count', opts)
+            .then((res) => (res.ok ? res.json() : Promise.reject()))
+            .then((data) => setClientCount(data.client_count))
+            .catch((err) => {
+              if (err?.name !== 'AbortError') setClientCount(null);
+            })
+        );
 
-        fetch('/claims', opts)
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((data) => setClaims(Array.isArray(data) ? data : []))
-          .catch(() => setClaims([]));
+        requests.push(
+          fetch('/claims', opts)
+            .then((res) => (res.ok ? res.json() : Promise.reject()))
+            .then((data) => setClaims(Array.isArray(data) ? data : []))
+            .catch((err) => {
+              if (err?.name !== 'AbortError') setClaims([]);
+            })
+        );
 
-        fetch('/usage/summary', opts)
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((data) => setUsage(data))
-          .catch(() => setUsage(null));
+        requests.push(
+          fetch('/usage/summary', opts)
+            .then((res) => (res.ok ? res.json() : Promise.reject()))
+            .then((data) => setUsage(data))
+            .catch((err) => {
+              if (err?.name !== 'AbortError') setUsage(null);
+            })
+        );
       }
 
-      setLoading(false);
+      await Promise.all(requests);
+      if (!cancelled) setLoading(false);
     };
 
     void load();
-    return () => controllers.forEach((c) => c.abort());
+    return () => {
+      cancelled = true;
+      controllers.forEach((c) => c.abort());
+    };
   }, [isCorp]);
 
   const UNDECIDED = new Set(['pending_approval', 'submitted', 'processing', 'report_ready']);
