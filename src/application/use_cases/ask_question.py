@@ -1,10 +1,17 @@
 from datetime import date
 
+import time
+
 from src.application.retrieval.context_expander import expand_to_parent_sections
 from src.application.retrieval.hybrid_search import hybrid_search_with_scores
 from src.application.retrieval.prompt_loader import load_prompt
 from src.domain.interfaces.llm_provider import LLMProvider
 from src.domain.interfaces.vector_store import VectorStore
+from src.infrastructure.observability.retrieval_logger import (
+    build_context_expansion_step,
+    build_llm_forward_step,
+    update_last_entry,
+)
 from src.infrastructure.observability.system_logger import emit_system_log
 
 
@@ -64,6 +71,17 @@ class AskQuestionUseCase:
                     "top_score": results_with_scores[0][1] if results_with_scores else None,
                 },
             )
+            self._log_generation_steps(
+                expanded_items=None,
+                chunks_before_expansion=len(results_with_scores),
+                forward={
+                    "refused": True,
+                    "skip_reason": "refused_before_generation: top RRF score below min_confidence_threshold",
+                    "response_length_chars": 0,
+                    "response": "Not enough information in the corpus to answer this question.",
+                },
+                note="refused_before_expansion: retrieval confidence below threshold",
+            )
             return {
                 "answer": "Not enough information in the corpus to answer this question.",
                 "citations": [],
@@ -102,7 +120,22 @@ class AskQuestionUseCase:
             },
         )
 
+        gen_start = time.monotonic()
         answer = await self._llm_provider.complete(prompt_text)
+        self._log_generation_steps(
+            expanded_items=expanded_context_items,
+            chunks_before_expansion=len(candidate_chunks),
+            forward={
+                "model": self._model_name(),
+                "streaming": False,
+                "prompt_length_chars": len(prompt_text),
+                "prompt": prompt_text,
+                "context_char_count": len(context_str),
+                "response_length_chars": len(answer),
+                "response": answer,
+                "elapsed_s": round(time.monotonic() - gen_start, 3),
+            },
+        )
 
         citations = [
             {
@@ -177,6 +210,17 @@ class AskQuestionUseCase:
                     "stream": True,
                 },
             )
+            self._log_generation_steps(
+                expanded_items=None,
+                chunks_before_expansion=len(results_with_scores),
+                forward={
+                    "refused": True,
+                    "skip_reason": "refused_before_generation: top RRF score below min_confidence_threshold",
+                    "response_length_chars": 0,
+                    "response": refused_msg,
+                },
+                note="refused_before_expansion: retrieval confidence below threshold",
+            )
             yield {"type": "token", "content": refused_msg}
             yield {"type": "done", "citations": [], "refused": True}
             return
@@ -218,9 +262,24 @@ class AskQuestionUseCase:
         )
 
         response_text = ""
+        gen_start = time.monotonic()
         async for token in self._llm_provider.stream(prompt_text):
             response_text += token
             yield {"type": "token", "content": token}
+        self._log_generation_steps(
+            expanded_items=expanded_context_items,
+            chunks_before_expansion=len(candidate_chunks),
+            forward={
+                "model": self._model_name(),
+                "streaming": True,
+                "prompt_length_chars": len(prompt_text),
+                "prompt": prompt_text,
+                "context_char_count": len(context_str),
+                "response_length_chars": len(response_text),
+                "response": response_text,
+                "elapsed_s": round(time.monotonic() - gen_start, 3),
+            },
+        )
 
         citations = [
             {
@@ -246,6 +305,33 @@ class AskQuestionUseCase:
             },
         )
         yield {"type": "done", "citations": citations, "refused": False}
+
+    @staticmethod
+    def _log_generation_steps(
+        expanded_items: list[dict] | None,
+        chunks_before_expansion: int,
+        forward: dict,
+        note: str | None = None,
+    ) -> None:
+        """Patch the retrieval log entry with the expansion and forward-pass steps."""
+        update_last_entry(
+            {
+                "step_4_context_expansion": build_context_expansion_step(
+                    expanded_items,
+                    chunks_before_expansion=chunks_before_expansion,
+                    note=note,
+                ),
+                "step_5_llm_forward": build_llm_forward_step(forward),
+            }
+        )
+
+    def _model_name(self) -> str:
+        """Best-effort model identifier for logging."""
+        return str(
+            getattr(self._llm_provider, "model", None)
+            or getattr(self._llm_provider, "model_name", None)
+            or type(self._llm_provider).__name__
+        )
 
     @staticmethod
     def _bounded_context(context: str) -> str:
