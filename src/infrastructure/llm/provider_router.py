@@ -5,6 +5,14 @@ from src.domain.interfaces.llm_provider import LLMProvider
 
 logger = logging.getLogger(__name__)
 
+#: Sentence returned when both the primary and the fallback provider fail. It is a
+#: degradation sentinel, not a real answer — callers that must not accept a
+#: degraded response (evaluation harness, tests) compare against it.
+DEGRADED_ANSWER = (
+    "Based on retrieved policy documentation, coverage applies to direct physical loss "
+    "or damage subject to policy terms, limits, and deductible requirements."
+)
+
 
 class ProviderRouter(LLMProvider):
     """LLM provider router that attempts operations on a primary provider and falls back to a secondary provider."""
@@ -35,10 +43,7 @@ class ProviderRouter(LLMProvider):
                     "Fallback LLM provider also failed during complete: %s",
                     fallback_exc,
                 )
-                return (
-                    "Based on retrieved policy documentation, coverage applies to direct physical loss "
-                    "or damage subject to policy terms, limits, and deductible requirements."
-                )
+                return DEGRADED_ANSWER
 
     async def stream(
         self, prompt: str, system: str | None = None

@@ -7,6 +7,19 @@ from src.application.use_cases.ask_question import AskQuestionUseCase
 logger = logging.getLogger(__name__)
 
 
+def citation_contains_expected(item: dict, citations: list[dict]) -> bool:
+    """True when at least one retrieved citation carries an expected keyword."""
+    expected_keywords = [kw.lower() for kw in item.get("expected_chunk_keywords") or []]
+    if not expected_keywords:
+        return False
+
+    for citation in citations:
+        snippet = (citation.get("text_snippet") or "").lower()
+        if any(kw in snippet for kw in expected_keywords):
+            return True
+    return False
+
+
 async def score_hit_rate(
     golden_set: list[dict], ask_use_case: AskQuestionUseCase
 ) -> float:
@@ -23,21 +36,8 @@ async def score_hit_rate(
 
     hits = 0
     for item in relevant_items:
-        question = item["question"]
-        expected_keywords = [kw.lower() for kw in item["expected_chunk_keywords"]]
-
-        res = await ask_use_case.execute(query=question, filters={})
-        citations = res.get("citations", [])
-
-        # Check if any citation text contains at least one expected keyword
-        hit_found = False
-        for citation in citations:
-            snippet = (citation.get("text") or "").lower()
-            if any(kw in snippet for kw in expected_keywords):
-                hit_found = True
-                break
-
-        if hit_found:
+        res = await ask_use_case.execute(query=item["question"], filters={})
+        if citation_contains_expected(item, res.get("citations", [])):
             hits += 1
 
     hit_rate = hits / len(relevant_items)
