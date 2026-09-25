@@ -159,6 +159,8 @@ class RunAdjudicationWorkflowUseCase:
                     query=claim.incident_description,
                     refusal_reason=f"CoverageMatcher failed: {exc}",
                     agent_tool_responses=tool_responses,
+                    llm_forward={"skip_reason": "drafter_not_invoked: coverage matcher failed, degraded fallback used"},
+                    expansion_note="not_applicable: agent tool retrieval scores chunks directly without parent expansion",
                 )
                 _log_claim("degraded")
                 return AdjudicationDraft(
@@ -194,6 +196,8 @@ class RunAdjudicationWorkflowUseCase:
                     query=claim.incident_description,
                     refusal_reason="No matching policy coverage sections found",
                     agent_tool_responses=tool_responses,
+                    llm_forward={"skip_reason": "drafter_not_invoked: coverage confidence was no_match"},
+                    expansion_note="not_applicable: agent tool retrieval scores chunks directly without parent expansion",
                 )
                 _log_claim("refused")
                 return AdjudicationDraft(
@@ -249,6 +253,8 @@ class RunAdjudicationWorkflowUseCase:
                 query=claim.incident_description,
                 refusal_reason=None,
                 agent_tool_responses=tool_responses,
+                llm_forward=drafter.generation_record or None,
+                expansion_note="not_applicable: agent tool retrieval scores chunks directly without parent expansion",
             )
             return draft
 

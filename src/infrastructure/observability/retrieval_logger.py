@@ -108,6 +108,8 @@ def create_retrieval_log(
     embedder_name: str = "unknown",
     cache_hit: bool = False,
     expanded_items: list[dict] | None = None,
+    expansion_note: str | None = None,
+    llm_forward: dict[str, Any] | None = None,
     coverage_match_result: Any | None = None,
     exclusion_result: Any | None = None,
     draft_result: Any | None = None,
@@ -127,6 +129,8 @@ def create_retrieval_log(
     :param embedder_name: Name of the embedder model used.
     :param cache_hit: Whether the embedding was served from cache.
     :param expanded_items: Parent-expanded context items (from expand_to_parent_sections).
+    :param expansion_note: Why no parent expansion ran (e.g. "agent tool retrieval").
+    :param llm_forward: LLM forward-pass detail (prompt, response, latency, streaming).
     :param coverage_match_result: CoverageMatchResult object (or None).
     :param exclusion_result: ExclusionAnalysisResult object (or None).
     :param draft_result: AdjudicationDraft object (or None).
@@ -211,40 +215,28 @@ def create_retrieval_log(
             ],
         },
 
-        "step_4_context_expansion": {
-            "description": "Expand each retrieved chunk to its full parent section text",
-            "parent_expansion_enabled": True,
-            "chunks_before_expansion": len(fused_results) if fused_results else 0,
-            "items_expanded": [],
-        },
+        "step_4_context_expansion": build_context_expansion_step(
+            expanded_items,
+            chunks_before_expansion=len(fused_results) if fused_results else 0,
+            note=expansion_note,
+        ),
+
+        "step_5_llm_forward": build_llm_forward_step(llm_forward),
     }
 
-    if expanded_items:
-        entry["step_4_context_expansion"]["total_expanded_items"] = len(expanded_items)
-        entry["step_4_context_expansion"]["items_expanded"] = [
-            {
-                "rank": idx,
-                "cited_chunk": _chunk_summary(item["cited_chunk"]),
-                "parent_section_text_length": len(item["context_for_llm"]),
-                "parent_section_text_preview": item["context_for_llm"][:200],
-                "expanded_from_single_chunk": item["cited_chunk"].text != item["context_for_llm"][:len(item["cited_chunk"].text)],
-            }
-            for idx, item in enumerate(expanded_items, start=1)
-        ]
-
-    entry["step_5_agent_coverage_matcher"] = _agent_step_detail(
+    entry["step_6_agent_coverage_matcher"] = _agent_step_detail(
         "CoverageMatcher",
         coverage_match_result,
         agent_tool_responses or {},
     )
 
-    entry["step_6_agent_exclusion_analyst"] = _agent_step_detail(
+    entry["step_7_agent_exclusion_analyst"] = _agent_step_detail(
         "ExclusionAnalyst",
         exclusion_result,
         agent_tool_responses or {},
     )
 
-    entry["step_7_agent_adjudication_drafter"] = _agent_step_detail(
+    entry["step_8_agent_adjudication_drafter"] = _agent_step_detail(
         "AdjudicationDrafter",
         draft_result,
         agent_tool_responses or {},
@@ -268,6 +260,91 @@ def create_retrieval_log(
 
     log_retrieval(entry)
     return entry
+
+
+def build_context_expansion_step(
+    expanded_items: list[dict] | None,
+    chunks_before_expansion: int = 0,
+    note: str | None = None,
+) -> dict[str, Any]:
+    """Build the parent-section expansion step, explaining explicitly when nothing was expanded."""
+    step: dict[str, Any] = {
+        "description": "Expand each retrieved chunk to its full parent section text",
+        "parent_expansion_enabled": True,
+        "chunks_before_expansion": chunks_before_expansion,
+        "expansion_applied": bool(expanded_items),
+        "total_expanded_items": len(expanded_items or []),
+        "items_expanded": [],
+    }
+    if not expanded_items:
+        step["skip_reason"] = note or (
+            "no_expanded_items_provided: caller did not run expand_to_parent_sections"
+        )
+        return step
+    step["items_expanded"] = [
+        {
+            "rank": idx,
+            "cited_chunk": _chunk_summary(item["cited_chunk"]),
+            "parent_section_text_length": len(item["context_for_llm"]),
+            "parent_section_text_preview": item["context_for_llm"][:200],
+            "expanded_from_single_chunk": item["cited_chunk"].text
+            != item["context_for_llm"][: len(item["cited_chunk"].text)],
+        }
+        for idx, item in enumerate(expanded_items, start=1)
+    ]
+    return step
+
+
+def build_llm_forward_step(forward: dict[str, Any] | None) -> dict[str, Any]:
+    """Build the LLM forward-pass step from recorded generation details."""
+    step: dict[str, Any] = {
+        "description": "Forward pass: assembled prompt sent to the LLM and the raw response returned",
+        "executed": forward is not None and not forward.get("skip_reason"),
+    }
+    if not forward:
+        step["skip_reason"] = "generation_not_recorded: entry written before the LLM call"
+        step["prompt_chars"] = 0
+        step["response_chars"] = 0
+        step["response_preview"] = ""
+        return step
+
+    step.update(
+        {
+            "model": forward.get("model"),
+            "streaming": bool(forward.get("streaming", False)),
+            "prompt_chars": forward.get("prompt_length_chars", 0),
+            "prompt_preview": str(forward.get("prompt", ""))[:400],
+            "context_chars": forward.get("context_char_count"),
+            "response_chars": forward.get("response_length_chars", 0),
+            "response_preview": str(forward.get("response", ""))[:500],
+            "elapsed_s": forward.get("elapsed_s"),
+            "retry_count": forward.get("retry_count", 0),
+            "fallback_text_used": bool(forward.get("fallback_text_used", False)),
+            "refused": bool(forward.get("refused", False)),
+        }
+    )
+    if forward.get("skip_reason"):
+        step["skip_reason"] = forward["skip_reason"]
+    return step
+
+
+def update_last_entry(step_updates: dict[str, Any]) -> bool:
+    """Patch pipeline steps onto the most recently logged entry.
+
+    Retrieval steps are written when the search completes, but expansion and the
+    LLM forward pass only exist afterwards, so callers patch the same entry
+    instead of appending a second, half-empty one.
+    """
+    if not step_updates:
+        return False
+    data = _read_existing()
+    entries = data.get("entries") or []
+    if not entries:
+        return False
+    entries[-1].update(step_updates)
+    data["entries"] = entries
+    _atomic_write(data)
+    return True
 
 
 def _agent_step_detail(agent_name: str, result: Any, tool_responses: dict) -> dict[str, Any]:
