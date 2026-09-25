@@ -36,7 +36,10 @@ class Settings(BaseSettings):
 
     jwt_algorithm: str = "HS256"
 
-    min_confidence_score: float = 0.01
+    # Refusal gate: absolute ceiling on the best dense cosine distance.
+    # RRF scores are rank-based and bounded by 0.0328, so the previous
+    # ``min_confidence_score = 0.01`` could never fire.
+    max_cosine_distance: float = 0.35
 
 
     @field_validator("allow_origins", mode="before")

@@ -3,7 +3,11 @@ from datetime import date
 import time
 
 from src.application.retrieval.context_expander import expand_to_parent_sections
-from src.application.retrieval.hybrid_search import hybrid_search_with_scores
+from src.application.retrieval.hybrid_search import (
+    MAX_COSINE_DISTANCE,
+    RETRIEVAL_TOP_K,
+    hybrid_search_with_confidence,
+)
 from src.application.retrieval.prompt_loader import load_prompt
 from src.domain.interfaces.llm_provider import LLMProvider
 from src.domain.interfaces.vector_store import VectorStore
@@ -24,12 +28,21 @@ class AskQuestionUseCase:
         self,
         llm_provider: LLMProvider,
         vector_store: VectorStore,
-        min_confidence_score: float = 0.01,
+        max_cosine_distance: float | None = None,
     ) -> None:
-        """Initialize AskQuestionUseCase with LLM provider, vector store, and confidence threshold."""
+        """Initialize AskQuestionUseCase with LLM provider and vector store.
+
+        The refusal threshold lives in ``hybrid_search`` and is expressed
+        relative to the maximum attainable RRF score, so no absolute score is
+        configured here.
+        """
         self._llm_provider = llm_provider
         self._vector_store = vector_store
-        self._min_confidence_score = min_confidence_score
+        self._max_cosine_distance = (
+            max_cosine_distance
+            if max_cosine_distance is not None
+            else MAX_COSINE_DISTANCE
+        )
 
     async def execute(
         self,
@@ -50,7 +63,7 @@ class AskQuestionUseCase:
                 "filters": filters,
             },
         )
-        results_with_scores = await hybrid_search_with_scores(
+        results_with_scores, confidence = await hybrid_search_with_confidence(
             vector_store=self._vector_store,
             embedder=self._llm_provider,
             query=query,
@@ -58,17 +71,21 @@ class AskQuestionUseCase:
             policy_id=policy_id,
             policy_type=policy_type,
             effective_date_before=effective_date_before,
-            top_k=5,
+            top_k=RETRIEVAL_TOP_K,
+            max_cosine_distance=self._max_cosine_distance,
         )
 
-        if not results_with_scores or results_with_scores[0][1] < self._min_confidence_score:
+        if not confidence.is_confident:
             emit_system_log(
                 "generation",
                 "refused",
                 {
                     "query": query,
-                    "reason": "below_min_confidence_or_empty_retrieval",
-                    "top_score": results_with_scores[0][1] if results_with_scores else None,
+                    "reason": confidence.reason,
+                    "top_score": confidence.top_rrf_score,
+                    "rrf_ratio": confidence.rrf_ratio,
+                    "max_rrf_score": confidence.max_rrf_score,
+                    "top_cosine_distance": confidence.top_cosine_distance,
                 },
             )
             self._log_generation_steps(
@@ -76,7 +93,7 @@ class AskQuestionUseCase:
                 chunks_before_expansion=len(results_with_scores),
                 forward={
                     "refused": True,
-                    "skip_reason": "refused_before_generation: top RRF score below min_confidence_threshold",
+                    "skip_reason": f"refused_before_generation: {confidence.reason}",
                     "response_length_chars": 0,
                     "response": "Not enough information in the corpus to answer this question.",
                 },
@@ -115,7 +132,7 @@ class AskQuestionUseCase:
                 "context_block_count": len(context_blocks),
                 "context_char_count": len(context_str),
                 "prompt_char_count": len(prompt_text),
-                "min_confidence_threshold": self._min_confidence_score,
+                "rrf_ratio": confidence.rrf_ratio,
                 "parent_expansion": True,
             },
         )
@@ -187,7 +204,7 @@ class AskQuestionUseCase:
                 "stream": True,
             },
         )
-        results_with_scores = await hybrid_search_with_scores(
+        results_with_scores, confidence = await hybrid_search_with_confidence(
             vector_store=self._vector_store,
             embedder=self._llm_provider,
             query=query,
@@ -195,18 +212,22 @@ class AskQuestionUseCase:
             policy_id=policy_id,
             policy_type=policy_type,
             effective_date_before=effective_date_before,
-            top_k=5,
+            top_k=RETRIEVAL_TOP_K,
+            max_cosine_distance=self._max_cosine_distance,
         )
 
-        if not results_with_scores or results_with_scores[0][1] < self._min_confidence_score:
+        if not confidence.is_confident:
             refused_msg = "Not enough information in the corpus to answer this question."
             emit_system_log(
                 "generation",
                 "refused",
                 {
                     "query": query,
-                    "reason": "below_min_confidence_or_empty_retrieval",
-                    "top_score": results_with_scores[0][1] if results_with_scores else None,
+                    "reason": confidence.reason,
+                    "top_score": confidence.top_rrf_score,
+                    "rrf_ratio": confidence.rrf_ratio,
+                    "max_rrf_score": confidence.max_rrf_score,
+                    "top_cosine_distance": confidence.top_cosine_distance,
                     "stream": True,
                 },
             )
@@ -215,7 +236,7 @@ class AskQuestionUseCase:
                 chunks_before_expansion=len(results_with_scores),
                 forward={
                     "refused": True,
-                    "skip_reason": "refused_before_generation: top RRF score below min_confidence_threshold",
+                    "skip_reason": f"refused_before_generation: {confidence.reason}",
                     "response_length_chars": 0,
                     "response": refused_msg,
                 },

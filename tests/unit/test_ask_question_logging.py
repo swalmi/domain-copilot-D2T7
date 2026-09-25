@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 
 from src.application.use_cases import ask_question as ask_module
+from src.application.retrieval.hybrid_search import RetrievalConfidence
 from src.application.use_cases.ask_question import AskQuestionUseCase
 from src.domain.entities.policy import CitedChunk
 from src.infrastructure.observability import retrieval_logger
@@ -66,7 +67,14 @@ async def test_execute_records_expansion_and_forward_steps(monkeypatch, logged_e
             keyword_results=[chunk],
             fused_results=[(chunk, 0.03)],
         )
-        return [(chunk, 0.03)]
+        return [(chunk, 0.03)], RetrievalConfidence(
+            top_rrf_score=0.03,
+            max_rrf_score=0.0328,
+            rrf_ratio=0.92,
+            top_cosine_distance=0.2,
+            is_confident=True,
+            reason="retrieval_confident",
+        )
 
     async def fake_expand(chunks, vector_store):
         return [
@@ -76,7 +84,7 @@ async def test_execute_records_expansion_and_forward_steps(monkeypatch, logged_e
             }
         ]
 
-    monkeypatch.setattr(ask_module, "hybrid_search_with_scores", fake_hybrid)
+    monkeypatch.setattr(ask_module, "hybrid_search_with_confidence", fake_hybrid)
     monkeypatch.setattr(ask_module, "expand_to_parent_sections", fake_expand)
 
     result = await AskQuestionUseCase(llm_provider=_FakeLLM(), vector_store=object()).execute(
@@ -105,12 +113,19 @@ async def test_execute_stream_records_forward_step(monkeypatch, logged_entry):
             keyword_results=[chunk],
             fused_results=[(chunk, 0.03)],
         )
-        return [(chunk, 0.03)]
+        return [(chunk, 0.03)], RetrievalConfidence(
+            top_rrf_score=0.03,
+            max_rrf_score=0.0328,
+            rrf_ratio=0.92,
+            top_cosine_distance=0.2,
+            is_confident=True,
+            reason="retrieval_confident",
+        )
 
     async def fake_expand(chunks, vector_store):
         return [{"cited_chunk": chunk, "context_for_llm": chunk.text}]
 
-    monkeypatch.setattr(ask_module, "hybrid_search_with_scores", fake_hybrid)
+    monkeypatch.setattr(ask_module, "hybrid_search_with_confidence", fake_hybrid)
     monkeypatch.setattr(ask_module, "expand_to_parent_sections", fake_expand)
 
     events = [
@@ -131,9 +146,16 @@ async def test_execute_stream_records_forward_step(monkeypatch, logged_entry):
 async def test_refusal_records_skip_reasons(monkeypatch, logged_entry):
     async def fake_hybrid(**kwargs):
         retrieval_logger.create_retrieval_log(query=kwargs["query"], fused_results=[])
-        return []
+        return [], RetrievalConfidence(
+            top_rrf_score=0.0,
+            max_rrf_score=0.0328,
+            rrf_ratio=0.0,
+            top_cosine_distance=None,
+            is_confident=False,
+            reason="no_results",
+        )
 
-    monkeypatch.setattr(ask_module, "hybrid_search_with_scores", fake_hybrid)
+    monkeypatch.setattr(ask_module, "hybrid_search_with_confidence", fake_hybrid)
 
     result = await AskQuestionUseCase(llm_provider=_FakeLLM(), vector_store=object()).execute(
         "what is covered?"

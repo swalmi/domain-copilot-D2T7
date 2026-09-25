@@ -22,6 +22,16 @@ class VectorStore(ABC):
     async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
         """Insert or update a policy chunk and its associated embedding in the store."""
 
+    async def top_cosine_distance(
+        self, query_embedding: list[float], filters: dict
+    ) -> float | None:
+        """Return the best cosine distance for a query, or None if unsupported.
+
+        RRF scores are rank-based and cannot express absolute relevance, so
+        refusal gating needs this distance from the nearest neighbour.
+        """
+        return None
+
     @abstractmethod
     async def chunk_exists(self, content_hash: str) -> bool:
         """Check if a chunk with the specified content hash already exists in the store."""
