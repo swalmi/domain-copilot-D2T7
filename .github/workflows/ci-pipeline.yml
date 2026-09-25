@@ -11,6 +11,10 @@ jobs:
     name: Lint, Fast Tests & Security Scan
     runs-on: ubuntu-latest
 
+    env:
+      # Required by tests/unit/api/test_deps.py (client built at import time)
+      OPENAI_API_KEY: ci-dummy-key
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -88,10 +92,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest aiosqlite asyncpg
 
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: domain-copilot-jwt-secret-key-must-be-at-least-32-bytes
+          PYTHONPATH: .
+        run: |
+          alembic upgrade head
+
       - name: Run Integration Tests
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot
           REDIS_URL: redis://localhost:6379/0
           JWT_SECRET: domain-copilot-jwt-secret-key-must-be-at-least-32-bytes
         run: |
-          PYTHONPATH=. pytest tests/integration/
+          # test_ollama_provider exercises a live Ollama daemon with real model
+          # calls; no model runtime exists on the runner, so it runs locally
+          # against the docker compose stack instead.
+          PYTHONPATH=. pytest tests/integration/ --ignore=tests/integration/test_ollama_provider.py

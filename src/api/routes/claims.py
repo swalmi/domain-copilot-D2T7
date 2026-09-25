@@ -13,7 +13,7 @@ from src.api.deps import (
     get_current_user,
     require_role,
 )
-from src.infrastructure.observability.pause_registry import pause_run, resume_run, is_paused
+from src.infrastructure.observability.pause_registry import pause_run, resume_run
 from src.domain.entities.claim import Claim
 from src.domain.interfaces.claim_repository import ClaimRepository
 from src.infrastructure.tasks.celery_app import celery_app

@@ -7,7 +7,6 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 import logging
 from pathlib import Path
-import json
 
 from src.api.limiter import limiter
 from src.api.routes import (
