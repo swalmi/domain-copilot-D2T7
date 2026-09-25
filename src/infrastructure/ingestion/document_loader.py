@@ -1,4 +1,5 @@
 import hashlib
+import os
 import threading
 import time
 from collections.abc import Callable
@@ -51,7 +52,7 @@ def load_and_chunk(
     """
     from langchain_unstructured import UnstructuredLoader
 
-    strategy = "hi_res"
+    strategy = os.getenv("UNSTRUCTURED_PDF_STRATEGY", "hi_res")
     loader = UnstructuredLoader(
         file_path=file_path,
         chunking_strategy="by_title",
@@ -72,7 +73,7 @@ def load_and_chunk(
         {
             "stage": "partition_started",
             "strategy": strategy,
-            "detail": "Starting text/layout extraction (unstructured hi_res)…",
+            "detail": f"Starting text/layout extraction (unstructured {strategy})…",
         }
     )
 
