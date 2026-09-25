@@ -31,6 +31,8 @@ interface ClaimRecord {
   recommendation?: string | null;
   reasoning_text?: string | null;
   final_justification?: string | null;
+  admin_justification?: string | null;
+  adjuster_notes?: string | null;
   citations?: Array<Record<string, unknown>>;
   error_message?: string | null;
   created_at?: string | null;
@@ -51,26 +53,31 @@ const buildStages = (policy: string): StageInfo[] => [
     id: 'understanding',
     label: 'Understanding your claim',
     desc: 'Parsing incident details and requested amount',
+    state: 'pending',
   },
   {
     id: 'reading_policy',
     label: `Reading policy ${policy}`,
     desc: 'Retrieving and scoring coverage sections from the policy corpus',
+    state: 'pending',
   },
   {
     id: 'matching',
     label: 'Matched / Not matched',
     desc: 'Evaluating coverage confidence against the incident',
+    state: 'pending',
   },
   {
     id: 'building_report',
     label: 'Building your report',
     desc: 'Exclusion analysis, payout calculation, and citations',
+    state: 'pending',
   },
   {
     id: 'done',
     label: 'Report ready',
     desc: 'Review the AI report — adjuster decides in the approval queue',
+    state: 'pending',
   },
 ];
 
@@ -340,7 +347,7 @@ export const ClaimAdjudication: React.FC = () => {
     <div className="animate-rise space-y-6">
       <div>
         <span className="eyebrow">Human-in-the-Loop Adjudication</span>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+        <h2 className="mt-1 page-title">
           Claim Adjudication Workflow
         </h2>
         <p className="mt-1 text-sm text-[var(--color-fg-secondary)]">

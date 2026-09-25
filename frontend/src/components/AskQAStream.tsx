@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, FileText, AlertCircle, RefreshCw, BookmarkCheck, Square } from 'lucide-react';
+import { Send, FileText, AlertCircle, RefreshCw, BookmarkCheck, Square, Sparkles } from 'lucide-react';
 
 interface Citation {
   section_title: string;
@@ -148,7 +148,7 @@ export const AskQAStream: React.FC = () => {
   };
 
   // Load available policies for dropdown
-  React.useEffect(() => {
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
@@ -180,7 +180,7 @@ export const AskQAStream: React.FC = () => {
       {/* Header */}
       <div>
         <span className="eyebrow">Real-Time Verification</span>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+        <h2 className="mt-1 page-title">
           Policy Q&A Stream
         </h2>
         <p className="mt-1 text-sm text-[var(--color-fg-secondary)]">
@@ -202,64 +202,68 @@ export const AskQAStream: React.FC = () => {
         ))}
       </div>
 
-      {/* Search Input Form */}
-      <form onSubmit={handleSubmit} className="soft-card p-4 space-y-3">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-          <div className="sm:col-span-3">
-            <label className="mb-1 block text-xs font-medium text-[var(--color-fg-secondary)]">
-              Query Prompt
-            </label>
-            <input
-              type="text"
-              className="karen-input"
-              placeholder="e.g. What is the deductible for windstorm damage?"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--color-fg-secondary)]">Policy</label>
+      {/* Composer */}
+      <form onSubmit={handleSubmit} className="soft-card card-shadow space-y-3 p-3">
+        <div className="flex items-center gap-2 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-bg-tertiary)] px-3 py-2 transition-colors focus-within:border-[var(--color-fg-tertiary)]">
+          <Sparkles className="h-4 w-4 shrink-0 text-[var(--color-accent)]" />
+          <input
+            type="text"
+            className="h-9 min-w-0 flex-1 border-0 bg-transparent text-sm text-[var(--color-fg)] outline-none placeholder:text-[var(--color-fg-tertiary)]"
+            placeholder="Ask something about your policies…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Question"
+          />
+          <button
+            type="submit"
+            disabled={!query.trim() || isStreaming}
+            className="btn btn-primary btn-icon shrink-0 rounded-full"
+            title="Stream answer"
+          >
+            {isStreaming ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+          <label className="flex items-center gap-2 text-xs font-medium text-[var(--color-fg-tertiary)]">
+            Policy
             <select
-              className="karen-input font-mono text-xs"
+              className="input h-9 w-auto min-w-[200px] font-mono text-xs"
               value={policyNumber}
               onChange={(e) => setPolicyNumber(e.target.value)}
             >
               <option value="">-- Select Policy --</option>
               {availablePolicies.map((p) => (
                 <option key={p.id} value={p.id}>
-                    {p.filename}
-                  </option>
+                  {p.filename}
+                </option>
               ))}
             </select>
-          </div>
-        </div>
+          </label>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
-          {isStreaming && (
-            <button
-              type="button"
-              onClick={stopStreaming}
-              className="btn btn-danger"
-              title="Cancel generation (stops server-side LLM work)"
-            >
-              <Square className="h-4 w-4" /> Stop
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={!query.trim() || isStreaming}
-            className="btn btn-primary"
-          >
-            {isStreaming ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin" /> Streaming...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" /> Stream Answer
-              </>
+          <div className="flex items-center gap-2">
+            {isStreaming && (
+              <button
+                type="button"
+                onClick={stopStreaming}
+                className="btn btn-danger btn-sm"
+                title="Cancel generation (stops server-side LLM work)"
+              >
+                <Square className="h-3.5 w-3.5" /> Stop
+              </button>
             )}
-          </button>
+            <button
+              type="submit"
+              disabled={!query.trim() || isStreaming}
+              className="btn btn-secondary btn-sm"
+            >
+              {isStreaming ? 'Streaming…' : 'Ask question'}
+            </button>
+          </div>
         </div>
       </form>
 
@@ -267,8 +271,8 @@ export const AskQAStream: React.FC = () => {
       {(answer || isStreaming || streamError) && (
         <div className="soft-card p-6 space-y-4">
           {streamError && (
-            <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-xs text-red-400">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <div className="alert alert-danger">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{streamError}</span>
             </div>
           )}
@@ -281,7 +285,7 @@ export const AskQAStream: React.FC = () => {
             </div>
 
             {refused && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400">
+              <span className="badge badge-danger">
                 <AlertCircle className="h-3.5 w-3.5" />
                 Refusal Guard Triggered
               </span>

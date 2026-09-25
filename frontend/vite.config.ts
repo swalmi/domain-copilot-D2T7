@@ -18,6 +18,7 @@ export default defineConfig({
       '/ask': 'http://localhost:8000',
       '/claims': 'http://localhost:8000',
       '/approvals': 'http://localhost:8000',
+      '/usage': 'http://localhost:8000',
       '/runs': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
       '/ready': 'http://localhost:8000',
