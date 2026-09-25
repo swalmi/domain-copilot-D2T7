@@ -59,3 +59,14 @@ class SqlalchemyDocumentRepository(DocumentRepository):
         )
         res = await self._session.execute(stmt)
         return res.scalar_one_or_none()
+
+    async def delete_document(self, document_id: UUID) -> bool:
+        """Delete a document record, cascading all of its chunks (fingerprint included)."""
+        stmt = select(DocumentModel).where(DocumentModel.id == document_id)
+        res = await self._session.execute(stmt)
+        doc = res.scalar_one_or_none()
+        if not doc:
+            return False
+        await self._session.delete(doc)
+        await self._session.commit()
+        return True

@@ -158,5 +158,85 @@
     "version": "2017-2018",
     "effective_date": "2017-04-01",
     "jurisdiction": "IN"
+  },
+  {
+    "file": "synthetic/POL-5001-boat.txt",
+    "policy_id": "POL-5001",
+    "policy_type": "marine",
+    "version": "2025-01",
+    "effective_date": "2025-01-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5002-cyber.txt",
+    "policy_id": "POL-5002",
+    "policy_type": "cyber",
+    "version": "2025-03",
+    "effective_date": "2025-03-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5003-travel.txt",
+    "policy_id": "POL-5003",
+    "policy_type": "travel",
+    "version": "2025-06",
+    "effective_date": "2025-06-15",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5004-pet.txt",
+    "policy_id": "POL-5004",
+    "policy_type": "pet",
+    "version": "2025-02",
+    "effective_date": "2025-02-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5005-flood.txt",
+    "policy_id": "POL-5005",
+    "policy_type": "property",
+    "version": "2024-11",
+    "effective_date": "2024-11-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5006-workers.txt",
+    "policy_id": "POL-5006",
+    "policy_type": "commercial",
+    "version": "2025-01",
+    "effective_date": "2025-01-15",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5007-umbrella.txt",
+    "policy_id": "POL-5007",
+    "policy_type": "commercial",
+    "version": "2025-04",
+    "effective_date": "2025-04-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5008-directors.txt",
+    "policy_id": "POL-5008",
+    "policy_type": "commercial",
+    "version": "2025-05",
+    "effective_date": "2025-05-01",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5009-equipment.txt",
+    "policy_id": "POL-5009",
+    "policy_type": "commercial",
+    "version": "2025-02",
+    "effective_date": "2025-02-15",
+    "jurisdiction": "US"
+  },
+  {
+    "file": "synthetic/POL-5010-identity.txt",
+    "policy_id": "POL-5010",
+    "policy_type": "cyber",
+    "version": "2025-07",
+    "effective_date": "2025-07-01",
+    "jurisdiction": "US"
   }
 ]

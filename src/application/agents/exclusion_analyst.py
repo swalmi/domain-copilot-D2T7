@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from decimal import Decimal
 from typing import ClassVar
 
@@ -24,10 +25,10 @@ class ExclusionAnalyst(BaseAgent):
     ]
 
     def __init__(
-        self, llm_provider: LLMProvider, name: str = "ExclusionAnalyst"
+        self, llm_provider: LLMProvider, name: str = "ExclusionAnalyst", on_progress: Callable[[dict], None] | None = None
     ) -> None:
         """Initialize ExclusionAnalyst with LLM provider and agent name."""
-        super().__init__(llm_provider=llm_provider, name=name)
+        super().__init__(llm_provider=llm_provider, name=name, on_progress=on_progress)
 
     async def run(
         self,

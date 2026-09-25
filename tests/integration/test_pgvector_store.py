@@ -3,8 +3,8 @@ from datetime import date
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import select, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.policy import CitedChunk
 from src.infrastructure.db.models import ChunkModel
@@ -12,21 +12,9 @@ from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncSession:
-    """Fixture providing an active AsyncSession connected to the local test database."""
-    engine = create_async_engine(
-        "postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot"
-    )
-    session_factory = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with session_factory() as session:
-        await session.execute(text("TRUNCATE TABLE chunks, documents CASCADE;"))
-        await session.commit()
-        yield session
-        await session.execute(text("TRUNCATE TABLE chunks, documents CASCADE;"))
-        await session.commit()
-    await engine.dispose()
+async def db_session(isolated_db_session: AsyncSession) -> AsyncSession:
+    """Redirect to the scratch database so the seeded corpus is never modified."""
+    return isolated_db_session
 
 
 @pytest.mark.asyncio

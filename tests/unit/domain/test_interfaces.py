@@ -85,6 +85,15 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
         async def list_pending_approvals(self) -> list[Claim]:
             return []
 
+        async def list_all(self) -> list[Claim]:
+            return []
+
+        async def list_by_user(self, user_id: UUID) -> list[Claim]:
+            return []
+
+        async def delete(self, claim_id: UUID) -> bool:
+            return False
+
 
     class DummyDocumentRepository(DocumentRepository):
         """Concrete test implementation of DocumentRepository."""
@@ -99,6 +108,9 @@ def test_concrete_implementations_satisfy_interfaces() -> None:
 
         async def get_document_by_hash(self, content_hash: str) -> UUID | None:
             return None
+
+        async def delete_document(self, document_id: UUID) -> bool:
+            return False
 
     assert isinstance(DummyLLMProvider(), LLMProvider)
     assert isinstance(DummyVectorStore(), VectorStore)

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FileText,
   MessageSquare,
@@ -10,6 +10,8 @@ import {
   LogOut,
   LayoutDashboard,
   ScrollText,
+  Server,
+  ServerOff,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +30,54 @@ interface NavbarProps {
   onAuthClick: (view: 'login' | 'register') => void;
   onLogoClick: () => void;
 }
+
+const WorkerHealthIndicator: React.FC = () => {
+  const [workers, setWorkers] = useState<string[] | null>(null);
+  const [down, setDown] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch('/health/worker', { credentials: 'include' });
+        const data = await res.json();
+        if (cancelled) return;
+        setDown(!res.ok);
+        setWorkers(res.ok ? (data.workers ?? []) : null);
+      } catch {
+        if (!cancelled) setDown(true);
+      }
+    };
+    check();
+    const id = setInterval(check, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  return (
+    <button
+      className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all sm:flex ${
+        down
+          ? 'border-red-500/30 bg-red-500/10 text-red-400'
+          : workers && workers.length > 0
+            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+            : 'border-[var(--color-border)] bg-[var(--color-bg-tertiary)] text-[var(--color-fg-tertiary)]'
+      }`}
+      title={
+        down
+          ? 'Worker health check failed'
+          : workers && workers.length > 0
+            ? `Workers online: ${workers.join(', ')}`
+            : 'Worker: checking…'
+      }
+    >
+      {down ? <ServerOff className="h-3.5 w-3.5" /> : <Server className="h-3.5 w-3.5" />}
+      {down ? 'Worker offline' : workers && workers.length > 0 ? `Workers: ${workers.length}` : 'Worker: …'}
+    </button>
+  );
+};
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
@@ -98,6 +148,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Auth + Theme Controls */}
         <div className="flex items-center gap-2.5">
+          <WorkerHealthIndicator />
+
           {user ? (
             <div className="flex items-center gap-2">
               <div className="hidden items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-3 py-1.5 sm:flex">

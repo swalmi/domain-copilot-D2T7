@@ -1,0 +1,13 @@
+# Pet Health Sample Policy
+
+Policy ID: POL-5004
+Effective: 2025-02-01
+
+ACCIDENT AND ILLNESS
+We cover eligible accident and illness veterinary expenses after the waiting period: 14 days for accidents and 30 days for illness.
+ANNUAL LIMIT
+The annual benefit limit is $10,000 per insured pet.
+DEDUCTIBLE
+Choose $100, $250, or $500 annual deductible; reimbursement is 70% of eligible expenses after deductible.
+EXCLUSIONS
+Pre-existing conditions, breeding, cosmetics, and routine wellness exams are excluded unless a wellness rider is purchased.

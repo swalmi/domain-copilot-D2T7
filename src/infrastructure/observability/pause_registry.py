@@ -1,6 +1,5 @@
 from uuid import UUID
 import json
-import asyncio
 import redis.asyncio as redis
 from src.infrastructure.config import get_settings
 

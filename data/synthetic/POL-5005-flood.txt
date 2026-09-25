@@ -1,0 +1,13 @@
+# Flood Endorsement Sample
+
+Policy ID: POL-5005
+Effective: 2024-11-01
+
+COVERED FLOOD TYPES
+This endorsement covers flood as defined by rising water, overflow of rivers or streams, tidal wave, and storm surge caused by named storms.
+BUILDING AND CONTENTS
+Building limit $250,000; contents limit $100,000. Deductible is 2% of coverage A, minimum $2,000.
+EXCLUSIONS
+Groundwater seepage, mudflow not associated with floodwater, and earth movement are excluded.
+CLAIMS
+Proof of loss must be filed within 60 days of loss discovery.

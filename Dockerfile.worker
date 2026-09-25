@@ -26,8 +26,14 @@ COPY requirements.base.txt requirements.worker.txt ./
 
 RUN pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.base.txt && \
-    if [ "$INSTALL_WORKER_DEPS" = "1" ]; then pip install --no-cache-dir -r requirements.worker.txt; fi
+    if [ "$INSTALL_WORKER_DEPS" = "1" ]; then pip install --no-cache-dir -r requirements.worker.txt && pip install --no-cache-dir --no-deps langchain-unstructured==0.1.6; fi
+
+COPY alembic.ini .
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 COPY src/ ./src
+COPY prompts/ ./prompts
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["celery", "-A", "src.infrastructure.tasks.celery_app:celery_app", "worker", "--loglevel=info"]

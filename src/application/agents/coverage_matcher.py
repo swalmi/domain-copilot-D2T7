@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import ClassVar
 
 from src.application.agents.base_agent import BaseAgent
@@ -16,10 +17,10 @@ class CoverageMatcher(BaseAgent):
     ALLOWED_TOOLS: ClassVar[list[str]] = ["search_policies"]
 
     def __init__(
-        self, llm_provider: LLMProvider, name: str = "CoverageMatcher"
+        self, llm_provider: LLMProvider, name: str = "CoverageMatcher", on_progress: Callable[[dict], None] | None = None
     ) -> None:
         """Initialize CoverageMatcher with LLM provider and agent name."""
-        super().__init__(llm_provider=llm_provider, name=name)
+        super().__init__(llm_provider=llm_provider, name=name, on_progress=on_progress)
 
     async def run(
         self, claim: Claim, vector_store: VectorStore

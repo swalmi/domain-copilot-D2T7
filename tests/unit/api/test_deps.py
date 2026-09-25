@@ -43,24 +43,22 @@ def test_deps_llm_providers_wiring() -> None:
     openrouter = get_openrouter_provider()
     assert isinstance(openrouter, OpenRouterProvider)
 
-    router = get_provider_router(ollama=ollama, openrouter=openrouter)
+    router = get_provider_router()
     assert isinstance(router, ProviderRouter)
-    assert router.primary == ollama
-    assert router.fallback == openrouter
+    assert isinstance(router.primary, OllamaProvider)
+    assert isinstance(router.fallback, OpenRouterProvider)
 
 
 def test_deps_claim_repo_wiring() -> None:
     """Verify claim repository dependency returns a ClaimRepository instance."""
-    repo = get_claim_repository()
+    repo = get_claim_repository(session=object())
     assert isinstance(repo, ClaimRepository)
 
 
 def test_deps_use_cases_wiring() -> None:
     """Verify use case dependency functions build valid use case instances."""
-    ollama = get_ollama_provider()
-    openrouter = get_openrouter_provider()
-    router = get_provider_router(ollama=ollama, openrouter=openrouter)
-    claim_repo = get_claim_repository()
+    router = get_provider_router()
+    claim_repo = get_claim_repository(session=object())
 
     mock_vector_store = object()
 

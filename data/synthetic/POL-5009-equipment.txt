@@ -1,0 +1,13 @@
+# Inland Marine Equipment Sample Policy
+
+Policy ID: POL-5009
+Effective: 2025-02-15
+
+COVERED PROPERTY
+Scheduled mobile equipment including cranes, forklifts, and portable generators are covered while in transit or at temporary job sites.
+VALUATION
+Replacement cost applies for owned equipment; actual cash value for rented equipment.
+DEDUCTIBLE
+$1,000 per occurrence for theft away from a secured yard.
+EXCLUSIONS
+Wear, mechanical breakdown, and freezing of fluid systems without winterization are excluded.

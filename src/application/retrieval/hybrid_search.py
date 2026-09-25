@@ -3,6 +3,8 @@ from uuid import UUID
 
 from src.domain.entities.policy import CitedChunk
 from src.domain.interfaces.vector_store import VectorStore
+from src.infrastructure.observability.retrieval_logger import create_retrieval_log
+from src.infrastructure.observability.system_logger import emit_system_log
 
 
 def reciprocal_rank_fusion_with_scores(
@@ -68,6 +70,35 @@ async def hybrid_search_with_scores(
 
     fused_results = reciprocal_rank_fusion_with_scores(
         [dense_results, keyword_results], k=60
+    )
+    embedder_name = str(getattr(embedder, "model_name", getattr(embedder, "__class__.__name__", "unknown")))
+    has_cache = hasattr(embedder, "embed_with_cache")
+    create_retrieval_log(
+        query=query,
+        query_embedding=list(query_embedding),
+        dense_results=dense_results,
+        keyword_results=keyword_results,
+        fused_results=fused_results,
+        top_k=top_k,
+        filters=filters_dict,
+        embedder_name=str(embedder_name),
+        cache_hit=has_cache,
+    )
+    emit_system_log(
+        "retrieval",
+        "query_embedded",
+        {"query_length": len(query), "embed_cache": hasattr(embedder, "embed_with_cache")},
+    )
+    emit_system_log(
+        "retrieval",
+        "fusion_complete",
+        {
+            "dense_candidates": len(dense_results),
+            "keyword_candidates": len(keyword_results),
+            "fused_returned": min(len(fused_results), top_k),
+            "top_chunk_id": str(fused_results[0][0].chunk_id) if fused_results else None,
+            "top_rrf_score": round(fused_results[0][1], 5) if fused_results else None,
+        },
     )
     return fused_results[:top_k]
 
