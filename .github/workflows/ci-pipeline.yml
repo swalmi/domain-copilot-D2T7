@@ -103,6 +103,16 @@ jobs:
         run: |
           alembic upgrade head
 
+      - name: Seed corpus
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/domain_copilot
+          PYTHONPATH: .
+        run: |
+          # Several tests (test_ask_question_answered_by_corpus, hybrid search)
+          # read the seeded corpus; seed_corpus.py falls back to deterministic
+          # embeddings when Ollama is unreachable, as it is on runners.
+          python scripts/seed_corpus.py
+
       - name: Run Integration Tests
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/domain_copilot
