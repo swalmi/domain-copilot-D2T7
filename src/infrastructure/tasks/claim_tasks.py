@@ -6,6 +6,7 @@ from typing import Any
 from uuid import UUID
 
 from src.api.deps import build_provider_router, get_session_factory
+from src.application.contracts.adjudication_draft import AdjudicationDraft
 from src.application.use_cases.run_adjudication import RunAdjudicationWorkflowUseCase
 from src.domain.entities.claim import Claim
 from src.infrastructure.db.repositories.claim_repository import (
@@ -17,6 +18,25 @@ from src.infrastructure.observability.system_logger import emit_system_log
 from src.infrastructure.vectorstore.pgvector_store import PgVectorStore
 
 logger = logging.getLogger(__name__)
+
+
+def apply_draft_to_claim(claim: Claim, draft: AdjudicationDraft) -> None:
+    """Persist the adjudication report onto the durable claim record.
+
+    ``recommendation`` holds the machine decision (approve/partial/deny) and
+    ``reasoning_text`` holds the human-readable justification — the corp UI shows
+    them in different columns, so a justification must never land in
+    ``recommendation`` (and vice versa).
+    """
+    claim.calculated_payout = draft.calculated_payout
+    claim.deductible_applied = draft.deductible_applied
+    claim.policy_limit = draft.policy_limit
+    claim.recommendation = str(draft.recommendation)
+    claim.reasoning_text = draft.reasoning_text
+    claim.citations = [c.model_dump(mode="json") for c in draft.citations] or None
+    claim.status = "report_ready"
+    claim.pipeline_stage = "done"
+    claim.updated_at = datetime.now(timezone.utc)
 
 
 @celery_app.task(name="process_claim_adjudication", bind=True)
@@ -106,18 +126,8 @@ def process_claim_adjudication(self: Any, claim_data: dict[str, Any]) -> dict[st
                 raise
 
             # Persist the adjudication report onto the durable claim record.
-            claim.calculated_payout = draft.calculated_payout
-            claim.deductible_applied = draft.deductible_applied
-            claim.policy_limit = draft.policy_limit
-            claim.recommendation = draft.reasoning_text
-            claim.reasoning_text = draft.reasoning_text
-            claim.citations = [
-                c.model_dump(mode="json") for c in draft.citations
-            ] or None
+            apply_draft_to_claim(claim, draft)
             # Hold for human review: client must submit, then adjuster decides.
-            claim.status = "report_ready"
-            claim.pipeline_stage = "done"
-            claim.updated_at = datetime.now(timezone.utc)
             await claim_repo.save(claim)
 
         updated_claim = claim

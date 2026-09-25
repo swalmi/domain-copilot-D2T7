@@ -7,6 +7,7 @@ from uuid import UUID
 
 from src.application.agents.adjudication_drafter import AdjudicationDrafter
 from src.application.agents.coverage_matcher import CoverageMatcher
+from src.application.agents.decision_text import ensure_decision_text
 from src.application.agents.exclusion_analyst import ExclusionAnalyst
 from src.application.contracts.adjudication_draft import AdjudicationDraft
 from src.application.contracts.coverage_match_result import CoverageMatchResult
@@ -163,7 +164,14 @@ class RunAdjudicationWorkflowUseCase:
                 return AdjudicationDraft(
                     recommendation="deny",
                     calculated_payout=Decimal("0.00"),
-                    reasoning_text=f"DEGRADED FALLBACK: {ask_res.get('answer')}",
+                    reasoning_text=ensure_decision_text(
+                        f"DEGRADED FALLBACK: {ask_res.get('answer')}",
+                        fallback=(
+                            "DEGRADED FALLBACK: coverage matching failed and the "
+                            "language model did not return a usable justification; "
+                            "claim denied pending manual review."
+                        ),
+                    ),
                     citations=[],
                     confidence="low",
                 )
