@@ -29,6 +29,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # langchain-unstructured pins onnxruntime<=1.19.2 while
+          # unstructured-inference 1.6.13 needs >=1.25.0, so it cannot be a
+          # requirements.txt entry; install it without dependency metadata,
+          # exactly as Dockerfile.app and Dockerfile.worker do.
+          pip install --no-deps langchain-unstructured==0.1.6
 
       - name: Run tests
         run: |
