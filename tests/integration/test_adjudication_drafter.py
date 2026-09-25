@@ -117,3 +117,135 @@ async def test_adjudication_drafter_preserves_payout_and_gated_write(
     assert saved_claim is not None
     assert saved_claim.status == "pending_approval"
     assert saved_claim.status != "approved"
+
+
+def _claim() -> Claim:
+    return Claim(
+        id=uuid.uuid4(),
+        policy_number="ISO-CP-00-10",
+        date_of_loss=date(2026, 1, 1),
+        incident_description="Building fire loss",
+        claim_amount_requested=Decimal("5000.00"),
+        status="submitted",
+    )
+
+
+def _coverage_and_exclusion() -> tuple[CoverageMatchResult, ExclusionAnalysisResult]:
+    chunk = CitedChunk(
+        chunk_id=uuid.uuid4(),
+        text="Building property loss coverage section.",
+        source_document="cp0010.pdf",
+        section="COVERAGE FORM",
+        page=1,
+        policy_id="ISO-CP-00-10",
+        version="2012-10",
+        effective_date=date(2012, 10, 1),
+        chunk_type="narrative",
+        policy_type="commercial_property",
+    )
+    coverage_match = CoverageMatchResult(
+        policy_id="ISO-CP-00-10",
+        version_effective_date=date(2012, 10, 1),
+        applicable_coverage_sections=[chunk],
+        confidence="matched",
+    )
+    exclusion_result = ExclusionAnalysisResult(
+        exclusions_found=[],
+        deductible_applied=Decimal("500.00"),
+        policy_limit=Decimal("10000.00"),
+        calculated_payout=Decimal("4500.00"),
+        anomaly_flags=[],
+    )
+    return coverage_match, exclusion_result
+
+
+@pytest.mark.asyncio
+async def test_drafter_falls_back_when_model_keeps_refusing(
+    mock_llm_provider: AsyncMock,
+) -> None:
+    """A refusal string must never surface as the AI decision justification."""
+    mock_llm_provider.complete = AsyncMock(return_value="I can't fulfill this request.")
+    drafter = AdjudicationDrafter(llm_provider=mock_llm_provider)
+    claim = _claim()
+    coverage_match, exclusion_result = _coverage_and_exclusion()
+
+    draft = await drafter.run(
+        claim=claim,
+        coverage_match=coverage_match,
+        exclusion_result=exclusion_result,
+    )
+
+    assert "can't fulfill" not in draft.reasoning_text.lower()
+    assert draft.reasoning_text.startswith("Automated decision summary")
+    assert "ISO-CP-00-10" in draft.reasoning_text
+    assert "recommendation partial" in draft.reasoning_text
+    # one retry before the structured fallback is used
+    assert mock_llm_provider.complete.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_drafter_uses_retry_output_when_second_answer_is_usable(
+    mock_llm_provider: AsyncMock,
+) -> None:
+    usable = (
+        "The claim for building fire damage is covered under Section I; a "
+        "deductible of $500.00 applies and no exclusions were found."
+    )
+    mock_llm_provider.complete = AsyncMock(
+        side_effect=["I can't fulfill this request.", usable]
+    )
+    drafter = AdjudicationDrafter(llm_provider=mock_llm_provider)
+    claim = _claim()
+    coverage_match, exclusion_result = _coverage_and_exclusion()
+
+    draft = await drafter.run(
+        claim=claim,
+        coverage_match=coverage_match,
+        exclusion_result=exclusion_result,
+    )
+
+    assert draft.reasoning_text == usable
+    assert mock_llm_provider.complete.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_drafter_records_llm_forward_generation() -> None:
+    reasoning = (
+        "The claim for building fire damage is covered under Section I; a "
+        "deductible of $500.00 applies and no exclusions were found."
+    )
+    mock_llm_provider.complete = AsyncMock(return_value=reasoning)
+    drafter = AdjudicationDrafter(llm_provider=mock_llm_provider)
+
+    draft = await drafter.run(
+        claim=_claim(),
+        coverage_match=_coverage_and_exclusion()[0],
+        exclusion_result=_coverage_and_exclusion()[1],
+    )
+
+    record = drafter.generation_record
+    assert record["response"] == reasoning
+    assert record["prompt_length_chars"] > 0
+    assert record["retry_count"] == 0
+    assert record["fallback_text_used"] is False
+    assert drafter.tool_responses[-1]["tool_name"] == "llm_complete"
+    assert drafter.tool_responses[-1]["response"]["final_reasoning_text"] == draft.reasoning_text
+
+
+@pytest.mark.asyncio
+async def test_drafter_records_retry_and_fallback_usage() -> None:
+    mock_llm_provider.complete = AsyncMock(
+        side_effect=["I can't fulfill this request.", "Still not able to do that."]
+    )
+    drafter = AdjudicationDrafter(llm_provider=mock_llm_provider)
+
+    await drafter.run(
+        claim=_claim(),
+        coverage_match=_coverage_and_exclusion()[0],
+        exclusion_result=_coverage_and_exclusion()[1],
+    )
+
+    record = drafter.generation_record
+    assert record["retry_count"] == 1
+    assert record["fallback_text_used"] is True
+    assert record["response"] == "Still not able to do that."
