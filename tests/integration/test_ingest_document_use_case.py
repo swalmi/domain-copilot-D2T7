@@ -59,7 +59,10 @@ async def test_ingest_document_use_case_success_and_idempotency(
     stmt = select(ChunkModel).where(ChunkModel.policy_id == "ISO-PP-00-01")
     res = await db_session.execute(stmt)
     chunks = res.scalars().all()
-    assert len(chunks) == result1["chunks_count"]
+    # Chunks with identical content are deduplicated on insert, so the table
+    # holds one row per unique chunk, not one per produced chunk.
+    assert len(chunks) == result1["inserted_count"]
+    assert result1["inserted_count"] <= result1["chunks_count"]
     for c in chunks:
         assert c.policy_id == "ISO-PP-00-01"
         assert c.policy_type == "auto"

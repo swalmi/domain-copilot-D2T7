@@ -55,6 +55,12 @@ jobs:
     name: Integration Tests (Docker Compose)
     runs-on: ubuntu-latest
 
+    env:
+      # hi_res runs layout detection + tesseract OCR and needs minutes per PDF
+      # on a 2-vCPU runner; 'fast' reads the text layer, which every corpus
+      # document has. Production keeps the hi_res default.
+      UNSTRUCTURED_PDF_STRATEGY: fast
+
     services:
       postgres:
         image: pgvector/pgvector:pg16
