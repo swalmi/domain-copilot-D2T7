@@ -19,7 +19,11 @@ from src.domain.interfaces.llm_provider import LLMProvider
 from src.domain.interfaces.vector_store import VectorStore
 from src.infrastructure.observability.claim_logger import append_claim_log
 from src.infrastructure.observability.pause_registry import wait_if_paused
-from src.infrastructure.observability.retrieval_logger import create_retrieval_log
+from src.infrastructure.observability.retrieval_logger import (
+    build_agent_steps,
+    create_retrieval_log,
+    update_entry_for_query,
+)
 from src.infrastructure.observability.system_logger import emit_system_log
 from src.infrastructure.observability.trace_logger import traced_step
 
@@ -245,17 +249,31 @@ class RunAdjudicationWorkflowUseCase:
             )
 
             _log_claim("completed")
-            create_retrieval_log(
+            # Attach the agent results to the retrieval entry this claim already
+            # produced instead of appending a second, empty record.
+            agent_steps = build_agent_steps(
                 coverage_match_result=coverage_match,
                 exclusion_result=exclusion_result,
                 draft_result=draft,
                 final_recommendation=draft.recommendation if draft else None,
-                query=claim.incident_description,
-                refusal_reason=None,
                 agent_tool_responses=tool_responses,
-                llm_forward=drafter.generation_record or None,
-                expansion_note="not_applicable: agent tool retrieval scores chunks directly without parent expansion",
             )
+            if drafter.generation_record:
+                agent_steps["step_8_agent_adjudication_drafter"].update(
+                    drafter.generation_record
+                )
+            if not update_entry_for_query(claim.incident_description, agent_steps):
+                create_retrieval_log(
+                    coverage_match_result=coverage_match,
+                    exclusion_result=exclusion_result,
+                    draft_result=draft,
+                    final_recommendation=draft.recommendation if draft else None,
+                    query=claim.incident_description,
+                    refusal_reason=None,
+                    agent_tool_responses=tool_responses,
+                    llm_forward=drafter.generation_record or None,
+                    expansion_note="not_applicable: agent tool retrieval scores chunks directly without parent expansion",
+                )
             return draft
 
         finally:

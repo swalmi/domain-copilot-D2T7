@@ -95,7 +95,9 @@ def test_load_and_chunk_parameters_and_metadata_mapping() -> None:
         assert title_chunk["element_id"] == "parent-456"
         assert title_chunk["category"] == "Title"
         assert title_chunk["chunk_type"] == "narrative"
-        assert title_chunk["section"] is None
+        # A title with no Title ancestor derives its own section from its heading
+        # text instead of staying empty, which used to disable parent expansion.
+        assert title_chunk["section"] == "SECTION I — COVERAGE"
 
         narrative_chunk = chunks[1]
         assert narrative_chunk["element_id"] == "elem-123"
@@ -160,4 +162,6 @@ def test_load_and_chunk_docx_file() -> None:
         assert chunk["policy_type"] == "auto"
         assert chunk["version"] == "2.1"
         assert chunk["effective_date"] == sample_date
-        assert chunk["section"] is None
+        # "Docx section content" is prose, so the page fallback keeps it groupable
+        # rather than leaving section empty.
+        assert chunk["section"] == "page unknown"

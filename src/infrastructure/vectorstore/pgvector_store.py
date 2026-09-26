@@ -214,6 +214,11 @@ class PgVectorStore(VectorStore):
             )
         return cited_chunks
 
+    async def list_policy_ids(self) -> list[str]:
+        """Return the distinct policy ids that have chunks in the corpus."""
+        stmt = select(ChunkModel.policy_id).distinct().order_by(ChunkModel.policy_id)
+        return list((await self._session.execute(stmt)).scalars().all())
+
     async def top_cosine_distance(
         self, query_embedding: list[float], filters: dict
     ) -> float | None:

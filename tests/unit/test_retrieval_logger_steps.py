@@ -9,9 +9,11 @@ import pytest
 
 from src.infrastructure.observability import retrieval_logger
 from src.infrastructure.observability.retrieval_logger import (
+    build_agent_steps,
     build_context_expansion_step,
     build_llm_forward_step,
     create_retrieval_log,
+    update_entry_for_query,
     update_last_entry,
 )
 
@@ -143,3 +145,89 @@ def test_update_last_entry_with_no_updates_is_noop(log_file: Path):
     create_retrieval_log(query="hello", fused_results=[])
 
     assert update_last_entry({}) is False
+
+
+def test_update_entry_for_query_patches_own_entry_instead_of_appending(log_file: Path):
+    """A claim must never add a second, blank retrieval record.
+
+    The live bug: ``run_adjudication`` appended a fresh entry for the agent
+    results, producing a record with ``filters_applied={}`` and
+    ``embedding_dimension=0`` that read like a failed search, while the entry
+    holding the real cause sat next to it.
+    """
+    chunk = _chunk()
+    create_retrieval_log(
+        query="a kitchen fire damaged the cabinets",
+        query_embedding=[0.1, 0.2, 0.3],
+        dense_results=[chunk],
+        keyword_results=[chunk],
+        fused_results=[(chunk, 0.03)],
+        top_k=5,
+    )
+    before = len(json.loads(log_file.read_text(encoding="utf-8"))["entries"])
+
+    patched = update_entry_for_query(
+        "a kitchen fire damaged the cabinets",
+        {"final_decision": {"refused": False, "recommendation": "partial"}},
+    )
+
+    entries = json.loads(log_file.read_text(encoding="utf-8"))["entries"]
+    assert patched is True
+    assert len(entries) == before, "agent steps must patch, not append"
+    assert entries[-1]["final_decision"]["recommendation"] == "partial"
+    # The retrieval evidence must survive the patch.
+    assert entries[-1]["query_embedding"]["dimension"] > 0
+    assert entries[-1]["step_1_dense_search"]["results"]
+
+
+def test_update_entry_for_query_targets_most_recent_matching_entry(log_file: Path):
+    create_retrieval_log(query="first question", fused_results=[])
+    create_retrieval_log(query="unrelated question", fused_results=[])
+    create_retrieval_log(query="first question", fused_results=[])
+
+    assert update_entry_for_query("first question", {"marker": "hit"}) is True
+
+    entries = json.loads(log_file.read_text(encoding="utf-8"))["entries"]
+    assert len(entries) == 3
+    assert entries[2]["marker"] == "hit"
+    assert "marker" not in entries[0]
+    assert "marker" not in entries[1]
+
+
+def test_update_entry_for_query_reports_no_match_so_caller_can_fall_back(log_file: Path):
+    create_retrieval_log(query="logged question", fused_results=[])
+
+    assert update_entry_for_query("a query that was never logged", {"marker": "x"}) is False
+
+    entries = json.loads(log_file.read_text(encoding="utf-8"))["entries"]
+    assert len(entries) == 1
+    assert "marker" not in entries[0]
+
+
+def test_update_entry_for_query_with_no_updates_is_noop(log_file: Path):
+    create_retrieval_log(query="hello", fused_results=[])
+
+    assert update_entry_for_query("hello", {}) is False
+
+
+def test_build_agent_steps_matches_create_retrieval_log_schema(log_file: Path):
+    """The patch path and the create path must emit identical step keys."""
+    create_retrieval_log(
+        query="schema check",
+        fused_results=[],
+        refusal_reason="No matching policy coverage sections found",
+    )
+    created = json.loads(retrieval_logger._default_path().read_text(encoding="utf-8"))["entries"][-1]
+
+    built = build_agent_steps(refusal_reason="No matching policy coverage sections found")
+
+    assert "refusal" in built
+    assert built["refusal"] == created["refusal"]
+    for key in (
+        "step_6_agent_coverage_matcher",
+        "step_7_agent_exclusion_analyst",
+        "step_8_agent_adjudication_drafter",
+    ):
+        assert key in built
+        assert key in created
+

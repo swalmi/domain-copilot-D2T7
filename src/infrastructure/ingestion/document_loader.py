@@ -6,6 +6,8 @@ from collections.abc import Callable
 from datetime import date
 from typing import Any, Literal
 
+from src.infrastructure.ingestion.section_titles import section_key_for
+
 
 def compute_document_hash(raw_bytes: bytes) -> str:
     """Compute the SHA-256 hex digest of raw document bytes for idempotent ingestion."""
@@ -133,7 +135,13 @@ def load_and_chunk(
     for idx, chunk in enumerate(raw_chunks, start=1):
         category = chunk["category"]
         chunk_type = "table" if category == "Table" else "narrative"
-        section = _find_section_title(chunk, id_to_chunk)
+        # Prefer a real Title ancestor when the extractor provides one, but never
+        # depend on it: langchain_unstructured emits CompositeElement with
+        # parent_id=None, which made section empty for 1956 of 1958 chunks and
+        # disabled parent expansion entirely.
+        section = _find_section_title(chunk, id_to_chunk) or section_key_for(
+            chunk["text"], chunk["page_number"]
+        )
 
         report(
             {
