@@ -65,20 +65,40 @@ Failure mode: claim for 2026 loss matched to a 2018 form without endorsement che
 **Live check:** `retrieval_log.json` → `filters_applied`.
 
 ## Slide 10 — Citations are contracts, not decorations
-Citation object must carry: `chunk_id`, `policy_id`, `version`, `page`, `section`, snippet.
-UI renders them; eval harness scores hit-rate against golden keywords.
+`CitedChunk`: `chunk_id`, `policy_id`, `version`, `effective_date`, `page`, `section`,
+`chunk_type`, `text`. The `/ask` SSE payload exposes the snippet as **`text_snippet`**.
+
+Two honest caveats, both measured:
+- `section` is frequently a **page fallback** (`"page 9"`), not a heading — PDFs without a
+  detectable heading structure get nothing better.
+- Hit-rate is scored against golden **keywords**, so a correct paraphrase scores zero.
+  One of our two "failures" is a correct ISO answer that the golden set marks wrong.
+
+**A citation is a claim about evidence. Verify it points at the sentence you rely on.**
 
 ## Slide 11 — Refusal is a feature
-Threshold on top RRF score (`min_confidence_score`).
-Below threshold → refuse **before** LLM generation (saves tokens, prevents hallucination).
-Golden set category: `out_of_corpus` (n≥2 required; we ship 2+).
+Gate on best **dense cosine distance** (`max_cosine_distance = 0.35`), not on an RRF score.
+RRF is rank-based, so every non-empty fusion scores ≥ `1/61 ≈ 0.0164` — a 0.01 floor can
+never fire. Absolute distance actually discriminates.
+Refuse **before** generation: saves tokens, prevents hallucination.
+
+**And it is not enough.** Measured: `out_of_corpus` scores **0/2**.
+> *"…payout limit for a lunar rover on the Moon?"* → *"is $75,000."* — no refusal.
+
+An in-vocabulary nonsense question ("policy", "payout limit", "damage") still clears a
+topical-similarity gate. See `docs/EVALUATION.md` §4.2.
 
 ## Slide 12 — Prompt injection in *indirect* form
 Attacker cannot talk to the model — they edit an uploaded policy PDF.
 Defence layers:
 1. Tool allow-lists per agent (no free shell).
 2. Instruction vs retrieved-content separation in prompts.
-3. Evaluation cases with category `prompt_injection` (≥3 in golden set).
+3. Evaluation cases with category `prompt_injection` (3 in golden set, 3/3 pass).
+
+**Measured honestly:** the 2 direct injections were refused *before* the LLM ran.
+The 1 indirect case was **not** refused — it was marked correct only because the answer
+avoided three literal `forbidden_phrases`. The tool allow-list is the control actually
+holding, and its check **fails open** for agents that declare no tools.
 
 ## Slide 13 — Multi-agent pipeline (D2)
 ```
@@ -116,10 +136,23 @@ Corp **cannot delete** undecided claims (409) — audit trail preserved.
 | `/runs/{id}` | Ordered trace events |
 
 ## Slide 18 — Evaluation that includes the bad numbers
-Harness: `evaluation/run_harness.py`
-Metrics: retrieval hit-rate, groundedness, refusal correctness.
-Golden set: 25 Q/A · 7 adversarial (injection, OOC, ambiguous, conflicting).
-**Record baselines honestly** — a high refusal rate on ambiguous items is a finding, not a shame.
+Harness: `evaluation/run_harness.py` · golden set 25 Q/A (7 adversarial)
+Committed run: `llama3.2:1b`, 17 min for 25 cases.
+
+| Metric | Score |
+|---|---|
+| Retrieval hit-rate | **90 %** (18/20) |
+| Refusal correctness | **92 %** (23/25) |
+| Faithfulness (lexical) | 66 % — *not a quality score* |
+| Answer relevancy (lexical) | 30 % — *not a quality score* |
+
+**Both lexical metrics are word-overlap heuristics.** Faithfulness returns **1.0 for any
+refusal**, and counts a word as "grounded" if it appears *anywhere* in 6 chunks of context.
+Never gate CI on them.
+
+**The headline failure:** `out_of_corpus` **0/2**, and the fabricated dollar figures
+*differ between runs* ($10,000 then $75,000) — so it is generation, not a bad chunk.
+Full analysis: `docs/EVALUATION.md`.
 
 ## Slide 19 — Lab preview (hands-on, 40 min)
 See `teaching/lab-sheet.md`.

@@ -1,0 +1,61 @@
+%% Data flow — trust boundaries and exactly what crosses to the LLM provider
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+flowchart TB
+    subgraph TB1["<b>TB-1 · Untrusted client</b> — anything here is attacker-controlled"]
+        U["Browser / curl<br/>no trust whatsoever"]
+        Q["user question or<br/>claim incident_description"]
+        F["uploaded file<br/>.pdf / .docx / .txt, ≤10 MB"]
+        U --> Q
+        U --> F
+    end
+
+    subgraph TB2["<b>TB-2 · Trust boundary: API edge</b> — auth, RBAC, validation<br/>NOTE: POST /ask is unauthenticated; rate limiter middleware is not registered"]
+        API["FastAPI<br/>JWT cookie · require_role (not on /ask)<br/>Pydantic bounds (query unbounded)<br/>SlowAPI configured, NOT mounted<br/>ext+magic-byte upload check"]
+        SAN["sanitize_pii<br/>SSN · email · phone only<br/>NOT applied to retrieval_log/claim_logs"]
+    end
+
+    subgraph TB3["<b>TB-3 · Trusted application core</b> — no raw user text reaches here unvalidated"]
+        UC["Use cases"]
+        POL["PolicyResolver<br/>never guesses a policy id"]
+        GATE["Confidence gate<br/>refuse when top cosine distance > 0.35"]
+        EXP["ContextExpander<br/>(policy_id, version, section)"]
+        AG["Agents — closed tool set<br/>no network/filesystem tool exists"]
+    end
+
+    subgraph TB4["<b>TB-4 · Trust boundary: LLM provider — the only place our data leaves the host"]
+        LLM["Ollama (default, localhost)<br/>or OpenRouter (optional, remote)"]
+    end
+
+    subgraph TB5["<b>TB-5 · Storage</b>"]
+        PG[("Postgres + pgvector<br/>1,958 chunks · claims · users")]
+        LOG[("repo-root JSON sinks<br/>retrieval_log · claim_logs<br/>chunk_log · token_usage")]
+    end
+
+    Q --> API
+    F --> API
+    API --> SAN
+    SAN --> UC
+    UC --> POL
+    POL --> GATE
+    GATE --> EXP
+    EXP --> AG
+    UC --> LOG
+    AG --> LOG
+
+    EXP ==>|"PROMPT IN — what the provider actually sees:<br/>① system framing (prompts/*/v1.md)<br/>② the user's question, verbatim, unescaped<br/>③ retrieved chunk text, verbatim, unescaped<br/>④ for claims: amounts, dates, policy number"| LLM
+    LLM ==>|"PROMPT OUT — trusted only after validation:<br/>token stream for /ask;<br/>JSON for agents, rejected unless it parses<br/>into the Pydantic contract"| API
+
+    AG --> PG
+    GATE --> PG
+    API --> PG
+
+    classDef untrusted fill:#fce8e6,stroke:#ea4335,color:#a50e0e,stroke-width:2px
+    classDef trusted fill:#e6f4ea,stroke:#34a853,color:#0b3d1c
+    classDef store fill:#fef7e0,stroke:#fbbc04,color:#7a4b00
+    classDef llmprov fill:#e8f0fe,stroke:#4285f4,color:#174ea6,stroke-width:3px
+    class U,Q,F untrusted
+    class API,SAN,UC,POL,GATE,EXP,AG trusted
+    class PG,LOG store
+    class LLM llmprov

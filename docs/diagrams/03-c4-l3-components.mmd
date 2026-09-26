@@ -1,0 +1,93 @@
+%% C4 Level 3 — Components: the API container, and the worker pipeline
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+graph TB
+    subgraph apiBox["<b>API container</b> — src/api"]
+        direction TB
+        subgraph security["Security middleware"]
+            mw["Security headers<br/>nosniff · DENY · HSTS"]
+            cors["CORS<br/>wildcard rejected at config"]
+            rl["Limiter<br/>login/signup 5/min"]
+        end
+        subgraph routes["Route modules — src/api/routes"]
+            authR["auth<br/>signup · login · logout · me"]
+            docR["documents<br/>upload · list · delete · stream"]
+            askR["ask<br/>SSE stream + cancel"]
+            claimR["claims<br/>submit · pause · resume<br/>cancel · delete"]
+            apprR["approvals<br/>approve · reject<br/>edit-and-approve"]
+            runR["runs / usage<br/>trace · token cost"]
+        end
+        deps["deps.py<br/>get_current_user (JWT cookie)<br/>require_role('client'|'corp')<br/>_assert_claim_access (ownership)"]
+    end
+
+    subgraph ucBox["<b>Use cases</b> — src/application/use_cases"]
+        direction TB
+        ingUC["IngestDocumentUseCase<br/>extract → chunk → embed → upsert"]
+        askUC["AskQuestionUseCase<br/>hybrid_search → confidence gate<br/>→ expand_to_parent_sections → prompt"]
+        adjUC["RunAdjudicationWorkflow<br/>3 agents, timeouts, degradation"]
+    end
+
+    subgraph retBox["<b>Retrieval</b> — src/application"]
+        direction TB
+        hyb["HybridSearch<br/>dense + keyword → RRF(k=60)<br/>cosine-distance gate"]
+        expander["ContextExpander<br/>group by (policy_id, version, section)"]
+        resolver["PolicyResolver<br/>customer number → corpus id<br/>unambiguous or unfiltered"]
+    end
+
+    subgraph agentBox["<b>Agents</b> — src/application/agents"]
+        direction TB
+        base["BaseAgent<br/>closed tool set:<br/>search_policies · search_exclusions<br/>calculate_limits_and_deductibles<br/>submit_for_approval"]
+        cm["CoverageMatcher"]
+        ea["ExclusionAnalyst"]
+        ad["AdjudicationDrafter"]
+    end
+
+    subgraph infraBox["<b>Infrastructure</b> — src/infrastructure"]
+        direction TB
+        vs[("PgVectorStore<br/>HNSW cosine · FTS keyword<br/>list_policy_ids")]
+        prompts["prompts/*/v1.md<br/>versioned, loaded at runtime"]
+        prov["ProviderRouter<br/>Ollama → OpenRouter fallback"]
+        logger["Observability<br/>retrieval_logger · trace_logger<br/>token_usage · sanitize_pii"]
+    end
+
+    askR --> askUC
+    docR --> ingUC
+    claimR --> adjUC
+    apprR --> claimR
+    runR --> logger
+    routes --> deps
+    mw -.-> routes
+    cors -.-> routes
+    rl -.-> routes
+
+    askUC --> hyb
+    hyb --> expander
+    expander --> vs
+    hyb --> vs
+    adjUC --> resolver
+    adjUC --> base
+    base --> cm
+    base --> ea
+    base --> ad
+    cm --> hyb
+    ea --> hyb
+    hyb --> prompts
+    askUC --> prompts
+    prompts --> prov
+    cm --> prov
+    ea --> prov
+    ad --> prov
+    adjUC --> logger
+    askUC --> logger
+    ingUC --> logger
+
+    classDef sec fill:#fce8e6,stroke:#ea4335,color:#a50e0e
+    classDef comp fill:#e6f4ea,stroke:#34a853,color:#0b3d1c
+    classDef uc fill:#e8f0fe,stroke:#4285f4,color:#174ea6
+    classDef store fill:#fef7e0,stroke:#fbbc04,color:#7a4b00
+    class security sec
+    class routes,base,cm,ea,ad,hyb,expander,resolver,prompts,prov,logger comp
+    class ucBox comp
+    class uc uc
+    class vs store

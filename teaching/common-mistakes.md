@@ -6,7 +6,7 @@ Five misconceptions we predict, with the correction you should give **immediatel
 
 ### 1. “If the LLM returned it, it must be in the policy.”
 **Wrong because:** fluency ≠ grounding; the model fills gaps from pretraining.
-**Correct it:** Require a `chunk_id` on every factual claim. If citation list is empty, the answer is a refusal — teach them to read `refused` in the SSE `done` event and `min_confidence_score` in config.
+**Correct it:** Require a `chunk_id` on every factual claim. If the citation list is empty, the answer is a refusal — teach them to read `refused` in the SSE `done` event and `max_cosine_distance` in config. **Then show them the counter-example:** a refusal is not sufficient. Out-of-domain questions like *“payout limit for a lunar rover”* get answered with a confident dollar figure, and the figure changes between runs.
 
 ---
 
@@ -30,7 +30,17 @@ Five misconceptions we predict, with the correction you should give **immediatel
 
 ### 5. “If the demo works, evaluation is optional paperwork.”
 **Wrong because:** FR-3 is the separator between shipped RAG and demoed RAG; refusal correctness only shows up on adversarial sets.
-**Correct it:** Run `evaluation/run_harness.py` on day one. Record a *bad* number publicly (e.g. low hit-rate on table chunks) and drive a fix (table title linker). Teach candour: a documented failure beats a silent pass.
+**Correct it:** Run `evaluation/run_harness.py` on day one. Our committed baseline is 90 % hit-rate, 92 % refusal correctness, and **`out_of_corpus` 0/2** — show them that number. Record a *bad* number publicly and drive a fix. Teach candour: a documented failure beats a silent pass. Also warn them that faithfulness/relevancy are word-overlap heuristics, not quality scores — gating CI on 66 % would be theatre.
+
+---
+
+### 6. “We have 30 documents indexed, so retrieval is fine.”
+**Wrong because:** an unfiltered query matches *across* domains. Asking about a building
+deductible returns auto-guidance and marine-jacket chunks, and the model then answers from
+whatever it was handed. Ask them to run the same question with and without the `policy_id`
+filter and compare the citations.
+**Correct it:** retrieval quality is a function of the filter, not the index size. Make
+`policy_id` mandatory in the UI, and make cross-leg agreement mandatory in code.
 
 ---
 

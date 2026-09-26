@@ -12,20 +12,25 @@
 | LO4 | Enforce an approval gate including delete-lock and edit-on-approve | Apply/Analyze | Lab D |
 | LO5 | Diagnose low groundedness using correlation_id + retrieval_log | Analyze | Lab E; stretch 3 |
 | LO6 | Identify an indirect prompt-injection path and the control that stops it | Analyze/Evaluate | Slide 12; stretch 2 |
+| LO7 | Reproduce a live hallucination and propose a specific pipeline fix | Analyze/Evaluate | Task B2; Slide 18; stretch 5 |
+| LO8 | Use `claim_logs.json` to find a defect the API response hides | Analyze | Task C instructor note; stretch 6 |
 
 ## Assessment map
 
 | Assessment item | LOs | Type | Weight |
 |---|---|---|---|
-| Lab tasks A–D (checklist) | LO2–LO4 | Formative + summative | 60% |
-| Lab task E (trace/cost) | LO5 | Summative | 15% |
-| Stretch challenge (any one) | LO6 (+ LO5) | Summative | 15% |
-| Exit ticket (3 questions below) | LO1, LO6 | Formative | 10% |
+| Lab tasks A, B1, C, D (checklist) | LO2–LO4 | Formative + summative | 45% |
+| **Task B2** (reproduce the fabrication) | **LO7** | **Summative** | **20%** |
+| Lab task E (trace/cost) | LO5, LO8 | Summative | 10% |
+| Stretch challenge (any one) | LO6, LO7 (+ LO5) | Summative | 15% |
+| Exit ticket (3 questions below) | LO1, LO6, LO7 | Formative | 10% |
 
 ### Exit ticket
 1. In one sentence: when should the system refuse instead of answer?
 2. Which layer computes `calculated_payout` — LLM or code? Why?
 3. Name one sink you would check first if an adjuster says “the AI payout looks wrong.”
+4. The system answered “$75,000” for a question about the Moon, and “$10,000” when you
+   asked again. Name one change that would have prevented it.
 
 ## Mapping to product requirements
 
@@ -37,14 +42,17 @@
 | LO4 | FR-5 approval gate + human-in-the-loop principle |
 | LO5 | FR-9 observability |
 | LO6 | OWASP LLM Top 10 — prompt injection |
+| LO7 | Confidence-gate design; `docs/EVALUATION.md` §4.2 |
+| LO8 | FR-9 observability (`claim_logs.json`) |
 
 ## Timebox (90 min)
 
 | Segment | Min |
 |---|---|
 | Cold-open demo | 5 |
-| Slides 4–12 (retrieval + safety) | 30 |
+| Slides 4–12 (retrieval + safety) | 27 |
 | Slides 13–17 (agents + gate + obs) | 20 |
-| Lab A–D (parallel pairs) | 25 |
-| Lab E + debrief | 7 |
+| Lab A, B1, C, D (parallel pairs) | 22 |
+| **Task B2 + debrief** (the centrepiece) | 8 |
+| Lab E + debrief | 5 |
 | Exit ticket | 3 |
