@@ -1,0 +1,65 @@
+%% C4 Level 2 — Containers
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+graph TB
+    claimant["Policyholder<br/>(client)"]
+    adjuster["Claims handler<br/>(corp)"]
+
+    subgraph insureai["insureAI"]
+        direction TB
+
+        subgraph edge["Edge / presentation"]
+            fe["<b>Frontend</b><br/>React 18 + Vite + Tailwind<br/>Served by nginx on :3000<br/>Talks to the API through the<br/>same-origin /api proxy"]
+        end
+
+        subgraph app["Application — Docker profile: app"]
+            api["<b>REST API</b><br/>FastAPI on :8000<br/>Auth + RBAC on 22 of 23 routes<br/>SSE streaming, approval gate<br/>rate limiting NOT enforced"]
+            ask["AskQuestionUseCase<br/>hybrid retrieval → RRF →<br/>refusal gate → grounded answer"]
+        end
+
+        subgraph worker["Async — Docker profile: worker"]
+            celery["<b>Celery worker</b><br/>claim adjudication queue<br/>3 agents + per-agent<br/>timeout/retry"]
+            orch["RunAdjudicationWorkflow<br/>CoverageMatcher → ExclusionAnalyst<br/>→ AdjudicationDrafter"]
+        end
+
+        subgraph data["State"]
+            pg[("<b>PostgreSQL 16 + pgvector</b><br/>documents, chunks + 768-dim<br/>embeddings, users, claims,<br/>trace_events")]
+            redis[("<b>Redis 7</b><br/>Celery broker/result backend<br/>+ pause/resume registry")]
+        end
+
+        obs["<b>Observability</b><br/>retrieval_log.json · system_logs.txt<br/>token_usage.json · trace_events"]
+    end
+
+    ollama["<b>Ollama</b><br/>llama3.2:1b + nomic-embed-text<br/>on :11434"]
+    openrouter["OpenRouter<br/>optional hosted fallback"]
+
+    claimant --> fe
+    adjuster --> fe
+    fe -->|"HTTP + text/event-stream"| api
+    api --> ask
+    api -->|"enqueue process_claim_adjudication"| celery
+    celery --> orch
+    orch -->|"LLM calls"| ollama
+    api -->|"LLM calls"| ollama
+    ask --> ollama
+    orch -.->|"primary down"| openrouter
+    api -.->|"primary down"| openrouter
+    ask -.->|"primary down"| openrouter
+
+    api --> pg
+    celery --> pg
+    ask -->|"hybrid search"| pg
+    api <--> redis
+    celery <--> redis
+    api --> obs
+    celery --> obs
+
+    classDef person fill:#e8f0fe,stroke:#4285f4,color:#174ea6
+    classDef container fill:#e6f4ea,stroke:#34a853,color:#0b3d1c
+    classDef store fill:#fef7e0,stroke:#fbbc04,color:#7a4b00
+    classDef ext fill:#fce8e6,stroke:#ea4335,color:#a50e0e
+    class claimant,adjuster person
+    class fe,api,ask,celery,orch,obs container
+    class pg,redis store
+    class ollama,openrouter ext

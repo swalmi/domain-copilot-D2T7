@@ -1,0 +1,39 @@
+%% Layer dependency — the Clean Architecture rule, and where it is actually violated
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+graph LR
+    subgraph inward["Dependencies point inward. Nothing on the left may import from the right."]
+        direction LR
+        UI["<b>Presentation</b><br/>frontend/src<br/>React components, SSE client"]
+        API["<b>Interface</b><br/>src/api<br/>routes, deps, schemas, limiter"]
+        APP["<b>Application</b><br/>src/application<br/>use cases, agents, retrieval"]
+        DOM["<b>Domain</b><br/>src/domain<br/>entities, contracts, ports"]
+        INFRA["<b>Infrastructure</b><br/>src/infrastructure<br/>pgvector, llm, observability"]
+    end
+
+    UI -->|"HTTP only"| API
+    API --> APP
+    APP --> DOM
+    APP -->|"via ports only"| INFRA
+    INFRA -.->|"implements the ports<br/>declared in domain"| DOM
+
+    subgraph ports["Ports (src/domain/interfaces) — the only seam between application and infrastructure"]
+        VS["VectorStore"]
+        REPO["ClaimRepository · DocumentRepository · UserRepository"]
+        LLM["LLMProvider"]
+    end
+    DOM --- ports
+    INFRA -.-> ports
+
+    note1["<b>Rule</b>: src/domain must not import an I/O framework —<br/>no fastapi, sqlalchemy, celery, langchain or pgvector.<br/>pydantic IS allowed there: the entities are validated value objects.<br/>Checked automatically by tests/unit/test_architecture.py."]
+    note2["<b>Known, allow-listed exceptions (4 files)</b> — application reaches for infrastructure:<br/>ask_question · hybrid_search · run_adjudication (observability loggers)<br/>ingest_document (loader, embedder cache, table linker, chunk store)<br/>These are recorded in the test's allow-list, not hidden. See docs/SECURITY.md 3.4."]
+    DOM -.-> note1
+    APP -.-> note2
+
+    classDef layer fill:#e6f4ea,stroke:#34a853,color:#0b3d1c
+    classDef seam fill:#e8f0fe,stroke:#4285f4,color:#174ea6
+    classDef note fill:#fef7e0,stroke:#fbbc04,color:#7a4b00
+    class UI,API,APP,DOM,INFRA layer
+    class VS,REPO,LLM seam
+    class note1,note2 note

@@ -1,3 +1,12 @@
+"""Seed the two demo accounts the quick start and 5-minute demo path rely on.
+
+Roles must stay inside the set the API accepts (``client`` / ``corp`` in
+``src/api/routes/auth.py``); ``require_role`` matches by exact string, so an
+account seeded as anything else authenticates fine and is then refused by every
+protected route. Passwords are local-demo credentials and must never be reused
+off a developer machine.
+"""
+
 import asyncio
 import logging
 import uuid
@@ -14,27 +23,37 @@ logger = logging.getLogger(__name__)
 
 DEMO_USERS = [
     {
-        "email": "handler@domaincopilot.com",
-        "password": "HandlerPass123!",
-        "role": "claims_handler",
+        "email": "e2ecorp@example.com",
+        "password": "password123",
+        "role": "corp",
     },
     {
-        "email": "adjuster@domaincopilot.com",
-        "password": "AdjusterPass123!",
-        "role": "adjuster",
+        "email": "claimdemo@example.com",
+        "password": "password123",
+        "role": "client",
     },
 ]
 
 
 async def seed_demo_users(session: AsyncSession) -> None:
-    """Seed demo claims handler and adjuster accounts into PostgreSQL database if missing."""
+    """Seed the demo corp and client accounts into PostgreSQL if missing."""
+
     for user_data in DEMO_USERS:
         stmt = select(UserModel).where(UserModel.email == user_data["email"])
         res = await session.execute(stmt)
         existing = res.scalar_one_or_none()
 
         if existing:
-            logger.info(f"Demo user '{user_data['email']}' already exists.")
+            # Earlier revisions seeded roles the API rejects, which left the demo
+            # accounts authenticating but unusable. Reconcile on re-run.
+            if existing.role != user_data["role"]:
+                logger.info(
+                    f"Updating demo user '{user_data['email']}' role "
+                    f"'{existing.role}' -> '{user_data['role']}'."
+                )
+                existing.role = user_data["role"]
+            else:
+                logger.info(f"Demo user '{user_data['email']}' already exists.")
             continue
 
         new_user = UserModel(

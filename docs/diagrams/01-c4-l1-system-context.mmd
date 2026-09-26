@@ -1,0 +1,30 @@
+%% C4 Level 1 — System Context
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+graph LR
+    claimant["Policyholder<br/><b>client</b>"]
+    adjuster["Claims handler<br/><b>corp</b>"]
+
+    subgraph system["insureAI — agentic RAG for insurance claims adjudication"]
+        direction TB
+        sysdesc["<b>insureAI</b><br/>Grounded question answering over a policy corpus<br/>and multi-agent claim adjudication<br/>with a human approval gate.<br/>Python 3.12 · FastAPI · Celery · pgvector"]
+    end
+
+    corpus[("Policy corpus<br/>30 third-party policy documents<br/>1,958 chunks")]
+    llm["LLM provider<br/>Ollama (local, default)<br/>OpenRouter (optional fallback)"]
+
+    claimant -->|"HTTPS/JSON + SSE<br/>submit claim, ask question,<br/>read own claims"| system
+    adjuster -->|"HTTPS/JSON<br/>ingest policies, ask question,<br/>approve / reject / edit payout"| system
+
+    system -->|"read + write<br/>documents, chunks, users,<br/>claims, trace_events"| corpus
+    system -->|"prompt in: retrieved chunks + user text<br/>prompt out: generated text"| llm
+
+    classDef person fill:#e8f0fe,stroke:#4285f4,color:#174ea6
+    classDef sys fill:#e6f4ea,stroke:#34a853,color:#0b3d1c
+    classDef store fill:#fef7e0,stroke:#fbbc04,color:#7a4b00
+    classDef ext fill:#fce8e6,stroke:#ea4335,color:#a50e0e
+    class claimant,adjuster person
+    class sysdesc sys
+    class corpus store
+    class llm ext

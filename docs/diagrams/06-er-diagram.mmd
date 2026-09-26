@@ -1,0 +1,71 @@
+%% ER diagram — the five tables, read straight from src/infrastructure/db/models.py
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+erDiagram
+    documents ||--o{ chunks : "contains (document_id)"
+    users ||--o{ claims : "files (user_id, nullable)"
+
+    documents {
+        uuid id PK
+        string filename "original name, echoed back by GET /documents"
+        string content_hash UK "sha256 — idempotent re-ingest"
+        string status "processing | ready | failed"
+        datetime created_at
+    }
+
+    chunks {
+        uuid id PK
+        uuid document_id FK
+        string policy_id "SHELTER-HO3, NAIC-MDL-280, ..."
+        string policy_type "home | auto | commercial | regulatory"
+        string version "e.g. 2007-01"
+        date effective_date
+        string section "derived heading, else 'page N' — groups expansion"
+        string chunk_type "narrative | table"
+        int page "1-based PDF page"
+        text text "the only thing sent to the LLM as context"
+        string content_hash
+        float8 embedding "vector(768), nomic-embed-text"
+    }
+
+    users {
+        uuid id PK
+        string email UK
+        string hashed_password "bcrypt cost 12"
+        string role "client | corp — free-form String, no CHECK"
+    }
+
+    claims {
+        uuid id PK
+        string policy_number "customer form no., indexed"
+        date date_of_loss
+        text incident_description "untrusted free text, up to 10k chars"
+        decimal claim_amount_requested "greater than 0, at most 10,000,000"
+        string status "pending|processing|refused|report_ready|pending_approval|approved|rejected|cancelled"
+        string pipeline_stage "reading_policy | building_report | done"
+        uuid user_id FK "nullable — see SECURITY.md 2.3"
+        uuid correlation_id "joins trace_events, logs, usage"
+        string celery_task_id
+        decimal calculated_payout
+        decimal deductible_applied
+        decimal policy_limit
+        text recommendation
+        text reasoning_text
+        json citations "list of CitedChunk"
+        decimal adjusted_payout "set only by the corp approval gate"
+        text adjuster_notes
+        text admin_justification
+        text error_message
+        datetime created_at
+        datetime updated_at
+    }
+
+    trace_events {
+        uuid id PK
+        uuid correlation_id "indexed — the join key for /runs/{correlation_id}"
+        string step_name
+        string event_type
+        json payload "sanitize_pii applied (SSN/email/phone only)"
+        datetime timestamp
+    }

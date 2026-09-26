@@ -1,0 +1,90 @@
+%% Sequence — the full agentic claim workflow, with the approval gate and streaming
+%% Canonical source. Rendered inline in docs/ARCHITECTURE.md; kept here so the
+%% diagram can be linted/exported outside GitHub. tests/unit/test_architecture_docs.py
+%% asserts the two copies stay identical.
+sequenceDiagram
+    autonumber
+    actor C as Policyholder (client)
+    actor A as Claims handler (corp)
+    participant FE as Frontend
+    participant API as FastAPI
+    participant R as Redis
+    participant W as Celery worker
+    participant AG as Agents
+    participant P as PgVectorStore
+    participant L as LLM provider
+
+    rect rgb(232, 240, 254)
+    Note over C,API: 1 — Submit (idempotent, async)
+    C->>FE: POST /claims {policy_number, date_of_loss,<br/>incident_description, claim_amount_requested, idempotency_key}
+    FE->>API: POST /claims (session cookie)
+    API->>API: require_role("client")
+    API->>P: INSERT claims (status=pending, correlation_id)
+    API->>R: enqueue process_claim_adjudication
+    API-->>FE: 202 {claim_id, task_id, correlation_id}
+    FE-->>C: "submitted — live progress begins"
+    end
+
+    rect rgb(255, 247, 224)
+    Note over FE,W: 2 — Live progress (SSE poll, not a push stream)
+    loop until terminal state
+        FE->>API: GET /claims/{id}
+        API-->>FE: {status, pipeline_stage}
+    end
+    opt operator pauses the run
+        A->>API: POST /claims/{id}/pause
+        API->>R: set pause key
+        W->>R: check pause key before each stage
+    end
+    end
+
+    rect rgb(230, 244, 234)
+    Note over W,L: 3 — Adjudication, three agents, each with timeout + 1 retry
+    W->>P: load claim + stage=reading_policy
+    W->>AG: CoverageMatcher.execute(incident_description)
+    AG->>AG: resolve policy number → corpus id<br/>(exact → distinctive segment → unfiltered)
+    AG->>P: search_policies(policy_id, query)
+    P->>L: embed query
+    L-->>P: 768-dim vector
+    P->>P: dense HNSW (40) + keyword FTS (40) → RRF(k=60) → top-6
+    P-->>AG: ranked chunks with sections
+    AG->>L: prompt: <coverage_documents> + question
+    L-->>AG: CoverageMatchResult (JSON contract)
+    Note right of AG: confidence == no_match → claim.status=refused,<br/>short-circuit. Agent raises → graceful degradation:<br/>fall back to AskQuestionUseCase and deny.
+
+    W->>AG: ExclusionAnalyst.execute(claim + coverage)
+    AG->>P: search_exclusions(...) + calculate_limits_and_deductibles(...)
+    AG->>L: prompt: <exclusion_documents> + amounts
+    L-->>AG: ExclusionAnalysisResult (JSON contract)
+
+    W->>AG: AdjudicationDrafter.execute(everything so far)
+    AG->>L: prompt: <adjudication_context> + both results
+    L-->>AG: AdjudicationDraft (JSON contract)
+    AG->>P: submit_for_approval(draft) → status=pending_approval
+    end
+
+    rect rgb(252, 232, 230)
+    Note over A,P: 4 — Human approval gate — the LLM cannot approve a claim
+    A->>API: GET /approvals
+    API-->>A: claims awaiting decision
+    A->>API: POST /approvals/{id}/edit-and-approve<br/>{adjusted_payout, justification, notes}
+    API->>API: require_role("corp") + status must be pending_approval
+    API->>P: status=approved, adjusted_payout, admin_justification
+    P-->>C: client re-reads claim → approved + final_payout
+    end
+
+    rect rgb(248, 249, 250)
+    Note over API,L: 5 — Ask path (grounded Q&A, streamed)
+    C->>FE: POST /ask {query}
+    FE->>API: POST /ask
+    API->>L: embed + generate (streamed tokens)
+    L-->>API: text/event-stream: token, metadata, citations
+    API-->>FE: SSE frames
+    Note right of API: client disconnect cancels the generator;<br/>generation/stream_cancelled is emitted
+    end
+
+    rect rgb(242, 242, 242)
+    Note over API: 6 — Every retrieval writes one correlated record
+    API->>P: retrieval_log.json: dense, keyword, RRF, expansion,<br/>agent steps, final decision
+    API->>P: trace_events + token_usage.json
+    end
