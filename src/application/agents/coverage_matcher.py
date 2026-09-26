@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from src.application.agents.base_agent import BaseAgent
 from src.application.contracts.coverage_match_result import CoverageMatchResult
+from src.application.retrieval.policy_resolver import resolve_policy_id
 from src.application.retrieval.prompt_loader import load_prompt
 from src.application.tools.search_policies import search_policies
 from src.domain.entities.claim import Claim
@@ -26,21 +27,30 @@ class CoverageMatcher(BaseAgent):
         self, claim: Claim, vector_store: VectorStore
     ) -> CoverageMatchResult:
         """Run coverage matching against vector store policy sections for a given claim."""
+        available = await vector_store.list_policy_ids()
+        resolution = resolve_policy_id(claim.policy_number, available)
+
         candidates: list[CitedChunk] = await search_policies(
             vector_store=vector_store,
             embedder=self.llm_provider,
             query=claim.incident_description,
-            policy_id=claim.policy_number,
+            # Filter by the resolved corpus id. When the policy number cannot be
+            # resolved, retrieve unfiltered instead: filtering by a number that
+            # matches no policy id returned zero candidates, which the pipeline
+            # reported as "no matching policy coverage sections found" and denied.
+            policy_id=resolution.policy_id,
             effective_date_before=claim.date_of_loss,
             top_k=5,
         )
 
         if not candidates:
             return CoverageMatchResult(
-                policy_id=claim.policy_number,
+                policy_id=resolution.policy_id or claim.policy_number,
                 version_effective_date=claim.date_of_loss,
                 applicable_coverage_sections=[],
                 confidence="no_match",
+                policy_resolution=resolution.method,
+                policy_number_matched=False,
             )
 
         top_candidate = candidates[0]
@@ -92,4 +102,6 @@ class CoverageMatcher(BaseAgent):
             version_effective_date=top_candidate.effective_date,
             applicable_coverage_sections=candidates if confidence_val != "no_match" else [],
             confidence=confidence_val,  # type: ignore[arg-type]
+            policy_resolution=resolution.method,
+            policy_number_matched=resolution.policy_id is not None,
         )

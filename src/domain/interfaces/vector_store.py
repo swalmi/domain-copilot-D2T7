@@ -22,6 +22,14 @@ class VectorStore(ABC):
     async def upsert(self, chunk: CitedChunk, embedding: list[float]) -> None:
         """Insert or update a policy chunk and its associated embedding in the store."""
 
+    async def list_policy_ids(self) -> list[str]:
+        """Return every policy id present in the corpus.
+
+        Used to resolve a customer's policy number onto a corpus policy id
+        before retrieval is filtered.
+        """
+        return []
+
     async def top_cosine_distance(
         self, query_embedding: list[float], filters: dict
     ) -> float | None:

@@ -224,39 +224,16 @@ def create_retrieval_log(
         "step_5_llm_forward": build_llm_forward_step(llm_forward),
     }
 
-    entry["step_6_agent_coverage_matcher"] = _agent_step_detail(
-        "CoverageMatcher",
-        coverage_match_result,
-        agent_tool_responses or {},
+    entry.update(
+        build_agent_steps(
+            coverage_match_result=coverage_match_result,
+            exclusion_result=exclusion_result,
+            draft_result=draft_result,
+            agent_tool_responses=agent_tool_responses,
+            refusal_reason=refusal_reason,
+            final_recommendation=final_recommendation,
+        )
     )
-
-    entry["step_7_agent_exclusion_analyst"] = _agent_step_detail(
-        "ExclusionAnalyst",
-        exclusion_result,
-        agent_tool_responses or {},
-    )
-
-    entry["step_8_agent_adjudication_drafter"] = _agent_step_detail(
-        "AdjudicationDrafter",
-        draft_result,
-        agent_tool_responses or {},
-    )
-
-    if refusal_reason:
-        entry["refusal"] = {
-            "refused": True,
-            "reason": refusal_reason,
-        }
-    elif final_recommendation:
-        entry["final_decision"] = {
-            "refused": False,
-            "recommendation": final_recommendation,
-            "calculated_payout": str(draft_result.calculated_payout) if draft_result else None,
-            "deductible_applied": str(exclusion_result.deductible_applied) if exclusion_result else None,
-            "policy_limit": str(exclusion_result.policy_limit) if exclusion_result else None,
-            "coverage_confidence": coverage_match_result.confidence if coverage_match_result else None,
-            "anomaly_flags": exclusion_result.anomaly_flags if exclusion_result else [],
-        }
 
     log_retrieval(entry)
     return entry
@@ -345,6 +322,70 @@ def update_last_entry(step_updates: dict[str, Any]) -> bool:
     data["entries"] = entries
     _atomic_write(data)
     return True
+
+
+def update_entry_for_query(query: str, step_updates: dict[str, Any]) -> bool:
+    """Patch steps onto the most recent entry logged for this exact query text.
+
+    A claim run searches several times (coverage matcher, then exclusion
+    analyst), each writing its own retrieval entry, and the agent results only
+    exist afterwards. Appending a fresh entry produced a second, blank record
+    with ``filters_applied={}`` and ``embedding_dimension=0`` that looked like a
+    failed search, while the entry holding the real cause sat next to it.
+
+    Matching on the query text keeps the agent steps attached to the retrieval
+    that produced them. Returns False when no entry matches, so the caller can
+    fall back to appending rather than losing the agent output.
+    """
+    if not step_updates:
+        return False
+    data = _read_existing()
+    entries = data.get("entries") or []
+    for entry in reversed(entries):
+        existing = entry.get("query")
+        text = existing.get("text") if isinstance(existing, dict) else existing
+        if text == query:
+            entry.update(step_updates)
+            data["entries"] = entries
+            _atomic_write(data)
+            return True
+    return False
+
+
+def build_agent_steps(
+    coverage_match_result: Any = None,
+    exclusion_result: Any = None,
+    draft_result: Any = None,
+    agent_tool_responses: dict[str, Any] | None = None,
+    refusal_reason: str | None = None,
+    final_recommendation: str | None = None,
+) -> dict[str, Any]:
+    """Build the agent/final-decision steps shared by log creation and patching."""
+    tools = agent_tool_responses or {}
+    steps: dict[str, Any] = {
+        "step_6_agent_coverage_matcher": _agent_step_detail(
+            "CoverageMatcher", coverage_match_result, tools
+        ),
+        "step_7_agent_exclusion_analyst": _agent_step_detail(
+            "ExclusionAnalyst", exclusion_result, tools
+        ),
+        "step_8_agent_adjudication_drafter": _agent_step_detail(
+            "AdjudicationDrafter", draft_result, tools
+        ),
+    }
+    if refusal_reason:
+        steps["refusal"] = {"refused": True, "reason": refusal_reason}
+    elif final_recommendation:
+        steps["final_decision"] = {
+            "refused": False,
+            "recommendation": final_recommendation,
+            "calculated_payout": str(draft_result.calculated_payout) if draft_result else None,
+            "deductible_applied": str(exclusion_result.deductible_applied) if exclusion_result else None,
+            "policy_limit": str(exclusion_result.policy_limit) if exclusion_result else None,
+            "coverage_confidence": coverage_match_result.confidence if coverage_match_result else None,
+            "anomaly_flags": exclusion_result.anomaly_flags if exclusion_result else [],
+        }
+    return steps
 
 
 def _agent_step_detail(agent_name: str, result: Any, tool_responses: dict) -> dict[str, Any]:

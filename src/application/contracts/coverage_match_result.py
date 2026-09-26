@@ -13,3 +13,5 @@ class CoverageMatchResult(BaseModel):
     version_effective_date: date
     applicable_coverage_sections: list[CitedChunk]
     confidence: Literal["matched", "no_match", "ambiguous"]
+    policy_resolution: str = "unresolved"
+    policy_number_matched: bool = False
